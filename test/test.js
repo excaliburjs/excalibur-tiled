@@ -3,9 +3,7 @@
 
 var game = new ex.Engine(500, 400, "game");
 var map = new ex.Extensions.Tiled.TiledResource("test.json");
-var loader = new ex.Loader();
-
-loader.addResource(map);
+var loader = new ex.Loader([map]);
 
 game.start(loader).then(function() {
    
