@@ -17,6 +17,8 @@ namespace ex.Extensions.Tiled {
    export class TiledResource extends ex.Resource<ITiledMap> {
 
       protected mapFormat: TiledMapFormat;
+      
+      public imagePathAccessor: (string, ITiledTileSet) => string;
 
       constructor(path: string, mapFormat = TiledMapFormat.JSON) {
          switch (mapFormat) {
@@ -28,6 +30,7 @@ namespace ex.Extensions.Tiled {
          }
 
          this.mapFormat = mapFormat;
+         this.imagePathAccessor = (s) => s;
       }
 
       public load(): Promise<ITiledMap> {
@@ -39,7 +42,7 @@ namespace ex.Extensions.Tiled {
 
             // retrieve images from tilesets and create textures
             this.data.tilesets.forEach(ts => {
-               var tx = new ex.Texture(ts.image);
+               var tx = new ex.Texture(this.imagePathAccessor(ts.image, ts));
                ts.imageTexture = tx;
                promises.push(tx.load());
 

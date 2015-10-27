@@ -131,6 +131,7 @@ declare namespace ex.Extensions.Tiled {
     }
     class TiledResource extends ex.Resource<ITiledMap> {
         protected mapFormat: TiledMapFormat;
+        imagePathAccessor: (string, ITiledTileSet) => string;
         constructor(path: string, mapFormat?: TiledMapFormat);
         load(): Promise<ITiledMap>;
         processDownload(data: any): ITiledMap;

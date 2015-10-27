@@ -42,7 +42,23 @@ game.start(loader).then(function() {
 
 ## Documentation
 
-The `TiledResource` loadable will load the map file you specify along with any referenced tile set assets (images). The image paths 
-loaded will be relative to where the original TMX file lived.
+The `TiledResource` loadable will load the map file you specify along with any referenced tile set assets (images). 
+
+### Handling Tile Image Paths
+
+The image paths loaded will be relative to where the exported file was saved.
+
+If you need to override this behavior, you can set `imagePathAccessor` to a custom function that takes two parameters: path and `ITiledTileSet` data.
+
+```js
+// Create a new TiledResource loadable
+var map = new ex.Extensions.Tiled.TiledResource("test.json");
+
+map.imagePathAccessor = function (path, tileset) {
+   return "/maps/tx/" + path;
+}
+```
+
+### Supported Formats
 
 Only supports JSON file format with CSV or Base64 (uncompressed) tile layer format.

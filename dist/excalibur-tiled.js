@@ -33,6 +33,7 @@ var ex;
                             throw "The format " + mapFormat + " is not currently supported. Please export Tiled map as JSON.";
                     }
                     this.mapFormat = mapFormat;
+                    this.imagePathAccessor = function (s) { return s; };
                 }
                 TiledResource.prototype.load = function () {
                     var _this = this;
@@ -41,7 +42,7 @@ var ex;
                         var promises = [];
                         // retrieve images from tilesets and create textures
                         _this.data.tilesets.forEach(function (ts) {
-                            var tx = new ex.Texture(ts.image);
+                            var tx = new ex.Texture(_this.imagePathAccessor(ts.image, ts));
                             ts.imageTexture = tx;
                             promises.push(tx.load());
                             ex.Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
