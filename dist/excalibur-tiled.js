@@ -66,6 +66,39 @@ var ex;
                             return parseJsonMap(data);
                     }
                 };
+                TiledResource.prototype.getTilesetForTile = function (gid) {
+                    for (var i = this.data.tilesets.length - 1; i >= 0; i--) {
+                        var ts = this.data.tilesets[i];
+                        if (ts.firstgid <= gid) {
+                            return ts;
+                        }
+                    }
+                    return null;
+                };
+                TiledResource.prototype.getTileMap = function () {
+                    var map = new ex.TileMap(0, 0, this.data.tilewidth, this.data.tileheight, this.data.height, this.data.width);
+                    // register sprite sheets for each tileset in map
+                    for (var _i = 0, _a = this.data.tilesets; _i < _a.length; _i++) {
+                        var ts = _a[_i];
+                        var cols = Math.floor(ts.imagewidth / ts.tilewidth);
+                        var rows = Math.floor(ts.imageheight / ts.tileheight);
+                        var ss = new ex.SpriteSheet(ts.imageTexture, cols, rows, ts.tilewidth, ts.tileheight);
+                        map.registerSpriteSheet(ts.firstgid.toString(), ss);
+                    }
+                    for (var _b = 0, _c = this.data.layers; _b < _c.length; _b++) {
+                        var layer = _c[_b];
+                        if (layer.type === "tilelayer") {
+                            for (var i = 0; i < layer.data.length; i++) {
+                                var gid = layer.data[i];
+                                if (gid !== 0) {
+                                    var ts = this.getTilesetForTile(gid);
+                                    map.data[i].sprites.push(new ex.TileSprite(ts.firstgid.toString(), gid - ts.firstgid));
+                                }
+                            }
+                        }
+                    }
+                    return map;
+                };
                 return TiledResource;
             })(ex.Resource);
             Tiled.TiledResource = TiledResource;
@@ -166,7 +199,7 @@ var ex;
                     }
                     // Byte array
                     // TODO handle compression
-                    var byteArrayToLong = function (/*byte[]*/ byteArray) {
+                    var toNumber = function (byteArray) {
                         var value = 0;
                         for (var i = byteArray.length - 1; i >= 0; i--) {
                             value = (value * 256) + byteArray[i] * 1;
@@ -175,7 +208,7 @@ var ex;
                     };
                     var result = [];
                     for (i = 0; i < (arr.length / 4); i++) {
-                        result.push(byteArrayToLong(arr.slice(i * 4, i * 4 + 3)));
+                        result.push(toNumber(arr.slice(i * 4, i * 4 + 3)));
                     }
                     return result;
                 }

@@ -15,4 +15,8 @@ game.start(loader).then(function() {
       console.log(ts.image, ts.imageTexture.isLoaded());
    });
    
+   var tm = map.getTileMap();
+   
+   game.add(tm);
+   
 });
