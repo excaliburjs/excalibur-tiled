@@ -1,7 +1,7 @@
 /// <reference path="../bower_components/excalibur/dist/excalibur-0.5.1.d.ts" />
 /// <reference path="../dist/excalibur-tiled.d.ts" />
 
-var game = new ex.Engine("game");
+var game = new ex.Engine(500, 400, "game");
 var map = new ex.Extensions.Tiled.TiledResource("test.json");
 var loader = new ex.Loader();
 

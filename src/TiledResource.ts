@@ -238,10 +238,11 @@ namespace ex.Extensions.Tiled {
             return value;
          };
 
-         var result = [];
+         var resultLen = arr.length / 4;
+         var result = new Array<number>(resultLen);
          
-         for (i = 0; i < (arr.length / 4); i++) {
-            result.push(toNumber(arr.slice(i * 4, i * 4 + 3)));
+         for (i = 0; i < resultLen; i++) {
+            result[i] = toNumber(arr.slice(i * 4, i * 4 + 3));
          }
          
          return result;

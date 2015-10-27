@@ -206,9 +206,10 @@ var ex;
                         }
                         return value;
                     };
-                    var result = [];
-                    for (i = 0; i < (arr.length / 4); i++) {
-                        result.push(toNumber(arr.slice(i * 4, i * 4 + 3)));
+                    var resultLen = arr.length / 4;
+                    var result = new Array(resultLen);
+                    for (i = 0; i < resultLen; i++) {
+                        result[i] = toNumber(arr.slice(i * 4, i * 4 + 3));
                     }
                     return result;
                 }
