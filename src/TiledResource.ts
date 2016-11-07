@@ -59,7 +59,7 @@ namespace ex.Extensions.Tiled {
          return p;
       }
 
-      public processDownload(data: any): ITiledMap {
+      public processData(data: any): ITiledMap {
          if (typeof data !== "string") {
             throw `Tiled map resource ${this.path} is not the correct content type`;
          }

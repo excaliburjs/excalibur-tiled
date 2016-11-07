@@ -55,7 +55,7 @@ var ex;
                     });
                     return p;
                 };
-                TiledResource.prototype.processDownload = function (data) {
+                TiledResource.prototype.processData = function (data) {
                     if (typeof data !== "string") {
                         throw "Tiled map resource " + this.path + " is not the correct content type";
                     }
@@ -101,7 +101,7 @@ var ex;
                     return map;
                 };
                 return TiledResource;
-            })(ex.Resource);
+            }(ex.Resource));
             Tiled.TiledResource = TiledResource;
             /**
              * Handles parsing of JSON tiled data

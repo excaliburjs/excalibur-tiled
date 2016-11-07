@@ -134,7 +134,7 @@ declare namespace ex.Extensions.Tiled {
         imagePathAccessor: (string, ITiledTileSet) => string;
         constructor(path: string, mapFormat?: TiledMapFormat);
         load(): Promise<ITiledMap>;
-        processDownload(data: any): ITiledMap;
+        processData(data: any): ITiledMap;
         getTilesetForTile(gid: number): ITiledTileSet;
         getTileMap(): ex.TileMap;
     }
