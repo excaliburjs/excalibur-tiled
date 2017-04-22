@@ -37,7 +37,21 @@ var Extensions;
                         throw "The format " + mapFormat + " is not currently supported. Please export Tiled map as JSON.";
                 }
                 _this.mapFormat = mapFormat;
-                _this.imagePathAccessor = function (s) { return s; };
+                _this.imagePathAccessor = function (p) {
+                    // Use absolute path if specified
+                    if (p.indexOf('/') === 0) {
+                        return p;
+                    }
+                    // Load relative to map path
+                    var pp = path.split('/');
+                    var relPath = pp.concat([]);
+                    if (pp.length > 0) {
+                        // remove file part of path
+                        relPath.splice(-1);
+                    }
+                    relPath.push(p);
+                    return relPath.join('/');
+                };
                 return _this;
             }
             TiledResource.prototype.load = function () {

@@ -12,6 +12,12 @@
              "Health":"100",
              "IsFun":"true"
             },
+         "propertytypes":
+            {
+             "Description":"string",
+             "Health":"string",
+             "IsFun":"string"
+            },
          "type":"tilelayer",
          "visible":true,
          "width":10,
@@ -32,7 +38,7 @@
         }, 
         {
          "draworder":"topdown",
-         "height":10,
+         "height":0,
          "name":"Enemies",
          "objects":[
                 {
@@ -44,12 +50,17 @@
                      "Aggressive":"true",
                      "Path":"Path1"
                     },
+                 "propertytypes":
+                    {
+                     "Aggressive":"string",
+                     "Path":"string"
+                    },
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
                  "width":24,
                  "x":132,
-                 "y":5.33333333333333
+                 "y":5.33333
                 }, 
                 {
                  "height":0,
@@ -59,36 +70,32 @@
                     {
                      "Aggressive":"false"
                     },
+                 "propertytypes":
+                    {
+                     "Aggressive":"string"
+                    },
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
                  "width":0,
-                 "x":298.666666666667,
+                 "x":298.667,
                  "y":172
                 }, 
                 {
                  "height":0,
                  "id":7,
                  "name":"Katie",
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
                  "width":0,
                  "x":164,
-                 "y":293.333333333333
+                 "y":293.333
                 }, 
                 {
                  "height":0,
                  "id":8,
                  "name":"Elana",
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
@@ -101,16 +108,12 @@
                  "height":24,
                  "id":13,
                  "name":"Fanny",
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Enemy",
                  "visible":true,
                  "width":24,
-                 "x":38.6666666666667,
-                 "y":221.333333333333
+                 "x":38.6667,
+                 "y":221.333
                 }, 
                 {
                  "height":0,
@@ -123,57 +126,49 @@
                         }, 
                         {
                          "x":24,
-                         "y":-14.6666666666667
+                         "y":-14.6667
                         }, 
                         {
-                         "x":29.3333333333333,
-                         "y":14.6666666666666
+                         "x":29.3333,
+                         "y":14.6667
                         }, 
                         {
                          "x":56,
-                         "y":-14.6666666666667
+                         "y":-14.6667
                         }, 
                         {
-                         "x":58.6666666666667,
+                         "x":58.6667,
                          "y":8
                         }],
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Shape",
                  "visible":true,
                  "width":0,
-                 "x":225.333333333333,
+                 "x":225.333,
                  "y":244
                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
-         "width":10,
+         "width":0,
          "x":0,
          "y":0
         }, 
         {
          "draworder":"topdown",
-         "height":10,
+         "height":0,
          "name":"Players",
          "objects":[
                 {
                  "height":0,
                  "id":9,
                  "name":"Main",
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Player",
                  "visible":true,
                  "width":0,
                  "x":200,
-                 "y":101.333333333333
+                 "y":101.333
                 }, 
                 {
                  "gid":1,
@@ -184,23 +179,27 @@
                     {
                      "Solid":"true"
                     },
+                 "propertytypes":
+                    {
+                     "Solid":"string"
+                    },
                  "rotation":0,
                  "type":"Block",
                  "visible":true,
                  "width":32,
-                 "x":94.6666666666667,
-                 "y":165.333333333333
+                 "x":94.6667,
+                 "y":165.333
                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
-         "width":10,
+         "width":0,
          "x":0,
          "y":0
         }, 
         {
          "draworder":"topdown",
-         "height":10,
+         "height":0,
          "name":"Paths",
          "objects":[
                 {
@@ -222,16 +221,12 @@
                         }, 
                         {
                          "x":140,
-                         "y":89.3333333333333
+                         "y":89.3333
                         }, 
                         {
-                         "x":61.3333333333333,
-                         "y":22.6666666666667
+                         "x":61.3333,
+                         "y":22.6667
                         }],
-                 "properties":
-                    {
-
-                    },
                  "rotation":0,
                  "type":"Simpl",
                  "visible":true,
@@ -242,30 +237,23 @@
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
-         "width":10,
+         "width":0,
          "x":0,
          "y":0
         }],
  "nextobjectid":15,
  "orientation":"orthogonal",
- "properties":
-    {
-
-    },
  "renderorder":"right-down",
  "tileheight":32,
  "tilesets":[
         {
+         "columns":4,
          "firstgid":1,
          "image":"tilemap.png",
          "imageheight":64,
          "imagewidth":128,
          "margin":0,
          "name":"tilemap",
-         "properties":
-            {
-
-            },
          "spacing":0,
          "terrains":[
                 {
