@@ -28,6 +28,6 @@
     "tests"
   ],
   "dependencies": {
-    "excalibur": "~0.7.1"
+    "excalibur": "~0.10.0"
   }
 }

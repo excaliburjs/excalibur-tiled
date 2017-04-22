@@ -3,6 +3,10 @@
       "out": "./dist/excalibur-tiled.js",
       "target": "ES5",      
       "watch": true,
-      "declaration": true
-   }
+      "declaration": true      
+   },
+   "files": [
+      "Extension.ts",
+      "../bower_components/excalibur/dist/excalibur.d.ts"
+   ]
 }

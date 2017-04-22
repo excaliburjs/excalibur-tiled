@@ -16,7 +16,7 @@ Reference **bower_components/excalibur-tiled/dist/excalibur-tiled.js** in your p
 var game = new ex.Engine(500, 400, "game");
 
 // Create a new TiledResource loadable
-var map = new ex.Extensions.Tiled.TiledResource("test.json");
+var map = new Extensions.Tiled.TiledResource("test.json");
 
 // Create a loader and reference the map
 var loader = new ex.Loader([map]);
@@ -52,7 +52,7 @@ If you need to override this behavior, you can set `imagePathAccessor` to a cust
 
 ```js
 // Create a new TiledResource loadable
-var map = new ex.Extensions.Tiled.TiledResource("test.json");
+var map = new Extensions.Tiled.TiledResource("test.json");
 
 map.imagePathAccessor = function (path, tileset) {
    return "/maps/tx/" + path;
