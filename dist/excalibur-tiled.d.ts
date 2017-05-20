@@ -1,5 +1,5 @@
-/// <reference path="../bower_components/excalibur/dist/Excalibur.d.ts" />
-declare namespace ex.Extensions.Tiled {
+/// <reference path="../bower_components/excalibur/dist/excalibur.d.ts" />
+declare namespace Extensions.Tiled {
     /**
      * Tiled Map Interface
      *
@@ -117,7 +117,7 @@ declare namespace ex.Extensions.Tiled {
         tile: number;
     }
 }
-declare namespace ex.Extensions.Tiled {
+declare namespace Extensions.Tiled {
     enum TiledMapFormat {
         /**
          * TMX map layer format
@@ -131,9 +131,9 @@ declare namespace ex.Extensions.Tiled {
     }
     class TiledResource extends ex.Resource<ITiledMap> {
         protected mapFormat: TiledMapFormat;
-        imagePathAccessor: (string, ITiledTileSet) => string;
+        imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
         constructor(path: string, mapFormat?: TiledMapFormat);
-        load(): Promise<ITiledMap>;
+        load(): ex.Promise<ITiledMap>;
         processData(data: any): ITiledMap;
         getTilesetForTile(gid: number): ITiledTileSet;
         getTileMap(): ex.TileMap;
@@ -146,5 +146,5 @@ declare namespace ex.Extensions.Tiled {
  * loading of maps and entities using simple mapping rules
  * and hooks into Excalibur TileMap generation.
  */
-declare namespace ex.Extensions.Tiled {
+declare namespace Extensions.Tiled {
 }

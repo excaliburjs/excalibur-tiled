@@ -1,4 +1,4 @@
-namespace ex.Extensions.Tiled {
+namespace Extensions.Tiled {
    
    /**
     * Tiled Map Interface

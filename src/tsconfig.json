@@ -1,8 +1,10 @@
 {
    "compilerOptions": {
       "out": "./dist/excalibur-tiled.js",
-      "target": "ES5",      
-      "watch": true,
-      "declaration": true
-   }
+      "target": "ES5",
+      "declaration": true      
+   },
+   "files": [
+      "Extension.ts"
+   ]
 }

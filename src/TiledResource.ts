@@ -1,4 +1,4 @@
-namespace ex.Extensions.Tiled {
+namespace Extensions.Tiled {
 
    export enum TiledMapFormat {
       
@@ -18,7 +18,7 @@ namespace ex.Extensions.Tiled {
 
       protected mapFormat: TiledMapFormat;
       
-      public imagePathAccessor: (string, ITiledTileSet) => string;
+      public imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
 
       constructor(path: string, mapFormat = TiledMapFormat.JSON) {
          switch (mapFormat) {
@@ -30,15 +30,32 @@ namespace ex.Extensions.Tiled {
          }
 
          this.mapFormat = mapFormat;
-         this.imagePathAccessor = (s) => s;
+         this.imagePathAccessor = (p) => {
+
+            // Use absolute path if specified
+            if (p.indexOf('/') === 0) {
+               return p;
+            }
+
+            // Load relative to map path
+            let pp = path.split('/');
+            let relPath = pp.concat([]);
+
+            if (pp.length > 0) {
+               // remove file part of path
+               relPath.splice(-1);
+            }
+            relPath.push(p);
+            return relPath.join('/');
+         };
       }
 
-      public load(): Promise<ITiledMap> {
-         var p = new Promise<ITiledMap>();
+      public load(): ex.Promise<ITiledMap> {
+         var p = new ex.Promise<ITiledMap>();
 
          super.load().then(map => {
 
-            var promises: Promise<HTMLImageElement>[] = [];
+            var promises: ex.Promise<HTMLImageElement>[] = [];
 
             // retrieve images from tilesets and create textures
             this.data.tilesets.forEach(ts => {

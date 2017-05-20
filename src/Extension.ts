@@ -1,4 +1,4 @@
-/// <reference path="../bower_components/excalibur/dist/Excalibur.d.ts" />
+/// <reference path="../bower_components/excalibur/dist/excalibur.d.ts" />
 /// <reference path="ITiledMap.ts" />
 /// <reference path="TiledResource.ts" />
 
@@ -9,6 +9,6 @@
  * loading of maps and entities using simple mapping rules
  * and hooks into Excalibur TileMap generation.
  */
-namespace ex.Extensions.Tiled {
-   
+namespace Extensions.Tiled {
+
 }

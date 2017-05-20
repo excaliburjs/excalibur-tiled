@@ -1,4 +1,11 @@
 {
-   "name": "excalibur-tiled",
-   "version": "0.1.0"   
+  "name": "excalibur-tiled",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node_modules/.bin/tsc -p src",
+    "test": "node_modules/.bin/tsc -p test"
+  },
+  "devDependencies": {
+    "typescript": "^2.3.2"
+  }
 }
