@@ -13,7 +13,7 @@ Reference **bower_components/excalibur-tiled/dist/excalibur-tiled.js** in your p
 ```js
 
 // New game
-var game = new ex.Engine(500, 400, "game");
+var game = new ex.Engine({ width: 500, height: 400, canvasElementId: "game" });
 
 // Create a new TiledResource loadable
 var map = new Extensions.Tiled.TiledResource("test.json");
@@ -62,3 +62,15 @@ map.imagePathAccessor = function (path, tileset) {
 ### Supported Formats
 
 Only supports JSON file format with CSV or Base64 (uncompressed) tile layer format.
+
+## Contributing
+
+To compile source:
+
+    npm start
+
+To compile test:
+
+    npm test
+
+You have to view the test in a web server (IIS, Apache, etc.).

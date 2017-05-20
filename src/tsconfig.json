@@ -1,12 +1,10 @@
 {
    "compilerOptions": {
       "out": "./dist/excalibur-tiled.js",
-      "target": "ES5",      
-      "watch": true,
+      "target": "ES5",
       "declaration": true      
    },
    "files": [
-      "Extension.ts",
-      "../bower_components/excalibur/dist/excalibur.d.ts"
+      "Extension.ts"
    ]
 }
