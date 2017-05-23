@@ -236,6 +236,5 @@ var Extensions;
         };
     })(Tiled = Extensions.Tiled || (Extensions.Tiled = {}));
 })(Extensions || (Extensions = {}));
-/// <reference path="../bower_components/excalibur/dist/excalibur.d.ts" />
 /// <reference path="ITiledMap.ts" />
 /// <reference path="TiledResource.ts" />

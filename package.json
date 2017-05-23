@@ -6,6 +6,7 @@
     "test": "node_modules/.bin/tsc -p test"
   },
   "devDependencies": {
+    "excalibur": "^0.10.0",
     "typescript": "^2.3.2"
   }
 }

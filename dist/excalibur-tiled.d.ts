@@ -1,4 +1,3 @@
-/// <reference path="../bower_components/excalibur/dist/excalibur.d.ts" />
 declare namespace Extensions.Tiled {
     /**
      * Tiled Map Interface
