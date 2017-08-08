@@ -1,11 +1,9 @@
 {
    "compilerOptions": {
-      "out": "./dist/excalibur-tiled.js",
+      "module": "commonjs",
       "target": "ES5",
       "declaration": true,
-      "types": ["excalibur"]
-   },
-   "files": [
-      "Extension.ts"
-   ]
+      "outDir": "../lib",
+      "sourceMap": true
+   }
 }

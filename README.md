@@ -42,6 +42,12 @@ game.start(loader).then(function() {
 
 You can also use `import` syntax with TypeScript or `require` with CommonJS.
 
+```ts
+import TiledResource from 'excalibur-tiled'
+
+var map = new TiledResource("test.json");
+```
+
 ## Documentation
 
 The `TiledResource` loadable will load the map file you specify along with any referenced tile set assets (images). 
@@ -67,12 +73,17 @@ Only supports JSON file format with CSV or Base64 (uncompressed) tile layer form
 
 ## Contributing
 
+- Built with webpack 3
+- Uses webpack-dev-server
+
 To compile source:
 
     npm start
 
+To watch:
+
+    npm run watch
+
 To compile test:
 
     npm test
-
-You have to view the test in a web server (IIS, Apache, etc.).

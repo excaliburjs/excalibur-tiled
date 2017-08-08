@@ -1,12 +1,12 @@
-/// <reference path="../bower_components/excalibur/dist/excalibur.d.ts" />
-/// <reference path="../dist/excalibur-tiled.d.ts" />
+import * as ex from 'excalibur';
+import TiledResource from '../src';
 
 var game = new ex.Engine({ 
    width: 500, 
    height: 400, 
    canvasElementId: 'game'
 });
-var map = new Extensions.Tiled.TiledResource("test.json");
+var map = new TiledResource("test.json");
 var loader = new ex.Loader([map]);
 
 game.start(loader).then(function() {

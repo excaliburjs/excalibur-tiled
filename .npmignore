@@ -1,0 +1,6 @@
+.*
+src
+test
+node_modules
+**/webpack.config.js
+**/webpack.config.test.js

@@ -1,9 +1,9 @@
 {
   "name": "@excaliburjs/excalibur-tiled",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
   "main": "dist/excalibur-tiled.js",
-  "typings": "dist/excalibur-tiled.d.ts",
+  "typings": "dist/lib/index.d.ts",
   "author": {
     "name": "Excalibur.js Team",
     "email": "excaliburjs@gmail.com",
@@ -30,11 +30,17 @@
     "simple"
   ],
   "scripts": {
-    "start": "node_modules/.bin/tsc -p src",
-    "test": "node_modules/.bin/tsc -p test"
+    "start": "webpack-dev-server --config webpack.config.test.js --open",
+    "watch": "webpack --progress --watch",
+    "build": "cross-env NODE_ENV=production webpack",
+    "test": "webpack --config webpack.config.test.js"
   },
   "devDependencies": {
+    "cross-env": "^5.0.4",
     "excalibur": "^0.11.0",
-    "typescript": "^2.3.2"
+    "ts-loader": "^2.3.2",
+    "typescript": "^2.3.2",
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1"
   }
 }

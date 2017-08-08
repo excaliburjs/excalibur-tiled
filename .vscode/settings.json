@@ -2,5 +2,7 @@
 {
     "editor.tabSize": 3,
     
-    "editor.insertSpaces": true
+    "editor.insertSpaces": true,
+
+    "editor.detectIndentation": false
 }
