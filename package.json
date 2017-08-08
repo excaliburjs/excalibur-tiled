@@ -1,6 +1,33 @@
 {
-  "name": "excalibur-tiled",
-  "version": "0.1.0",
+  "name": "@excaliburjs/excalibur-tiled",
+  "version": "2.0.1",
+  "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
+  "main": "dist/excalibur-tiled.js",
+  "author": {
+    "name": "Excalibur.js Team",
+    "email": "excaliburjs@gmail.com",
+    "url": "http://excaliburjs.com"
+  },
+  "homepage": "https://github.com/excaliburjs/excalibur-tiled",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/excaliburjs/excalibur-tiled.git"
+  },
+  "bugs": {
+    "url": "https://github.com/excaliburjs/excalibur-tiled/issues"
+  },
+  "license": "BSD-2-Clause",
+  "keywords": [
+    "excalibur",
+    "game",
+    "engine",
+    "tiled",
+    "maps",
+    "map",
+    "typescript",
+    "javascript",
+    "simple"
+  ],
   "scripts": {
     "start": "node_modules/.bin/tsc -p src",
     "test": "node_modules/.bin/tsc -p test"

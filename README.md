@@ -4,11 +4,11 @@ This extension adds support for a new `TiledResource` to Excalibur.js to read [T
 
 ## Quickstart
 
-Install using [Bower](http://bower.io):
+Install using [npm](http://npmjs.org):
 
-    bower install excalibur-tiled
+    npm install @excaliburjs/excalibur-tiled
     
-Reference **bower_components/excalibur-tiled/dist/excalibur-tiled.js** in your page and then you can use it like this:
+Reference **node_modules/excalibur-tiled/dist/excalibur-tiled.js** in your page and then you can use it like this:
 
 ```js
 
@@ -39,6 +39,8 @@ game.start(loader).then(function() {
    
 });
 ```
+
+You can also use `import` syntax with TypeScript or `require` with CommonJS.
 
 ## Documentation
 
