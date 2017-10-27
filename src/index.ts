@@ -28,6 +28,7 @@ export default class TiledResource extends Resource<ITiledMap> {
    protected mapFormat: TiledMapFormat;
 
    public imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
+   public externalTilesetPathAccessor: (path: string, ts: ITiledTileSet) => string;
 
    constructor(path: string, mapFormat = TiledMapFormat.JSON) {
       switch (mapFormat) {
@@ -39,7 +40,7 @@ export default class TiledResource extends Resource<ITiledMap> {
       }
 
       this.mapFormat = mapFormat;
-      this.imagePathAccessor = (p) => {
+      this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 
          // Use absolute path if specified
          if (p.indexOf('/') === 0) {
@@ -76,7 +77,9 @@ export default class TiledResource extends Resource<ITiledMap> {
 
          this.data.tilesets.forEach(ts => {
             if (ts.source) {
-               var tileset = new Resource<ITiledTileSet>(ts.source, "json");
+               var tileset = new Resource<ITiledTileSet>(
+                  this.externalTilesetPathAccessor(ts.source, ts), "json");
+
                promises.push(tileset.load().then(external => {
                   (Object as any).assign(ts, external);
                }));

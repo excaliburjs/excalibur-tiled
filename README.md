@@ -54,11 +54,11 @@ The dist uses a UMD build and will attach itself to the `Extensions.Tiled` globa
 
 The `TiledResource` loadable will load the map file you specify along with any referenced tile set assets (images). 
 
-### Handling Tile Image Paths
+### Handling Tiled Paths
 
-The image paths loaded will be relative to where the exported file was saved.
+The image paths and external tileset paths loaded will be relative to where the exported file was saved.
 
-If you need to override this behavior, you can set `imagePathAccessor` to a custom function that takes two parameters: path and `ITiledTileSet` data.
+If you need to override this behavior, you can set `imagePathAccessor` or `externalTilesetPathAccessor` to a custom function that takes two parameters: path and `ITiledTileSet` data.
 
 ```js
 // Create a new TiledResource loadable
