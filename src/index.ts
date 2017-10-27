@@ -32,7 +32,7 @@ export default class TiledResource extends Resource<ITiledMap> {
    constructor(path: string, mapFormat = TiledMapFormat.JSON) {
       switch (mapFormat) {
          case TiledMapFormat.JSON:
-            super(path, "application/json");
+            super(path, "json");
             break;
          default:
             throw `The format ${mapFormat} is not currently supported. Please export Tiled map as JSON.`;
@@ -114,8 +114,8 @@ export default class TiledResource extends Resource<ITiledMap> {
       return p;
    }
 
-   public processData(data: any): ITiledMap {
-      if (typeof data !== "string") {
+   public processData(data: ITiledMap): ITiledMap {
+      if (typeof data !== "object") {
          throw `Tiled map resource ${this.path} is not the correct content type`;
       }
       if (data === void 0) {
@@ -174,12 +174,11 @@ export default class TiledResource extends Resource<ITiledMap> {
 /**
  * Handles parsing of JSON tiled data
  */
-var parseJsonMap = (data: string): ITiledMap => {
-   var json = <ITiledMap>JSON.parse(data);
-
+var parseJsonMap = (data: ITiledMap): ITiledMap => {
+   
    // Decompress layers
-   if (json.layers) {
-      for (var layer of json.layers) {
+   if (data.layers) {
+      for (var layer of data.layers) {
 
          if (typeof layer.data === "string") {
 
@@ -194,7 +193,7 @@ var parseJsonMap = (data: string): ITiledMap => {
       }
    }
 
-   return json;
+   return data;
 }
 
 /**
