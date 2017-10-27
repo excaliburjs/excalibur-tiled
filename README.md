@@ -1,6 +1,6 @@
 # Tiled Extension for Excalibur.js
 
-This extension adds support for a new `TiledResource` to Excalibur.js to read [Tiled map editor](http://mapeditor.org) files (currently only JSON).
+This extension adds support for a new `TiledResource` to Excalibur.js to read [Tiled map editor](http://mapeditor.org) files (currently only JSON and **Tiled pre-1.0**).
 
 ## Quickstart
 
