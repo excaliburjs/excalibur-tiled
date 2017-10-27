@@ -1,0 +1,13 @@
+{ "columns":4,
+ "image":"tilemap.png",
+ "imageheight":64,
+ "imagewidth":128,
+ "margin":0,
+ "name":"tilemap",
+ "spacing":0,
+ "tilecount":8,
+ "tileheight":32,
+ "tilewidth":32,
+ "transparentcolor":"#ffffff",
+ "type":"tileset"
+}

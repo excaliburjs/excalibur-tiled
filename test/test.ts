@@ -6,7 +6,7 @@ var game = new ex.Engine({
    height: 400, 
    canvasElementId: 'game'
 });
-var map = new TiledResource("test.json");
+var map = new TiledResource("test-v1-external.json");
 var loader = new ex.Loader([map]);
 
 game.start(loader).then(function() {

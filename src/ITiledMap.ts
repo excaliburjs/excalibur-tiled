@@ -103,6 +103,11 @@ export interface ITiledTileSet {
    transparentcolor: string;
    terrains: ITiledMapTerrain[];
    tiles: {[key: string]: { terrain: number[] }};
+
+   /**
+    * Refers to external tileset file (should be JSON)
+    */
+   source: string;
 }
 
 export interface ITiledMapTerrain {

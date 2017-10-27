@@ -1,9 +1,13 @@
 {
    "compilerOptions": {
       "module": "commonjs",
+      "lib": ["es5"],
       "target": "ES5",
       "declaration": true,
       "outDir": "../lib",
       "sourceMap": true
-   }
+   },
+   "include": [
+      "**/*.ts"
+   ]
 }

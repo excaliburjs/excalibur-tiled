@@ -64,22 +64,51 @@ export default class TiledResource extends Resource<ITiledMap> {
 
       super.load().then(map => {
 
-         var promises: Promise<HTMLImageElement>[] = [];
+         var promises: Promise<any>[] = [];
 
-         // retrieve images from tilesets and create textures
+         // Loop through loaded tileset data
+         // If we find an image property, then
+         // load the image and sprite
+
+         // If we find a source property, then
+         // load the tileset data, merge it with
+         // existing data, and load the image and sprite
+
          this.data.tilesets.forEach(ts => {
-            var tx = new Texture(this.imagePathAccessor(ts.image, ts));
-            ts.imageTexture = tx;
-            promises.push(tx.load());
-
-            Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+            if (ts.source) {
+               var tileset = new Resource<ITiledTileSet>(ts.source, "json");
+               promises.push(tileset.load().then(external => {
+                  (Object as any).assign(ts, external);
+               }));
+            }
          });
 
+         // wait or immediately resolve pending promises
+         // for external tilesets
          Promise.join.apply(this, promises).then(() => {
-            p.resolve(map);
+
+            // clear pending promises
+            promises = [];
+
+            // retrieve images from tilesets and create textures
+            this.data.tilesets.forEach(ts => {
+               var tx = new Texture(this.imagePathAccessor(ts.image, ts));
+               ts.imageTexture = tx;
+               promises.push(tx.load());
+   
+               Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+            });
+
+            Promise.join.apply(this, promises).then(() => {
+               p.resolve(map);
+            }, (value?: any) => {
+               p.reject(value);
+            });
          }, (value?: any) => {
             p.reject(value);
          });
+
+         
       });
 
       return p;
