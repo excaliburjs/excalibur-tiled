@@ -28,18 +28,19 @@ export default class TiledResource extends Resource<ITiledMap> {
    protected mapFormat: TiledMapFormat;
 
    public imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
+   public externalTilesetPathAccessor: (path: string, ts: ITiledTileSet) => string;
 
    constructor(path: string, mapFormat = TiledMapFormat.JSON) {
       switch (mapFormat) {
          case TiledMapFormat.JSON:
-            super(path, "application/json");
+            super(path, "json");
             break;
          default:
             throw `The format ${mapFormat} is not currently supported. Please export Tiled map as JSON.`;
       }
 
       this.mapFormat = mapFormat;
-      this.imagePathAccessor = (p) => {
+      this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 
          // Use absolute path if specified
          if (p.indexOf('/') === 0) {
@@ -64,29 +65,60 @@ export default class TiledResource extends Resource<ITiledMap> {
 
       super.load().then(map => {
 
-         var promises: Promise<HTMLImageElement>[] = [];
+         var promises: Promise<any>[] = [];
 
-         // retrieve images from tilesets and create textures
+         // Loop through loaded tileset data
+         // If we find an image property, then
+         // load the image and sprite
+
+         // If we find a source property, then
+         // load the tileset data, merge it with
+         // existing data, and load the image and sprite
+
          this.data.tilesets.forEach(ts => {
-            var tx = new Texture(this.imagePathAccessor(ts.image, ts));
-            ts.imageTexture = tx;
-            promises.push(tx.load());
+            if (ts.source) {
+               var tileset = new Resource<ITiledTileSet>(
+                  this.externalTilesetPathAccessor(ts.source, ts), "json");
 
-            Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+               promises.push(tileset.load().then(external => {
+                  (Object as any).assign(ts, external);
+               }));
+            }
          });
 
+         // wait or immediately resolve pending promises
+         // for external tilesets
          Promise.join.apply(this, promises).then(() => {
-            p.resolve(map);
+
+            // clear pending promises
+            promises = [];
+
+            // retrieve images from tilesets and create textures
+            this.data.tilesets.forEach(ts => {
+               var tx = new Texture(this.imagePathAccessor(ts.image, ts));
+               ts.imageTexture = tx;
+               promises.push(tx.load());
+   
+               Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+            });
+
+            Promise.join.apply(this, promises).then(() => {
+               p.resolve(map);
+            }, (value?: any) => {
+               p.reject(value);
+            });
          }, (value?: any) => {
             p.reject(value);
          });
+
+         
       });
 
       return p;
    }
 
-   public processData(data: any): ITiledMap {
-      if (typeof data !== "string") {
+   public processData(data: ITiledMap): ITiledMap {
+      if (typeof data !== "object") {
          throw `Tiled map resource ${this.path} is not the correct content type`;
       }
       if (data === void 0) {
@@ -145,12 +177,11 @@ export default class TiledResource extends Resource<ITiledMap> {
 /**
  * Handles parsing of JSON tiled data
  */
-var parseJsonMap = (data: string): ITiledMap => {
-   var json = <ITiledMap>JSON.parse(data);
-
+var parseJsonMap = (data: ITiledMap): ITiledMap => {
+   
    // Decompress layers
-   if (json.layers) {
-      for (var layer of json.layers) {
+   if (data.layers) {
+      for (var layer of data.layers) {
 
          if (typeof layer.data === "string") {
 
@@ -165,7 +196,7 @@ var parseJsonMap = (data: string): ITiledMap => {
       }
    }
 
-   return json;
+   return data;
 }
 
 /**

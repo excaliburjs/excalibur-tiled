@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "cross-env": "^5.0.4",
-    "excalibur": "^0.11.0",
+    "excalibur": "^0.13.1",
     "ts-loader": "^2.3.2",
     "typescript": "^2.3.2",
     "webpack": "^3.4.1",
