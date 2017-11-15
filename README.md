@@ -58,15 +58,67 @@ The `TiledResource` loadable will load the map file you specify along with any r
 
 The image paths and external tileset paths loaded will be relative to where the exported file was saved.
 
+For example, let's say this is your source working directory structure when you make your Tiled map:
+
+```
+work/
+  - map.tmx
+  - map.png
+  - map.tsx
+```
+
+The tileset image and/or source are stored next to the TMX file.
+
+So when you export to JSON, say to **map.json**, Tiled will save the paths like this:
+
+```js
+{
+  "tilesets": [
+    {
+      "image": "map.png"
+    },
+    {
+      "source": "map.tsx"
+    }
+  ]
+}
+```
+
+But for your game, your file structure looks like this:
+
+```
+assets/
+  - maps/map.json
+  - tx/map.png
+  - tsx/map.tsx
+```
+
+When your game loads and the extension loads your map file (`/assets/maps/map.json`), the paths will be loaded **relative** to the map JSON file, so they will return 404 responses:
+
+```
+GET /assets/maps/map.png -> 404 Not Found
+GET /assets/maps/map.tsx -> 404 Not Found
+```
+
 If you need to override this behavior, you can set `imagePathAccessor` or `externalTilesetPathAccessor` to a custom function that takes two parameters: path and `ITiledTileSet` data.
 
 ```js
 // Create a new TiledResource loadable
-var map = new Extensions.Tiled.TiledResource("test.json");
+var map = new Extensions.Tiled.TiledResource("map.json");
 
 map.imagePathAccessor = function (path, tileset) {
-   return "/maps/tx/" + path;
+   return "/assets/tx/" + path;
 }
+map.externalTilesetPathAccessor = function (path, tileset) {
+   return "/assets/tsx/" + path;
+}
+```
+
+That will fix the paths:
+
+```
+GET /assets/tx/map.png -> 200 OK
+GET /assets/tsx/map.tsx -> 200 OK
 ```
 
 ### Supported Formats
