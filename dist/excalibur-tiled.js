@@ -110,13 +110,13 @@ var TiledResource = (function (_super) {
         var _this = this;
         switch (mapFormat) {
             case TiledMapFormat.JSON:
-                _this = _super.call(this, path, "application/json") || this;
+                _this = _super.call(this, path, "json") || this;
                 break;
             default:
                 throw "The format " + mapFormat + " is not currently supported. Please export Tiled map as JSON.";
         }
         _this.mapFormat = mapFormat;
-        _this.imagePathAccessor = function (p) {
+        _this.imagePathAccessor = _this.externalTilesetPathAccessor = function (p, tileset) {
             // Use absolute path if specified
             if (p.indexOf('/') === 0) {
                 return p;
@@ -138,15 +138,37 @@ var TiledResource = (function (_super) {
         var p = new excalibur_1.Promise();
         _super.prototype.load.call(this).then(function (map) {
             var promises = [];
-            // retrieve images from tilesets and create textures
+            // Loop through loaded tileset data
+            // If we find an image property, then
+            // load the image and sprite
+            // If we find a source property, then
+            // load the tileset data, merge it with
+            // existing data, and load the image and sprite
             _this.data.tilesets.forEach(function (ts) {
-                var tx = new excalibur_1.Texture(_this.imagePathAccessor(ts.image, ts));
-                ts.imageTexture = tx;
-                promises.push(tx.load());
-                excalibur_1.Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+                if (ts.source) {
+                    var tileset = new excalibur_1.Resource(_this.externalTilesetPathAccessor(ts.source, ts), "json");
+                    promises.push(tileset.load().then(function (external) {
+                        Object.assign(ts, external);
+                    }));
+                }
             });
+            // wait or immediately resolve pending promises
+            // for external tilesets
             excalibur_1.Promise.join.apply(_this, promises).then(function () {
-                p.resolve(map);
+                // clear pending promises
+                promises = [];
+                // retrieve images from tilesets and create textures
+                _this.data.tilesets.forEach(function (ts) {
+                    var tx = new excalibur_1.Texture(_this.imagePathAccessor(ts.image, ts));
+                    ts.imageTexture = tx;
+                    promises.push(tx.load());
+                    excalibur_1.Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+                });
+                excalibur_1.Promise.join.apply(_this, promises).then(function () {
+                    p.resolve(map);
+                }, function (value) {
+                    p.reject(value);
+                });
             }, function (value) {
                 p.reject(value);
             });
@@ -154,7 +176,7 @@ var TiledResource = (function (_super) {
         return p;
     };
     TiledResource.prototype.processData = function (data) {
-        if (typeof data !== "string") {
+        if (typeof data !== "object") {
             throw "Tiled map resource " + this.path + " is not the correct content type";
         }
         if (data === void 0) {
@@ -205,10 +227,9 @@ exports.default = TiledResource;
  * Handles parsing of JSON tiled data
  */
 var parseJsonMap = function (data) {
-    var json = JSON.parse(data);
     // Decompress layers
-    if (json.layers) {
-        for (var _i = 0, _a = json.layers; _i < _a.length; _i++) {
+    if (data.layers) {
+        for (var _i = 0, _a = data.layers; _i < _a.length; _i++) {
             var layer = _a[_i];
             if (typeof layer.data === "string") {
                 if (layer.encoding === "base64") {
@@ -220,7 +241,7 @@ var parseJsonMap = function (data) {
             }
         }
     }
-    return json;
+    return data;
 };
 /**
  * Decompression implementations
