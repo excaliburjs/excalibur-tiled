@@ -9,13 +9,13 @@ export interface ITiledMap {
    height: number;
    layers: ITiledMapLayer[];
    nextobjectid: number;
-   
+
    /**
     * Map orientation (orthogonal)
     */
    orientation: string;
    properties: {[key: string]: string};
-   
+
    /**
     * Render order (right-down)
     */
@@ -23,7 +23,7 @@ export interface ITiledMap {
    tileheight: number;
    tilewidth: number;
    tilesets: ITiledTileSet[];
-   version: number;      
+   version: number;
 }
 
 export interface ITiledMapLayer {
@@ -33,7 +33,8 @@ export interface ITiledMapLayer {
    opacity: number;
    properties: {[key: string]: string};
    encoding: string;
-   
+   compression?: string;
+
    /**
     * Type of layer (tilelayer, objectgroup)
     */
@@ -42,7 +43,7 @@ export interface ITiledMapLayer {
    width: number;
    x: number;
    y: number;
-   
+
    /**
     * Draw order (topdown (default), index)
     */
@@ -52,7 +53,7 @@ export interface ITiledMapLayer {
 
 export interface ITiledMapObject {
    id: number;
-   
+
    /**
     * Tile object id
     */
@@ -66,17 +67,17 @@ export interface ITiledMapObject {
    width: number;
    x: number;
    y: number;
-   
+
    /**
     * Whether or not object is an ellipse
     */
    ellipse: boolean;
-   
+
    /**
     * Polygon points
     */
    polygon: {x: number, y: number}[];
-   
+
    /**
     * Polyline points
     */
@@ -86,7 +87,7 @@ export interface ITiledMapObject {
 export interface ITiledTileSet {
    firstgid: number;
    image: string;
-   
+
    /**
     * Excalibur texture associated with this tileset
     */

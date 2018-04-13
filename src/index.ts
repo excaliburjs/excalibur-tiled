@@ -8,6 +8,7 @@ import {
    Logger
 } from 'excalibur';
 import { ITiledMap, ITiledTileSet } from './ITiledMap';
+import * as pako from 'pako';
 
 export enum TiledMapFormat {
 
@@ -98,7 +99,7 @@ export default class TiledResource extends Resource<ITiledMap> {
                var tx = new Texture(this.imagePathAccessor(ts.image, ts));
                ts.imageTexture = tx;
                promises.push(tx.load());
-   
+
                Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
             });
 
@@ -111,7 +112,7 @@ export default class TiledResource extends Resource<ITiledMap> {
             p.reject(value);
          });
 
-         
+
       });
 
       return p;
@@ -178,7 +179,7 @@ export default class TiledResource extends Resource<ITiledMap> {
  * Handles parsing of JSON tiled data
  */
 var parseJsonMap = (data: ITiledMap): ITiledMap => {
-   
+
    // Decompress layers
    if (data.layers) {
       for (var layer of data.layers) {
@@ -186,7 +187,13 @@ var parseJsonMap = (data: ITiledMap): ITiledMap => {
          if (typeof layer.data === "string") {
 
             if (layer.encoding === "base64") {
-               layer.data = decompressors.decompressBase64(<string>layer.data, layer.encoding);
+               layer.data = decompressors.decompressBase64(
+                  <string>layer.data,
+                  layer.encoding,
+                  typeof layer.compression !== "undefined"
+                     ? layer.compression
+                     : ""
+               );
             }
 
          } else {
@@ -215,7 +222,7 @@ var decompressors = {
     * Uses base64.js implementation to decode string into byte array
     * and then converts (with/without compression) to array of numbers
     */
-   decompressBase64: (b64: string, encoding: string) => {
+   decompressBase64: (b64: string, encoding: string, compression: string) => {
       var i: number,
          j: number,
          l: number,
@@ -286,7 +293,10 @@ var decompressors = {
       }
 
       // Byte array
-      // TODO handle compression
+      // handle compression
+      if ("zlib" === compression || "gzip" === compression) {
+         arr = pako.inflate( arr );
+      }
 
       var toNumber = function (byteArray: number[] | Uint8Array) {
          var value = 0;

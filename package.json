@@ -36,8 +36,10 @@
     "test": "webpack --config webpack.config.test.js"
   },
   "devDependencies": {
+    "@types/pako": "^1.0.0",
     "cross-env": "^5.0.4",
     "excalibur": "^0.13.1",
+    "pako": "^1.0.6",
     "ts-loader": "^2.3.2",
     "typescript": "^2.3.2",
     "webpack": "^3.4.1",
