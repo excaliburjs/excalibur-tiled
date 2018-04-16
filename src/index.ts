@@ -190,9 +190,7 @@ var parseJsonMap = (data: ITiledMap): ITiledMap => {
                layer.data = decompressors.decompressBase64(
                   <string>layer.data,
                   layer.encoding,
-                  typeof layer.compression !== "undefined"
-                     ? layer.compression
-                     : ""
+                  layer.compression || ""
                );
             }
 
