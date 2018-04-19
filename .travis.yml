@@ -10,3 +10,7 @@ deploy:
   api_key: $NPM_AUTH_TOKEN
   on:
     tags: true
+
+cache:
+  directories:
+    - $HOME/.npm
