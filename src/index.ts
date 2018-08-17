@@ -24,7 +24,7 @@ export enum TiledMapFormat {
    JSON
 }
 
-export default class TiledResource extends Resource<ITiledMap> {
+export class TiledResource extends Resource<ITiledMap> {
 
    protected mapFormat: TiledMapFormat;
 
