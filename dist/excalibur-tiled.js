@@ -779,6 +779,13 @@ var TiledResource = /** @class */ (function (_super) {
         if (data === void 0) {
             throw "Tiled map resource " + this.path + " is empty";
         }
+        // Change data.layers from array to a dictionary for easier access
+        var tmpLayers = data.layers;
+        data.layers = {};
+        for (var _i = 0, tmpLayers_1 = tmpLayers; _i < tmpLayers_1.length; _i++) {
+            var layer = tmpLayers_1[_i];
+            data.layers[layer.name] = layer;
+        }
         switch (this.mapFormat) {
             case TiledMapFormat.JSON:
                 return parseJsonMap(data);
@@ -803,14 +810,16 @@ var TiledResource = /** @class */ (function (_super) {
             var ss = new excalibur_1.SpriteSheet(ts.imageTexture, cols, rows, ts.tilewidth, ts.tileheight);
             map.registerSpriteSheet(ts.firstgid.toString(), ss);
         }
-        for (var _b = 0, _c = this.data.layers; _b < _c.length; _b++) {
-            var layer = _c[_b];
-            if (layer.type === "tilelayer") {
-                for (var i = 0; i < layer.data.length; i++) {
-                    var gid = layer.data[i];
-                    if (gid !== 0) {
-                        var ts = this.getTilesetForTile(gid);
-                        map.data[i].sprites.push(new excalibur_1.TileSprite(ts.firstgid.toString(), gid - ts.firstgid));
+        for (var layerId in this.data.layers) {
+            if (this.data.layers.hasOwnProperty(layerId)) {
+                var layer = this.data.layers[layerId];
+                if (layer.type === "tilelayer") {
+                    for (var i = 0; i < layer.data.length; i++) {
+                        var gid = layer.data[i];
+                        if (gid !== 0) {
+                            var ts = this.getTilesetForTile(gid);
+                            map.data[i].sprites.push(new excalibur_1.TileSprite(ts.firstgid.toString(), gid - ts.firstgid));
+                        }
                     }
                 }
             }
@@ -826,8 +835,8 @@ exports.default = TiledResource;
 var parseJsonMap = function (data) {
     // Decompress layers
     if (data.layers) {
-        for (var _i = 0, _a = data.layers; _i < _a.length; _i++) {
-            var layer = _a[_i];
+        for (var layerId in data.layers) {
+            var layer = data.layers[layerId];
             if (typeof layer.data === "string") {
                 if (layer.encoding === "base64") {
                     layer.data = decompressors.decompressBase64(layer.data, layer.encoding, layer.compression || "");

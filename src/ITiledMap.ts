@@ -7,7 +7,7 @@
 export interface ITiledMap {
    width: number;
    height: number;
-   layers: ITiledMapLayer[];
+   layers: { [id: string] : ITiledMapLayer };
    nextobjectid: number;
 
    /**
