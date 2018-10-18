@@ -125,7 +125,12 @@ export default class TiledResource extends Resource<ITiledMap> {
       if (data === void 0) {
          throw `Tiled map resource ${this.path} is empty`;
       }
-
+      // Change data.layers from array to a dictionary for easier access
+      var tmpLayers = <any>data.layers
+      data.layers = {};
+      for(var layer of tmpLayers){
+         data.layers[layer.name] = layer;
+      }
       switch (this.mapFormat) {
          case TiledMapFormat.JSON:
             return parseJsonMap(data);
@@ -156,19 +161,20 @@ export default class TiledResource extends Resource<ITiledMap> {
          map.registerSpriteSheet(ts.firstgid.toString(), ss);
       }
 
-      for (var layer of this.data.layers) {
-
-         if (layer.type === "tilelayer") {
-            for (var i = 0; i < layer.data.length; i++) {
-               let gid = <number>layer.data[i];
-
-               if (gid !== 0) {
-                  var ts = this.getTilesetForTile(gid);
-
-                  map.data[i].sprites.push(new TileSprite(ts.firstgid.toString(), gid - ts.firstgid))
+      for (var layerId in this.data.layers) {
+         if(this.data.layers.hasOwnProperty(layerId)){
+            var layer = this.data.layers[layerId];
+            if (layer.type === "tilelayer") {
+               for (var i = 0; i < layer.data.length; i++) {
+                  let gid = <number>layer.data[i];
+                  if (gid !== 0) {
+                     var ts = this.getTilesetForTile(gid);
+                     map.data[i].sprites.push(new TileSprite(ts.firstgid.toString(), gid - ts.firstgid))
+                  }
                }
             }
          }
+
       }
 
       return map;
@@ -182,22 +188,24 @@ var parseJsonMap = (data: ITiledMap): ITiledMap => {
 
    // Decompress layers
    if (data.layers) {
-      for (var layer of data.layers) {
+      for (var layerId in data.layers) {
+         if(this.data.layers.hasOwnProperty(layerId)){
+            var layer = data.layers[layerId];
+            if (typeof layer.data === "string") {
 
-         if (typeof layer.data === "string") {
+               if (layer.encoding === "base64") {
+                  layer.data = decompressors.decompressBase64(
+                     <string>layer.data,
+                     layer.encoding,
+                     layer.compression || ""
+                  );
+               }
 
-            if (layer.encoding === "base64") {
-               layer.data = decompressors.decompressBase64(
-                  <string>layer.data,
-                  layer.encoding,
-                  layer.compression || ""
-               );
+            } else {
+               layer.data = decompressors.decompressCsv(<number[]>layer.data);
             }
 
-         } else {
-            layer.data = decompressors.decompressCsv(<number[]>layer.data);
          }
-
       }
    }
 
