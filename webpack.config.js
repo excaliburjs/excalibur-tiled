@@ -25,7 +25,7 @@ module.exports = {
  output: {
    filename: "[name].js",
    path: path.join(__dirname, "dist"),
-   library: "Extensions.Tiled",
+   library: ["Extensions","Tiled"],
    libraryTarget: "umd"
  },
  plugins: [

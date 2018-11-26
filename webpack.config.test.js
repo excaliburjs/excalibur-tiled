@@ -23,6 +23,12 @@ module.exports = {
        commonjs2: "excalibur",
        amd: "excalibur",
        root: "ex"
+    },
+    "excalibur-tiled": {
+      commonjs: "excalibur-tiled",
+      commonjs2: "excalibur-tiled",
+      amd: "excalibur-tiled",
+      root: "ExtensionsTiled"
     }
  }
 };

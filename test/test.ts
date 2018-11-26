@@ -1,5 +1,5 @@
 import * as ex from 'excalibur';
-import TiledResource from '../src';
+import * as Extensions from '../dist/excalibur-tiled'
 
 var game = new ex.Engine({ 
    width: 500, 
@@ -9,7 +9,7 @@ var game = new ex.Engine({
 });
 
 var start = (mapFile) => {
-   var map = new TiledResource(mapFile);
+   var map = new Extensions.TiledResource(mapFile);
    var loader = new ex.Loader([map]);
    
    game.currentScene.tileMaps = []

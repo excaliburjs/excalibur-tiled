@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define(["excalibur"], factory);
 	else if(typeof exports === 'object')
-		exports["Extensions.Tiled"] = factory(require("excalibur"));
+		exports["Tiled"] = factory(require("excalibur"));
 	else
-		root["Extensions.Tiled"] = factory(root["ex"]);
+		root["Extensions"] = root["Extensions"] || {}, root["Extensions"]["Tiled"] = factory(root["ex"]);
 })(this, function(__WEBPACK_EXTERNAL_MODULE_8__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -819,7 +819,7 @@ var TiledResource = /** @class */ (function (_super) {
     };
     return TiledResource;
 }(excalibur_1.Resource));
-exports.default = TiledResource;
+exports.TiledResource = TiledResource;
 /**
  * Handles parsing of JSON tiled data
  */
