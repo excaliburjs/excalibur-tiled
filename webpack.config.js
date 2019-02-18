@@ -1,10 +1,11 @@
 const path = require("path")
 const webpack = require("webpack")
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
  entry: {
     'excalibur-tiled': './src/index.ts',
-    'excalibur-tiled.min': './src/index.ts'
+    'excalibur-tiled.min': './src/index.ts',
  },
  module: {
    rules: [
@@ -15,6 +16,7 @@ module.exports = {
      }
    ]
  },
+ mode: 'development',
  devtool: 'source-map',
  devServer: {
    contentBase: '.',
@@ -28,13 +30,15 @@ module.exports = {
    library: ["Extensions","Tiled"],
    libraryTarget: "umd"
  },
- plugins: [
-   new webpack.optimize.UglifyJsPlugin({
-     minimize: true,
-     sourceMap: true,
-     include: /\.min\.js$/,
-   })
- ],
+ optimization: {
+   minimize: true,
+   minimizer: [
+      new UglifyJsPlugin({
+         sourceMap: true,
+         include: /\.min\.js$/
+      })
+   ]
+ },
  externals: {
     "excalibur": {
        commonjs: "excalibur",
