@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/pako": "1.0.0",
     "cross-env": "5.2.0",
-    "excalibur": "0.22.0",
+    "excalibur": "0.23.0",
     "pako": "1.0.8",
     "ts-loader": "5.3.3",
     "typescript": "3.3.3",
