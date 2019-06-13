@@ -36,10 +36,10 @@
     "test": "webpack --config webpack.config.test.js"
   },
   "devDependencies": {
-    "@types/pako": "1.0.0",
+    "@types/pako": "1.0.1",
     "cross-env": "5.2.0",
     "excalibur": "0.23.0",
-    "pako": "1.0.8",
+    "pako": "1.0.10",
     "ts-loader": "5.4.5",
     "typescript": "3.3.3",
     "uglifyjs-webpack-plugin": "2.1.1",
