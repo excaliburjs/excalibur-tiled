@@ -40,7 +40,7 @@
     "cross-env": "5.2.0",
     "excalibur": "0.23.0",
     "pako": "1.0.10",
-    "ts-loader": "5.4.5",
+    "ts-loader": "6.0.2",
     "typescript": "3.3.3",
     "uglifyjs-webpack-plugin": "2.1.1",
     "webpack": "4.29.4",
