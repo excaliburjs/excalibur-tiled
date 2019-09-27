@@ -7,19 +7,20 @@ This extension adds support for a new `TiledResource` to Excalibur.js to read [T
 Install using [npm](http://npmjs.org):
 
     npm install @excaliburjs/excalibur-tiled
-    
-Reference **dist/excalibur-tiled.min.js** in your page and then you can use it like this:
 
-```js
+## ES2015 (TS/JS)
 
-// New game
-var game = new ex.Engine({ width: 500, height: 400, canvasElementId: "game" });
+You can also use ES module syntax with TypeScript or Babel:
 
-// Create a new TiledResource loadable
-var map = new Extensions.Tiled.TiledResource("test.json");
+```ts
+import * as ex from 'excalibur';
+import { TiledResource } from '@excaliburjs/excalibur-tiled';
+
+// Create tiled map resource, pointing to static asset path
+const map = new TiledResource("/assets/map.json");
 
 // Create a loader and reference the map
-var loader = new ex.Loader([map]);
+const loader = new ex.Loader([map]);
 
 // Start the game (starts the loader)
 game.start(loader).then(function() {
@@ -32,7 +33,7 @@ game.start(loader).then(function() {
    });
    
    // get a Excalibur `TileMap` instance
-   var tm = map.getTileMap();
+   const tm = map.getTileMap();
    
    // draw the tile map
    game.add(tm);
@@ -40,15 +41,43 @@ game.start(loader).then(function() {
 });
 ```
 
-You can also use `import` syntax with TypeScript/Babel or `require` with CommonJS.
+[Parcel.js](https://parceljs.org) is one of the easiest ways to create an Excalibur game, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-tiled-example-4f83x?fontsize=14).
 
-```ts
-import TiledResource from 'excalibur-tiled'
+## Standalone Script File (JS)
 
-var map = new TiledResource("test.json");
+Reference **dist/excalibur-tiled.min.js** in your page and then you can use it like this:
+
+```js
+
+// New game
+const game = new ex.Engine({ width: 500, height: 400, canvasElementId: "game" });
+
+// Create a new TiledResource loadable
+const map = new Extensions.Tiled.TiledResource("test.json");
+
+// Create a loader and reference the map
+const loader = new ex.Loader([map]);
+
+// Start the game (starts the loader)
+game.start(loader).then(function() {
+   
+   console.log("Game loaded");
+   
+   // Process the data in the map as you like
+   map.data.tilesets.forEach(function(ts) {
+      console.log(ts.image, ts.imageTexture.isLoaded());
+   });
+   
+   // get a Excalibur `TileMap` instance
+   const tm = map.getTileMap();
+   
+   // draw the tile map
+   game.add(tm);
+   
+});
 ```
 
-The dist uses a UMD build and will attach itself to the `Extensions.Tiled` global if running in the browser standalone.
+The dist uses a UMD build and will attach itself to the `ex.Extensions.Tiled` global if running in the browser standalone.
 
 ## Documentation
 
