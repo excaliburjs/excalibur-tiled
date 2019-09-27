@@ -10,7 +10,7 @@ Install using [npm](http://npmjs.org):
 
 ## ES2015 (TS/JS)
 
-You can also use ES module syntax with TypeScript or Babel:
+The ES2015 `import` syntax is the recommended way to use Excalibur with Excalibur Tiled and is supported through a module loader like [webpack](https://github.com/excaliburjs/example-ts-webpack) or [Parcel](https://parceljs.org) with TypeScript or Babel:
 
 ```ts
 import * as ex from 'excalibur';
@@ -41,11 +41,18 @@ game.start(loader).then(function() {
 });
 ```
 
-[Parcel.js](https://parceljs.org) is one of the easiest ways to create an Excalibur game, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-tiled-example-4f83x?fontsize=14).
+For reference, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-tiled-example-4f83x?fontsize=14) for a Parcel-based game.
 
 ## Standalone Script File (JS)
 
-Reference **dist/excalibur-tiled.min.js** in your page and then you can use it like this:
+In your HTML file, add a reference **dist/excalibur-tiled.min.js** in your page:
+
+```html
+<script type="text/javascript" src="node_modules/excalibur/dist/excalibur.min.js"></script>
+<script type="text/javascript" src="node_modules/@excaliburjs/excalibur-tiled/dist/excalibur-tiled.min.js"></script>
+```
+
+and then you can use it like this:
 
 ```js
 
