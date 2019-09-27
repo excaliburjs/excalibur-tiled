@@ -43,6 +43,10 @@ game.start(loader).then(function() {
 
 For reference, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-tiled-example-4f83x?fontsize=14) for a Parcel-based game.
 
+### Webpack Configuration
+
+You will need to modify your webpack configuration to load Tiled JSON files using `file-loader` and then ensure any tilemap images are copied to the same output directory as your bundle, see [this example-ts-webpack branch](https://github.com/excaliburjs/example-ts-webpack/tree/feature/excalibur-tiled-with-webpack) for an example.
+
 ## Standalone Script File (JS)
 
 In your HTML file, add a reference **dist/excalibur-tiled.min.js** in your page:
