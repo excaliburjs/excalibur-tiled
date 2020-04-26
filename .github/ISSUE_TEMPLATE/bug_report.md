@@ -30,7 +30,9 @@ https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#rep
 <!-- Please fill out these fields -->
 - browsers and versions: <!-- e.x. Chrome (50.0.2883.87), Firefox (50.1.0), Edge (38.14393.0.0), etc. -->
 - operating system: <!-- What OS are you using? -->
+- Tiled version: <!-- which version of the Tiled editor are you using?-->
 - Excalibur versions: <!-- which version(s) of Excalibur contain the bug?-->
+- Tiled plugin versions: <!-- which version(s) of the Excalibur Tiled plugin contain the bug?-->
 - (anything else that may be relevant) <!-- Are there versions of Excalibur that don't contain the bug?, etc. -->
 
 ### Current Workaround
