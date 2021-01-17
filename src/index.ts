@@ -7,7 +7,7 @@ import {
    SpriteSheet,
    Logger
 } from 'excalibur';
-import { ITiledMap, ITiledTileSet } from './ITiledMap';
+import { TiledMap, TiledTileset } from './Tiled';
 import * as pako from 'pako';
 
 export enum TiledMapFormat {
@@ -24,12 +24,12 @@ export enum TiledMapFormat {
    JSON
 }
 
-export class TiledResource extends Resource<ITiledMap> {
+export class TiledResource extends Resource<TiledMap> {
 
    protected mapFormat: TiledMapFormat;
 
-   public imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
-   public externalTilesetPathAccessor: (path: string, ts: ITiledTileSet) => string;
+   public imagePathAccessor: (path: string, ts: TiledTileset) => string;
+   public externalTilesetPathAccessor: (path: string, ts: TiledTileset) => string;
 
    constructor(path: string, mapFormat = TiledMapFormat.JSON) {
       switch (mapFormat) {
@@ -61,8 +61,8 @@ export class TiledResource extends Resource<ITiledMap> {
       };
    }
 
-   public load(): Promise<ITiledMap> {
-      var p = new Promise<ITiledMap>();
+   public load(): Promise<TiledMap> {
+      var p = new Promise<TiledMap>();
 
       super.load().then(map => {
 
@@ -78,7 +78,7 @@ export class TiledResource extends Resource<ITiledMap> {
 
          this.data.tilesets.forEach(ts => {
             if (ts.source) {
-               var tileset = new Resource<ITiledTileSet>(
+               var tileset = new Resource<TiledTileset>(
                   this.externalTilesetPathAccessor(ts.source, ts), "json");
 
                promises.push(tileset.load().then(external => {
@@ -118,7 +118,7 @@ export class TiledResource extends Resource<ITiledMap> {
       return p;
    }
 
-   public processData(data: ITiledMap): ITiledMap {
+   public processData(data: TiledMap): TiledMap {
       if (typeof data !== "object") {
          throw `Tiled map resource ${this.path} is not the correct content type`;
       }
@@ -132,7 +132,7 @@ export class TiledResource extends Resource<ITiledMap> {
       }
    }
 
-   public getTilesetForTile(gid: number): ITiledTileSet {
+   public getTilesetForTile(gid: number): TiledTileset {
       for (var i = this.data.tilesets.length - 1; i >= 0; i--) {
          var ts = this.data.tilesets[i];
 
@@ -178,7 +178,7 @@ export class TiledResource extends Resource<ITiledMap> {
 /**
  * Handles parsing of JSON tiled data
  */
-var parseJsonMap = (data: ITiledMap): ITiledMap => {
+var parseJsonMap = (data: TiledMap): TiledMap => {
 
    // Decompress layers
    if (data.layers) {
