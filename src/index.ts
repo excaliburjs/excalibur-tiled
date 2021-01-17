@@ -9,6 +9,7 @@ import {
 } from 'excalibur';
 import { TiledMap, TiledTileset } from './Tiled';
 import * as pako from 'pako';
+import * as parser from 'fast-xml-parser'
 
 export enum TiledMapFormat {
 
@@ -31,8 +32,11 @@ export class TiledResource extends Resource<TiledMap> {
    public imagePathAccessor: (path: string, ts: TiledTileset) => string;
    public externalTilesetPathAccessor: (path: string, ts: TiledTileset) => string;
 
-   constructor(path: string, mapFormat = TiledMapFormat.JSON) {
+   constructor(path: string, mapFormat = TiledMapFormat.TMX) {
       switch (mapFormat) {
+         case TiledMapFormat.TMX:
+            super(path, 'text');
+            break;
          case TiledMapFormat.JSON:
             super(path, "json");
             break;
@@ -64,7 +68,7 @@ export class TiledResource extends Resource<TiledMap> {
    public load(): Promise<TiledMap> {
       var p = new Promise<TiledMap>();
 
-      super.load().then(map => {
+      return super.load().then((map: TiledMap) => {
 
          var promises: Promise<any>[] = [];
 
@@ -119,14 +123,14 @@ export class TiledResource extends Resource<TiledMap> {
    }
 
    public processData(data: TiledMap): TiledMap {
-      if (typeof data !== "object") {
-         throw `Tiled map resource ${this.path} is not the correct content type`;
-      }
       if (data === void 0) {
          throw `Tiled map resource ${this.path} is empty`;
       }
 
       switch (this.mapFormat) {
+         case TiledMapFormat.TMX:
+            // fall through
+            this.data = data = this._parseTmx(data as any);
          case TiledMapFormat.JSON:
             return parseJsonMap(data);
       }
@@ -172,6 +176,44 @@ export class TiledResource extends Resource<TiledMap> {
       }
 
       return map;
+   }
+
+   private _parseTmx(tmxData: string): TiledMap {
+      const options: parser.X2jOptionsOptional = {
+         attributeNamePrefix : "",
+         textNodeName : "#text",
+         ignoreAttributes : false,
+         ignoreNameSpace : false,
+         allowBooleanAttributes : true,
+         parseNodeValue : true,
+         parseAttributeValue : true,
+         trimValues: true,
+         parseTrueNumberOnly: false,
+         arrayMode: false, //"strict"
+         stopNodes: ["parse-me-as-string"]
+     };
+
+     const map = parser.parse(tmxData, options).map;
+
+     map.layers = Array.isArray(map.layer) ? map.layer : [map.layer];
+     delete map.layer;
+
+     for (let layer of map.layers) {
+        layer.type = layer.type ?? 'tilelayer';
+        layer.encoding = layer.data.encoding;
+        layer.data = layer.data['#text'].split(',').map(id => +id)
+     }
+
+     map.tilesets = Array.isArray(map.tileset) ? map.tileset : [map.tileset];
+     delete map.tileset;
+
+     for(let tileset of map.tilesets) {
+        tileset.imagewidth = tileset.image.width;
+        tileset.imageheight = tileset.image.height;
+        tileset.image = tileset.image.source;
+     }
+
+     return map;
    }
 }
 

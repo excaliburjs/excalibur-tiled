@@ -1,5 +1,5 @@
 import { Resource, Promise, TileMap } from 'excalibur';
-import { ITiledMap, ITiledTileSet } from './ITiledMap';
+import { TiledMap, TiledTileset } from './Tiled';
 export declare enum TiledMapFormat {
     /**
      * TMX map layer format
@@ -11,13 +11,14 @@ export declare enum TiledMapFormat {
      */
     JSON = 1
 }
-export declare class TiledResource extends Resource<ITiledMap> {
+export declare class TiledResource extends Resource<TiledMap> {
     protected mapFormat: TiledMapFormat;
-    imagePathAccessor: (path: string, ts: ITiledTileSet) => string;
-    externalTilesetPathAccessor: (path: string, ts: ITiledTileSet) => string;
+    imagePathAccessor: (path: string, ts: TiledTileset) => string;
+    externalTilesetPathAccessor: (path: string, ts: TiledTileset) => string;
     constructor(path: string, mapFormat?: TiledMapFormat);
-    load(): Promise<ITiledMap>;
-    processData(data: ITiledMap): ITiledMap;
-    getTilesetForTile(gid: number): ITiledTileSet;
+    load(): Promise<TiledMap>;
+    processData(data: TiledMap): TiledMap;
+    getTilesetForTile(gid: number): TiledTileset;
     getTileMap(): TileMap;
+    private _parseTmx;
 }

@@ -36,4 +36,4 @@ document.getElementById('select-map').addEventListener('change', (e) => {
    return true;
 })
 
-start("test.json");
+start("test.tmx");
