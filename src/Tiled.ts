@@ -6,6 +6,7 @@
  */
 export interface TiledMap {
    type: 'map';
+   ex: Excalibur;
    version: number;
    
    width: number;
@@ -77,8 +78,29 @@ export interface TiledMap {
 
 }
 
+export interface Excalibur {
+   camera?: ExcaliburCamera;
+   colliders?: ExcaliburCollider[];
+}
 
-export interface TiledProperty {
+export interface ExcaliburCamera {
+   x: number;
+   y: number;
+   zoom: number;
+}
+
+export interface ExcaliburCollider {
+   type: 'box' | 'circle';
+   collisionType: ex.CollisionType;
+   color: TiledProperty<string>;
+   zIndex: number;
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+   radius: number;
+}
+export interface TiledProperty<T = unknown> {
    /**
     * Name of the property
     */
@@ -90,7 +112,7 @@ export interface TiledProperty {
    /**
     * Value of the property
     */
-   value: unknown;
+   value: T;
 }
 
 export interface TiledLayer {

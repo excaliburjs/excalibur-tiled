@@ -5,9 +5,14 @@ import {
    TileMap,
    TileSprite,
    SpriteSheet,
-   Logger
+   Logger,
+   CollisionType,
+   vec,
+   Actor,
+   Color,
+   Vector
 } from 'excalibur';
-import { TiledMap, TiledTileset } from './Tiled';
+import { Excalibur, ExcaliburCamera, TiledLayer, TiledMap, TiledObject, TiledProperty, TiledTileset } from './Tiled';
 import * as pako from 'pako';
 import * as parser from 'fast-xml-parser'
 
@@ -15,14 +20,13 @@ export enum TiledMapFormat {
 
    /**
     * TMX map layer format
-    * @unsupported
     */
-   TMX,
+   TMX = 'TMX',
 
    /**
     * JSON map layer format
     */
-   JSON
+   JSON = 'JSON'
 }
 
 export class TiledResource extends Resource<TiledMap> {
@@ -65,12 +69,165 @@ export class TiledResource extends Resource<TiledMap> {
       };
    }
 
+   public getExcaliburInfo(): Excalibur {
+      return this.data.ex;
+   }
+
+   public getExcaliburObjectsLayer(): TiledLayer {
+      return this.getLayerByName('Excalibur');
+   }
+
+   public getLayerByName(name: string): TiledLayer {
+      return this.data.layers.filter(l => l.name === name)[0];
+   }
+
+   public getLayersByProperty(name: string, value: any): TiledLayer[] {
+      return this.data.layers.filter(l => this.getProperty(l, name)?.value === value);
+   }
+
+   public getLayers(): TiledLayer[] {
+      return this.data.layers;
+   }
+
+   public getObjectByType(layer: TiledLayer, type: 'camera' | 'boxcollider' | 'circlecollider'): TiledObject {
+      return this.getObjectsByType(layer, type)[0];
+   }
+
+   public getObjectsByType(layer: TiledLayer, type: 'camera' | 'boxcollider' | 'circlecollider'): TiledObject[] {
+      if (layer.type === 'objectgroup') {
+         return layer.objects.filter(o => o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
+      }
+      return [];
+   }
+
+   public getObjectByName(layer: TiledLayer, name: string): TiledObject {
+      return this.getObjectsByName(layer, name)[0];
+   }
+
+   public getObjectsByName(layer: TiledLayer, name: string): TiledObject[] {
+      if (layer.type === 'objectgroup') {
+         return layer.objects.filter(o => o.name?.toLocaleLowerCase() === name.toLocaleLowerCase());
+      }
+      return [];
+   }
+
+   public getProperty<T = unknown>(object: TiledObject | TiledLayer, prop: 'zindex' | 'zoom' | 'collisiontype' | 'color' | string): TiledProperty<T> {
+      return object.properties.filter(p => p.name?.toLocaleLowerCase() === prop.toLocaleLowerCase())[0] as TiledProperty<T>;
+   }
+
+   public getCamera(ex: TiledLayer): ExcaliburCamera {
+      const camera = this.getObjectByType(ex, 'camera');
+      if (camera) {
+         const zoom = this.getProperty(camera, 'zoom');
+         return ({
+            x: camera.x,
+            y: camera.y,
+            zoom: zoom ? +zoom.value : 1
+         })
+      }
+      return null;
+   }
+
+   public addTiledMapToScene(scene: ex.Scene) {
+      var tm = this.getTileMap();
+      scene.add(tm);
+
+      const excaliburInfo = this.getExcaliburInfo();
+      
+
+      const camera = excaliburInfo.camera;
+      if (camera) {
+         scene.camera.x = camera.x;
+         scene.camera.y = camera.y;
+         scene.camera.z = camera.zoom;
+      }
+
+      const solidLayers = this.getLayersByProperty('solid', true);
+      for (let solid of solidLayers) {
+         for(let i = 0; i < solid.data.length; i++) {
+            tm.data[i].solid = !!solid.data[i];
+         }
+      }
+
+      const colliders = excaliburInfo.colliders;
+      if (colliders) {
+         for (let collider of colliders) {
+            const actor = new Actor({
+               pos: vec(collider.x, collider.y),
+               collisionType: collider.collisionType ?? CollisionType.Fixed
+            });
+   
+            if (collider.color) {
+               actor.color = Color.fromHex(collider.color.value);
+            }
+            
+            if (collider.type === 'box') { 
+               actor.body.useBoxCollider(collider.width, collider.height, Vector.Zero);
+            }
+            if (collider.type === 'circle') {
+               actor.body.useCircleCollider(collider.radius);
+            }
+   
+            scene.add(actor);
+            
+            if (collider.zIndex) {
+               actor.z = collider.zIndex;
+            }
+         }
+
+      }
+
+   }
+
    public load(): Promise<TiledMap> {
       var p = new Promise<TiledMap>();
 
       return super.load().then((map: TiledMap) => {
 
          var promises: Promise<any>[] = [];
+
+         // Tiled+Excalibur smarts
+         // TODO case insensitive
+         this.data.ex = {}
+         var excalibur = this.getExcaliburObjectsLayer();
+         if (excalibur) {
+            // Parse cameras
+            this.data.ex.camera = this.getCamera(excalibur);
+            // Parse colliders
+            this.data.ex.colliders = [];
+            var boxColliders = this.getObjectsByType(excalibur,'boxcollider');
+            for (let box of boxColliders) {
+               var collisionType = this.getProperty<CollisionType>(box, 'collisiontype');
+               var color = this.getProperty<string>(box, 'color');
+               var zIndex = this.getProperty<number>(box, 'zindex');
+               this.data.ex.colliders.push({
+                  ...box,
+                  collisionType: collisionType?.value ?? CollisionType.Fixed,
+                  color,
+                  zIndex: +zIndex?.value ?? 0,
+                  radius: 0,
+                  type: 'box'
+               });
+            }
+
+            var circleColliders = this.getObjectsByType(excalibur, 'circlecollider');
+            for (let circle of circleColliders) {
+               var collisionType = this.getProperty<CollisionType>(circle, 'collisiontype');
+               var color = this.getProperty<string>(circle, 'color');
+               var zIndex = this.getProperty<number>(circle, 'zindex');
+               this.data.ex.colliders.push({
+                  x: circle.x,
+                  y: circle.y,
+                  radius: Math.max(circle.width, circle.height),
+                  collisionType: collisionType?.value ?? CollisionType.Fixed,
+                  color,
+                  zIndex: +zIndex?.value ?? 0,
+                  width: circle.width,
+                  height: circle.height,
+                  type: 'circle'
+               })
+            }
+         }
 
          // Loop through loaded tileset data
          // If we find an image property, then
@@ -178,6 +335,17 @@ export class TiledResource extends Resource<TiledMap> {
       return map;
    }
 
+   private _convertToArray(obj, prop, plurlalize = false) {
+      if (!obj[prop]) {
+         obj[prop + (plurlalize ? 's' : '')] = [];
+         return;
+      }
+
+      obj[prop + (plurlalize ? 's' : '')] = Array.isArray(obj[prop]) ? obj[prop] : [obj[prop]];
+      if (plurlalize) {
+         delete obj[prop];
+      }
+   }
    private _parseTmx(tmxData: string): TiledMap {
       const options: parser.X2jOptionsOptional = {
          attributeNamePrefix : "",
@@ -194,18 +362,30 @@ export class TiledResource extends Resource<TiledMap> {
      };
 
      const map = parser.parse(tmxData, options).map;
-
-     map.layers = Array.isArray(map.layer) ? map.layer : [map.layer];
-     delete map.layer;
+     this._convertToArray(map, 'layer', true);
 
      for (let layer of map.layers) {
         layer.type = layer.type ?? 'tilelayer';
         layer.encoding = layer.data.encoding;
         layer.data = layer.data['#text'].split(',').map(id => +id)
+        layer.properties = layer.properties?.property ?? [];
+        this._convertToArray(layer, 'properties');
      }
 
-     map.tilesets = Array.isArray(map.tileset) ? map.tileset : [map.tileset];
-     delete map.tileset;
+     let objectlayers = Array.isArray(map.objectgroup) ? map.objectgroup : [map.objectgroup];
+     for (let objectlayer of objectlayers) {
+         objectlayer.type = objectlayer.type ?? 'objectgroup';
+         objectlayer.objects = Array.isArray(objectlayer.object) ? objectlayer.object : [objectlayer.object];
+         objectlayer.objects.forEach(o => o.properties = o.properties?.property ?? []);
+         objectlayer.objects.forEach(o => this._convertToArray(o, 'properties'));
+         objectlayer.properties = objectlayer.properties?.property ?? [];
+         this._convertToArray(objectlayer, 'properties');
+         delete objectlayer.object;
+         map.layers.push(objectlayer)
+     }
+     delete map.objectgroup;
+
+     this._convertToArray(map, 'tileset', true);
 
      for(let tileset of map.tilesets) {
         tileset.imagewidth = tileset.image.width;
