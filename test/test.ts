@@ -56,51 +56,35 @@ var start = (mapFile: string) => {
 
 
          // Use polyline for patrols
-         const line = excalibur.getPolyLines()[0]
-         if (line && line.polyline) {
-            const start = ex.vec(line.x, line.y);
-            const firstpoint = line.polyline[0];
-            const patrol = new ex.Actor({x: line.x + firstpoint.x, y: line.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
-            for (const p of line.polyline) {
-               patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
+         const lines = excalibur.getPolyLines();
+         for (let line of lines) {
+            if (line && line.polyline) {
+               const start = ex.vec(line.x, line.y);
+               const firstpoint = line.polyline[0];
+               const patrol = new ex.Actor({x: line.x + firstpoint.x, y: line.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
+               for (const p of line.polyline) {
+                  patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
+               }
+               patrol.actions.repeatForever();
+               game.add(patrol);
             }
-            patrol.actions.repeatForever();
-            game.add(patrol);
          }
 
          // Use polygon for patrols
-         const poly = excalibur.getPolygons()[0]
-         poly.polygon?.push(poly.polygon[0]);
-         if (poly && poly.polygon) {
-            const start = ex.vec(poly.x, poly.y);
-            const firstpoint = poly.polygon[0];
-            const patrol = new ex.Actor({x: poly.x + firstpoint.x, y: poly.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
-            for (const p of poly.polygon) {
-               patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
+         const polys = excalibur.getPolygons();
+         for (let poly of polys) {
+            poly.polygon?.push(poly.polygon[0]); // needs to end where it started
+            if (poly && poly.polygon) {
+               const start = ex.vec(poly.x, poly.y);
+               const firstpoint = poly.polygon[0];
+               const patrol = new ex.Actor({x: poly.x + firstpoint.x, y: poly.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
+               for (const p of poly.polygon) {
+                  patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
+               }
+               patrol.actions.repeatForever();
+               game.add(patrol);
             }
-            patrol.actions.repeatForever();
-            game.add(patrol);
          }
-
-         const textobjects = excalibur.getText();
-         for (const text of textobjects) {
-            const label = new ex.Label({
-               x: text.x,
-               y: text.y + (text.height ?? 0),
-               anchor: ex.vec(0, 0),
-               width: text.width,
-               height: text.height,
-               text: text.text?.text, 
-               rotation: text.rotation,
-               fontFamily: text.text?.fontFamily,
-               fontSize: text.text?.pixelSize,
-               fontUnit: ex.FontUnit.Px,
-               color: ex.Color.fromHex(text.text?.color ?? '#ffffff')
-            });
-            game.add(label);
-         }
-
-         
       }
       map.addTiledMapToScene(game.currentScene);
    });

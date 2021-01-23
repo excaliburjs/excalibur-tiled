@@ -11,7 +11,9 @@ import {
    Actor,
    Color,
    Vector,
-   Scene
+   Scene,
+   FontUnit,
+   Label
 } from 'excalibur';
 import { ExcaliburData, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -110,6 +112,29 @@ export class TiledMapResource extends Resource<TiledMap> {
       }
    }
 
+   private _addTiledText(scene: Scene) {
+      const excalibur = this.data.getExcaliburObjects();
+      if (excalibur) {
+         const textobjects = excalibur.getText();
+         for (const text of textobjects) {
+            const label = new Label({
+               x: text.x,
+               y: text.y + (text.height ?? 0),
+               anchor: vec(0, 0),
+               width: text.width,
+               height: text.height,
+               text: text.text?.text, 
+               rotation: text.rotation,
+               fontFamily: text.text?.fontFamily,
+               fontSize: text.text?.pixelSize,
+               fontUnit: FontUnit.Px,
+               color: Color.fromHex(text.text?.color ?? '#ffffff')
+            });
+            scene.add(label);
+         }
+      }
+   }
+
    public addTiledMapToScene(scene: Scene) {
       this._parseExcaliburInfo();
       const tm = this.getTileMap();
@@ -117,6 +142,7 @@ export class TiledMapResource extends Resource<TiledMap> {
 
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
+      this._addTiledText(scene);
 
       const solidLayers = this.data.getLayersByProperty('solid', true);
       for (let solid of solidLayers) {
