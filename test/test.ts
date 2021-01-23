@@ -43,7 +43,7 @@ player.onPostUpdate = () => {
 }
 game.add(player);
 
-var start = (mapFile) => {
+var start = (mapFile: string) => {
    var map = new TiledMapResource(mapFile);
    var loader = new ex.Loader([map]);
    game.currentScene.tileMaps = []
@@ -58,7 +58,7 @@ var start = (mapFile) => {
    });
 }
 
-document.getElementById('select-map').addEventListener('change', (e) => {
+document.getElementById('select-map')!.addEventListener('change', (e) => {
    var map = (e.target as HTMLSelectElement).value;
 
    if (map) {

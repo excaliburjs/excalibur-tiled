@@ -50,6 +50,7 @@ export class TiledMapResource extends Resource<TiledMap> {
             throw `The format ${detectedType} is not currently supported. Please export Tiled map as JSON.`;
       }
       this.mapFormat = detectedType;
+      this.ex = {};
       this.imageMap = {};
       this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 
@@ -122,7 +123,7 @@ export class TiledMapResource extends Resource<TiledMap> {
       // Tiled+Excalibur smarts
       const excalibur = this.data.getExcaliburObjects();
 
-      const ex: ExcaliburData = {}
+      const ex: ExcaliburData = {};
       if (excalibur) {
          // Parse cameras
          ex.camera = excalibur.getCamera();
@@ -135,11 +136,11 @@ export class TiledMapResource extends Resource<TiledMap> {
             const zIndex = box.getProperty<number>('zindex');
             ex.colliders.push({
                ...box,
-               width: +box.width,
-               height: +box.height,
+               width: +(box.width ?? 0),
+               height: +(box.height ?? 0),
                collisionType: collisionType?.value ?? CollisionType.Fixed,
                color,
-               zIndex: +zIndex?.value ?? 0,
+               zIndex: +(zIndex?.value ?? 0),
                radius: 0,
                type: 'box'
             });
@@ -153,12 +154,12 @@ export class TiledMapResource extends Resource<TiledMap> {
             ex.colliders.push({
                x: circle.x,
                y: circle.y,
-               radius: Math.max(circle.width, circle.height),
+               radius: Math.max(circle.width ?? 0, circle.height?? 0),
                collisionType: collisionType?.value ?? CollisionType.Fixed,
                color,
-               zIndex: +zIndex?.value ?? 0,
-               width: circle.width,
-               height: circle.height,
+               zIndex: +(zIndex?.value ?? 0),
+               width: circle.width ?? 0,
+               height: circle.height ?? 0,
                type: 'circle'
             })
          }
@@ -169,7 +170,7 @@ export class TiledMapResource extends Resource<TiledMap> {
    public load(): ExcaliburPromise<TiledMap> {
       var p = new ExcaliburPromise<TiledMap>();
 
-      super.load().then((map: TiledMap) => {
+      super.load().then((map?: TiledMap) => {
          this._importMapData(map).then(() => {
             let promises: ExcaliburPromise<any>[] = [];
 
@@ -246,8 +247,7 @@ export class TiledMapResource extends Resource<TiledMap> {
             return ts;
          }
       }
-
-      return null;
+      throw Error(`No tileset exists for tiled gid [${gid}]!`);
    }
 
    public getTileMap(): TileMap {

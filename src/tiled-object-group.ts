@@ -2,23 +2,19 @@ import { ExcaliburCamera } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 export class TiledObjectGroup extends TiledEntity {
-   public id: number;
    public objects: TiledObject[] = [];
 
-
-   public getCamera(): ExcaliburCamera {
+   public getCamera(): ExcaliburCamera | undefined {
       const camera = this.getObjectByType('camera');
       if (camera) {
-         const zoom = camera.getProperty('zoom');
+         const zoom = camera.getProperty<number>('zoom');
          return ({
             x: camera.x,
             y: camera.y,
-            zoom: zoom ? +zoom.value : 1
+            zoom: zoom ? +(zoom?.value ?? 1) : 1
          })
       }
-      return null;
    }
-
 
    public getObjectByType(type: string): TiledObject {
       return this.getObjectsByType(type)[0];
@@ -38,10 +34,9 @@ export class TiledObjectGroup extends TiledEntity {
 }
 
 export class TiledObject extends TiledEntity {
-   public id: number;
    public type?: string;
-   public x: number;
-   public y: number;
+   public x!: number;
+   public y!: number;
    public width?: number;
    public height?: number;
 }

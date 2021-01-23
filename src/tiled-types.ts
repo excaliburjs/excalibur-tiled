@@ -92,7 +92,7 @@ export interface ExcaliburCamera {
 export interface ExcaliburCollider {
    type: 'box' | 'circle';
    collisionType: ex.CollisionType;
-   color: TiledProperty<string>;
+   color: TiledProperty<string> | undefined;
    zIndex: number;
    x: number;
    y: number;
@@ -116,7 +116,7 @@ export interface TiledProperty<T = unknown> {
 }
 
 export type TiledEncoding = 'csv' | 'base64';
-export type TiledCompression = 'zlib' | 'gzip' | 'zstd' | null;
+export type TiledCompression = 'zlib' | 'gzip' | 'zstd';
 
 export interface RawTiledLayer {
    /**

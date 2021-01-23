@@ -14,23 +14,23 @@ export class TiledMap {
    /**
     * Raw tilemap data
     */
-   rawMap: RawTiledMap;
+   rawMap!: RawTiledMap;
    /**
     * Width of the Tiled Map in tiles
     */
-   width: number;
+   width!: number;
    /**
     * Height of the Tiled Map in tiles
     */
-   height: number;
+   height!: number;
    /**
     * Width of an individual tile in pixels
     */
-   tileWidth: number;
+   tileWidth!: number;
    /**
     * Height of an individual tile in pixels
     */
-   tileHeight: number;
+   tileHeight!: number;
    /**
     * Tile layers in paint order, first layer in the list is drawn first and so forth
     */
@@ -61,7 +61,7 @@ export class TiledMap {
    }
 
    public static async fromTmx(tmxData: string): Promise<TiledMap> {
-      const _convertToArray = (obj, prop, plurlalize = false) => {
+      const _convertToArray = (obj: any, prop: string, plurlalize = false) => {
          if (!obj[prop]) {
             obj[prop + (plurlalize ? 's' : '')] = [];
             return;
@@ -95,7 +95,7 @@ export class TiledMap {
         layer.encoding = layer.data.encoding;
         layer.compression = layer.data.compression;
         if (layer.encoding === 'csv') {
-           layer.data = layer.data['#text'].split(',').map(id => +id);
+           layer.data = layer.data['#text'].split(',').map((id: any) => +id);
         } else {
            layer.data = layer.data['#text'];
         }
@@ -107,8 +107,8 @@ export class TiledMap {
      for (let objectlayer of objectlayers) {
          objectlayer.type = objectlayer.type ?? 'objectgroup';
          objectlayer.objects = Array.isArray(objectlayer.object) ? objectlayer.object : [objectlayer.object];
-         objectlayer.objects.forEach(o => o.properties = o.properties?.property ?? []);
-         objectlayer.objects.forEach(o => _convertToArray(o, 'properties'));
+         objectlayer.objects.forEach((o: any) => o.properties = o.properties?.property ?? []);
+         objectlayer.objects.forEach((o: any) => _convertToArray(o, 'properties'));
          objectlayer.properties = objectlayer.properties?.property ?? [];
          _convertToArray(objectlayer, 'properties');
          delete objectlayer.object;
@@ -258,7 +258,7 @@ const decompressors = {
       var PLUS_URL_SAFE = '-'.charCodeAt(0);
       var SLASH_URL_SAFE = '_'.charCodeAt(0);
 
-      function decode(elt) {
+      function decode(elt: string): number {
          var code = elt.charCodeAt(0)
          if (code === PLUS || code === PLUS_URL_SAFE) return 62 // '+'
          if (code === SLASH || code === SLASH_URL_SAFE) return 63 // '/'
@@ -266,6 +266,7 @@ const decompressors = {
          if (code < NUMBER + 10) return code - NUMBER + 26 + 26
          if (code < UPPER + 26) return code - UPPER
          if (code < LOWER + 26) return code - LOWER + 26
+         throw Error('Could not decode elt');
       }
 
       // the number of equal signs (place holders)
@@ -284,7 +285,7 @@ const decompressors = {
 
       var L = 0
 
-      function push(v) {
+      function push(v: number) {
          arr[L++] = v
       }
 
