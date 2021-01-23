@@ -1,28 +1,14 @@
-# Tiled Extension for Excalibur.js
+# Tiled Plugin for Excalibur.js
 
-This extension adds support for a new `TiledMapeResource` to Excalibur.js to read [Tiled map editor](http://mapeditor.org) files (now all types supported!).
-
-## Features
-
-* Parse default Tiled tmx files
-  - Supports all Tiled compressions zlib, gzip, and zstd
-* Parse Tiled exported json files
-* New TypeScript based object model for working with Tiled data
-* Automatic Excalibur wiring for certain Tiled properties and objects:
-  * Camera
-  * Colliders
-  * Solid TileMap Layers
-
-### Excalibur Wiring
-
-
-
+This extension adds support for tile maps from all [Tiled map editor](http://mapeditor.org) files in Excalibur. Use the `TiledMapResource` to load and interact with Tiled based maps!
 
 ## Quickstart
 
 Install using [npm](http://npmjs.org):
 
-    npm install @excaliburjs/plugin-tiled
+```
+> npm install @excaliburjs/plugin-tiled
+```
 
 ## ES2015 (TS/JS)
 
@@ -49,7 +35,93 @@ game.start(loader).then(function() {
 
 For reference, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-tiled-example-4f83x?fontsize=14) for a Parcel-based game.
 
-### Webpack Configuration
+## Features
+
+* Parse default Tiled tmx files
+  - Supports all Tiled compressions zlib, gzip, and zstd
+* Parse Tiled exported json files
+* Supports external tilesets `.tsx`
+* New TypeScript based object model for working with Tiled data
+  * Query for layers by property
+  * Query for objects by property
+  * Easy helpers to locate Polygons, Polylines, and Text
+* Automatic Excalibur wiring for certain Tiled properties and objects:
+  * Camera
+  * Colliders
+  * Solid TileMap Layers
+  * Tiled Text
+  * Inserted Tiled Tiles
+
+### Excalibur Wiring
+
+You may opt-in to the Excalibur wiring by calling `addTiledMapToScene(someScene)`
+
+```typescript
+// After loading tiledMapResource
+tiledMapResouce.addTiledMapToScene(game.currentScene);
+```
+
+* Camera Position & Zoom - You may set the starting camera position and 
+  - In an object layer named "Excalibur"
+  - Create a Tiled "Point" with the Tiled Type "Camera"
+  - Optionally, to set zoom other than the default of 1.0, create a custom property named "Zoom" with a numeric value
+
+* Solid layers - You can mark a particular layers tiles as solid in Tiled
+  - In the Tiled layer properties, add a custom property named "Solid" with a boolean value `true`
+  - The presence of a tile in this layer indicates that space is solid, the abscence of a tile means it is not solid
+
+* Colliders - You may position Excalibur colliders within Tiled
+  - In an object layer named "Excalibur"
+  - Create a "Circle" (ellipses are not supported) or "Rectangle"
+     - Set the Tiled type to "BoxCollider" or "CircleCollider" 
+     - Optionally, to set an Excalibur collision type specify a custom property named "CollisionType" with the value
+        - "Fixed" (default for colliders) - non-movable object
+        - "Passive" - triggers events, does not participate in collision
+        - "Active" - participates in collision and can be pushed around
+        - "PreventCollision" - all collisions are ignored
+
+* Text - You may insert excalibur labels within Tiled
+   - In an object layer named "Excalibur"
+   - Create a Tiled Text object
+
+* Inserted Tiles - You may insert tiles off grid in Tiled
+   - In an object layer named "Excalibur"
+   - Create a Tiled inserted Tile
+   - Optionally, to set an Excalibur collision type specify a custom property named "CollisionType" with the value
+        - "Fixed" non-movable object
+        - "Passive" (default for inserted tiles) - triggers events, does not participate in collision
+        - "Active" - participates in collision and can be pushed around
+        - "PreventCollision" - all collisions are ignored
+
+## Not Yet Supported Out of the Box
+
+* Currently Isometric and Hexagonal maps are not directly supported by Excalibur TileMaps, however the data is still parsed by this plugin and can be used manually by accessing `TiledMapResource.data.rawMap` after loading.
+
+* `RawTiledMap` fully types the Tiled 1.4.3 api.
+
+```typescript
+
+import * as ex from 'excalibur';
+import { TiledMapeResource } from '@excaliburjs/plugin-tiled';
+
+// Create tiled map resource, pointing to static asset path
+const tiledMap = new TiledMapResource("/assets/map.tmx");
+
+// Create a loader and reference the map
+const loader = new ex.Loader([tiledMap]);
+
+game.start(loader).then(function() {
+   
+   // Access raw data
+   const rawMap = tiledMap.data.rawMap;
+   
+});
+
+```
+
+
+
+## Webpack Configuration
 
 You will need to modify your webpack configuration to load Tiled JSON files using `file-loader` and then ensure any tilemap images are copied to the same output directory as your bundle, see [this example-ts-webpack branch](https://github.com/excaliburjs/example-ts-webpack/tree/feature/excalibur-tiled-with-webpack) for an example.
 

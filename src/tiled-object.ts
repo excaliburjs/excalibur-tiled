@@ -43,6 +43,10 @@ export class TiledObjectGroup extends TiledEntity {
    public getPolygons(): TiledObject[] {
       return this.objects.filter(o => !!o.polygon);
    }
+
+   public getInsertedTiles(): TiledObject[] {
+      return this.objects.filter(o => !!o.gid);
+   }
 }
 
 export class TiledObject extends TiledEntity {
@@ -53,9 +57,22 @@ export class TiledObject extends TiledEntity {
    public rotation!: number;
    public width?: number;
    public height?: number;
+   /**
+    * Present on text objects
+    */
    public text?: TiledText;
+   /**
+    * Present on polyline objects
+    */
    public polyline?: TiledPoint[];
+   /**
+    * Present on polygon objects
+    */
    public polygon?: TiledPoint[];
+   /**
+    * Present on inserted tile objects
+    */
+   public gid?: number;
 }
 
 export interface TiledText {
@@ -68,4 +85,8 @@ export interface TiledText {
    underline: boolean;
    strikeout: boolean;
    kerning: boolean;
+}
+
+export interface TiledInsertedTile extends TiledObject {
+   gid: number;
 }

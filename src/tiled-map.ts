@@ -7,7 +7,7 @@ import { ZSTDDecoder } from 'zstddec';
 
 import { RawTiledMap } from './tiled-types';
 import { TiledLayer } from "./tiled-layer";
-import { TiledObject, TiledObjectGroup } from "./tiled-object-group";
+import { TiledObject, TiledObjectGroup } from "./tiled-object";
 import { TiledTileset } from './tiled-tileset';
 import { Util } from 'excalibur';
 
@@ -190,6 +190,7 @@ export class TiledMap {
          for (let object of objectlayer.objects) {
             const resultObject = new TiledObject();
             resultObject.id = +object.id;
+            resultObject.gid = object.gid;
             resultObject.visible = object.visible ?? true;
             resultObject.name = object.name;
             resultObject.type = object.type;

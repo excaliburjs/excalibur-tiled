@@ -13,7 +13,8 @@ import {
    Vector,
    Scene,
    FontUnit,
-   Label
+   Label,
+   Sprite
 } from 'excalibur';
 import { ExcaliburData, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -36,6 +37,8 @@ export class TiledMapResource extends Resource<TiledMap> {
    readonly mapFormat: TiledMapFormat;
    public ex: ExcaliburData;
    public imageMap: Record<string, Texture>;
+   public sheetMap: Record<string, SpriteSheet>;
+   public map?: TileMap;
    public imagePathAccessor: (path: string, ts: RawTiledTileset) => string;
    public externalTilesetPathAccessor: (path: string, ts: RawTiledTileset) => string;
 
@@ -54,6 +57,7 @@ export class TiledMapResource extends Resource<TiledMap> {
       this.mapFormat = detectedType;
       this.ex = {};
       this.imageMap = {};
+      this.sheetMap = {};
       this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 
          // Use absolute path if specified
@@ -135,6 +139,38 @@ export class TiledMapResource extends Resource<TiledMap> {
       }
    }
 
+   private _addTiledInsertedTiles(scene: Scene) {
+      const excalibur = this.data.getExcaliburObjects();
+      if (excalibur) {
+         const inserted = excalibur.getInsertedTiles();
+         for (const tile of inserted) {
+            const collisionTypeProp = tile.getProperty<CollisionType>('collisionType');
+            let collisionType = CollisionType.PreventCollision;
+            if (collisionTypeProp) {
+               collisionType = collisionTypeProp.value;
+            }
+            if (tile.gid) {
+               const sprite = this.getSpriteForGid(tile.gid);
+               const actor = new Actor({
+                  x: tile.x,
+                  y: tile.y,
+                  width: tile.width,
+                  height: tile.width,
+                  anchor: vec(0, 1),
+                  rotation: tile.rotation,
+                  collisionType
+               });
+               actor.addDrawing(sprite);
+               scene.add(actor);
+               const z = tile.getProperty<number>('zindex');
+               if (z) {
+                  actor.z = +z.value;
+               }
+            }
+         }
+      }
+   }
+
    public addTiledMapToScene(scene: Scene) {
       this._parseExcaliburInfo();
       const tm = this.getTileMap();
@@ -143,6 +179,7 @@ export class TiledMapResource extends Resource<TiledMap> {
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
       this._addTiledText(scene);
+      this._addTiledInsertedTiles(scene);
 
       const solidLayers = this.data.getLayersByProperty('solid', true);
       for (let solid of solidLayers) {
@@ -243,6 +280,7 @@ export class TiledMapResource extends Resource<TiledMap> {
                });
 
                ExcaliburPromise.join.apply(this, promises).then(() => {
+                  this._createTileMap();
                   p.resolve(map);
                }, (value?: any) => {
                   p.reject(value);
@@ -263,7 +301,6 @@ export class TiledMapResource extends Resource<TiledMap> {
 
       switch (this.mapFormat) {
          case TiledMapFormat.TMX:
-            // fall through
             return this.data = await TiledMap.fromTmx(data as any);
          case TiledMapFormat.JSON:
             return this.data = await TiledMap.fromJson(data as any);
@@ -283,16 +320,33 @@ export class TiledMapResource extends Resource<TiledMap> {
       throw Error(`No tileset exists for tiled gid [${gid}]!`);
    }
 
-   public getTileMap(): TileMap {
-      var map = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
+   /**
+    * Given a Tiled TileSet gid, return the equivalent Excalibur Sprite
+    * @param gid 
+    */
+   public getSpriteForGid(gid: number): Sprite {
+      const tileset = this.getTilesetForTile(gid);
+      const spriteIndex = gid - tileset.firstgid;
+      const spriteSheet = this.sheetMap[tileset.firstgid.toString()];
+      if (spriteSheet) {
+         return spriteSheet.sprites[spriteIndex];
+      }
+      throw new Error(`Could not find sprite for gid: [${gid}]`);
+   }
+
+   /**
+    * Creates the Excalibur tile map representation
+    */
+   private _createTileMap() {
+      const map = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
 
       // register sprite sheets for each tileset in map
-      for (var ts of this.data.rawMap.tilesets) {
-         var cols = Math.floor(ts.imagewidth / ts.tilewidth);
-         var rows = Math.floor(ts.imageheight / ts.tileheight);
-         var ss = new SpriteSheet(this.imageMap[ts.firstgid], cols, rows, ts.tilewidth, ts.tileheight);
-
-         map.registerSpriteSheet(ts.firstgid.toString(), ss);
+      for (const tileset of this.data.rawMap.tilesets) {
+         const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
+         const rows = Math.floor(tileset.imageheight / tileset.tileheight);
+         const ss = new SpriteSheet(this.imageMap[tileset.firstgid], cols, rows, tileset.tilewidth, tileset.tileheight);
+         this.sheetMap[tileset.firstgid.toString()] = ss;
+         map.registerSpriteSheet(tileset.firstgid.toString(), ss);
       }
 
       for (var layer of this.data.rawMap.layers) {
@@ -309,7 +363,13 @@ export class TiledMapResource extends Resource<TiledMap> {
             }
          }
       }
+      this.map = map;
+   }
 
-      return map;
+   public getTileMap(): TileMap {
+      if (this.map) {
+         return this.map;
+      }
+      throw new Error('Error loading tile map');
    }
 }
