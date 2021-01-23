@@ -1,3 +1,6 @@
+// tmx xml parsing
+import * as parser from 'fast-xml-parser'
+
 import { TiledGrid, TiledMapTerrain, TiledProperty, TiledTile, TiledTileOffset, TiledWangSet } from "./tiled-types";
 
 export interface TiledTileset {
@@ -95,4 +98,50 @@ export interface TiledTileset {
     * Array of Wang sets (since 1.1.5)
     */
    wangSets: TiledWangSet[]
+}
+
+export const parseExternalTsx = (tsxData: string, tiledRef: any): TiledTileset => {
+
+   const options: parser.X2jOptionsOptional = {
+      attributeNamePrefix : "",
+      textNodeName : "#text",
+      ignoreAttributes : false,
+      ignoreNameSpace : false,
+      allowBooleanAttributes : true,
+      parseNodeValue : true,
+      parseAttributeValue : true,
+      trimValues: true,
+      parseTrueNumberOnly: false,
+      arrayMode: false,
+      stopNodes: ["parse-me-as-string"]
+  };
+
+   const rawTsx = parser.parse(tsxData, options).tileset;
+   const rawTileset = rawTsx;
+
+   rawTileset.firstgid = tiledRef.firstgid;
+   rawTileset.source = tiledRef.source;
+   rawTileset.imagewidth = rawTsx.image.width;
+   rawTileset.imageheight = rawTsx.image.height;
+   rawTileset.objectalignment = rawTsx.objectalignment ?? 'unspecified';
+   rawTileset.image = rawTsx.image.source;
+   
+   const result: TiledTileset = {
+      ...rawTileset,
+      firstGid: rawTileset.firstgid,
+      tileWidth: rawTileset.tilewidth,
+      tileHeight: rawTileset.tileheight,
+      tileCount: rawTileset.tilecount,
+      tileOffset: rawTileset.tileoffset,
+      tiledVersion: rawTileset.tiledversion,
+      backgroundColor: rawTileset.backgroundcolor,
+      transparentColor: rawTileset.transparentcolor,
+      wangSets: rawTileset.wangsets,
+      imageWidth: rawTileset.imagewidth,
+      imageHeight: rawTileset.imageheight,
+      objectAlignment: rawTileset.objectalignment ?? 'unspecified',
+      image: rawTileset.image,
+   };
+
+   return result;
 }

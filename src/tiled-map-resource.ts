@@ -18,6 +18,7 @@ import {
 } from 'excalibur';
 import { ExcaliburData, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
+import { parseExternalTsx } from './tiled-tileset';
 
 export enum TiledMapFormat {
 
@@ -254,11 +255,16 @@ export class TiledMapResource extends Resource<TiledMap> {
 
             this.data.rawMap.tilesets.forEach(ts => {
                if (ts.source) {
+                  const type = ts.source.includes('.tsx') ? 'text' : 'json';
                   var tileset = new Resource<RawTiledTileset>(
-                     this.externalTilesetPathAccessor(ts.source, ts), "json");
+                     this.externalTilesetPathAccessor(ts.source, ts), type);
 
-                  promises.push(tileset.load().then(external => {
+                  promises.push(tileset.load().then((external: any) => {
+                     if (type === 'text') {
+                        external = parseExternalTsx(external, ts);
+                     }
                      (Object as any).assign(ts, external);
+                     this.data.tileSets.push(external);
                   }));
                }
             });

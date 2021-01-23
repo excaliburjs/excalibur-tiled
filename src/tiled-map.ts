@@ -148,10 +148,13 @@ export class TiledMap {
 
      _convertToArray(rawMap, 'tileset', true);
      for(let tileset of rawMap.tilesets) {
-        tileset.imagewidth = tileset.image.width;
-        tileset.imageheight = tileset.image.height;
-        tileset.objectalignment = tileset.objectalignment ?? 'unspecified';
-        tileset.image = tileset.image.source;
+        // Map non-embedded tilesets
+        if (!tileset.source) {
+           tileset.imagewidth = tileset.image.width;
+           tileset.imageheight = tileset.image.height;
+           tileset.objectalignment = tileset.objectalignment ?? 'unspecified';
+           tileset.image = tileset.image.source;
+         }
      }
 
      return await TiledMap._fromRawTiledMap(rawMap);
@@ -215,24 +218,27 @@ export class TiledMap {
       }
 
       for(let tileset of rawMap.tilesets) {
-         const tileSet: TiledTileset = {
-            ...tileset,
-            firstGid: tileset.firstgid,
-            tileWidth: tileset.tilewidth,
-            tileHeight: tileset.tileheight,
-            tileCount: tileset.tilecount,
-            tileOffset: tileset.tileoffset,
-            tiledVersion: tileset.tiledversion,
-            backgroundColor: tileset.backgroundcolor,
-            transparentColor: tileset.transparentcolor,
-            wangSets: tileset.wangsets,
-            imageWidth: tileset.imagewidth,
-            imageHeight: tileset.imageheight,
-            objectAlignment: tileset.objectalignment ?? 'unspecified',
-            image: tileset.image,
-         };
- 
-         resultMap.tileSets.push(tileSet);
+         // Map non-embedded tilesets
+         if (!tileset.source) {
+            const tileSet: TiledTileset = {
+               ...tileset,
+               firstGid: tileset.firstgid,
+               tileWidth: tileset.tilewidth,
+               tileHeight: tileset.tileheight,
+               tileCount: tileset.tilecount,
+               tileOffset: tileset.tileoffset,
+               tiledVersion: tileset.tiledversion,
+               backgroundColor: tileset.backgroundcolor,
+               transparentColor: tileset.transparentcolor,
+               wangSets: tileset.wangsets,
+               imageWidth: tileset.imagewidth,
+               imageHeight: tileset.imageheight,
+               objectAlignment: tileset.objectalignment ?? 'unspecified',
+               image: tileset.image,
+            };
+   
+            resultMap.tileSets.push(tileSet);
+         }
       }
 
       return resultMap;
