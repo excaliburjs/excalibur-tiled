@@ -1,0 +1,29 @@
+## New Featuers
+
+* Parse default Tiled tmx files
+  - Supports all Tiled compressions zlib, gzip, and zstd
+* Parse Tile json files
+* New TypeScript based object model for working with Tiled data
+* Automatic Excalibur wiring for:
+  * Camera
+  * Colliders
+  * Solid TileMap Layers
+
+
+zstd compression?? zstd-codec
+https://github.com/yoshihitoh/zstd-codec/blob/develop/js/example/package.json
+
+Documentation
+
+Layers:
+- Property: Solid (Any non empty tile will be solid)
+
+Excalibur Layer Objects (Layer named "Excalibur")
+- Type: Camera (point)
+  - Property: Zoom (Default 1.0)
+- Type: BoxCollider (box)
+  - Property: CollisionType (Default: CollisionType.Fixed)
+  - Property: ZIndex (Default: 0)
+- Type: CircleCollider (ellipse)
+  - Property: CollisionType (Default: CollisionType.Fixed)
+  - Property: ZIndex (Default: 0)

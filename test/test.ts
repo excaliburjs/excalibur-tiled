@@ -49,11 +49,7 @@ var start = (mapFile) => {
    
    game.currentScene.tileMaps = []
    game.start(loader).then(function() {
-      
-      map.data.tilesets.forEach(function(ts) {
-         console.log(ts.image, ts.imageTexture.isLoaded());
-      });
-      const start = map.getObjectByName(map.getExcaliburObjectsLayer(), 'Start');
+      const start = map.data.getExcaliburObjects().getObjectByName('Start');
       player.pos.x = start.x;
       player.pos.y = start.y;
       map.addTiledMapToScene(game.currentScene);

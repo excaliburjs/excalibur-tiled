@@ -4,9 +4,9 @@
  * Represents the interface for the Tiled exported data structure (JSON). Used
  * when loading resources via Resource loader.
  */
-export interface TiledMap {
+export interface RawTiledMap {
    type: 'map';
-   ex: Excalibur;
+   ex: ExcaliburData;
    version: number;
    
    width: number;
@@ -53,9 +53,9 @@ export interface TiledMap {
     */
    orientation: 'orthoganal' | 'isometric' | 'staggered' | 'hexagonal';
 
-   layers: TiledLayer[];
+   layers: RawTiledLayer[];
    properties: TiledProperty[];
-   tilesets: TiledTileset[];
+   tilesets: RawTiledTileset[];
 
    /**
     * Render order: right-down (the default), right-up, left-down or left-up (currently only supported for orthogonal maps)
@@ -78,7 +78,7 @@ export interface TiledMap {
 
 }
 
-export interface Excalibur {
+export interface ExcaliburData {
    camera?: ExcaliburCamera;
    colliders?: ExcaliburCollider[];
 }
@@ -115,7 +115,10 @@ export interface TiledProperty<T = unknown> {
    value: T;
 }
 
-export interface TiledLayer {
+export type TiledEncoding = 'csv' | 'base64';
+export type TiledCompression = 'zlib' | 'gzip' | 'zstd' | null;
+
+export interface RawTiledLayer {
    /**
     * Incremental ID - unique across all layers
     */
@@ -152,11 +155,11 @@ export interface TiledLayer {
    /**
     * csv (default) or base64. tilelayer only.
     */
-   encoding: 'csv' | 'base64' | 'tilelayer';
+   encoding: TiledEncoding;
    /**
     * zlib, gzip, zstd (since Tiled 1.3) or empty (default). tilelayer only.
     */
-   compression?: 'zlib' | 'gzip' | 'zstd';
+   compression?: TiledCompression;
 
    /**
     * Type of layer (tilelayer, objectgroup)
@@ -208,7 +211,7 @@ export interface TiledLayer {
    /**
     * Array of objects. objectgroup only.
     */
-   objects: TiledObject[];
+   objects: RawTiledObject[];
 }
 
 export interface TiledChunk {
@@ -234,7 +237,7 @@ export interface TiledChunk {
    y: number;
 }
 
-export interface TiledObject {
+export interface RawTiledObject {
    id: number;
 
    /**
@@ -272,7 +275,7 @@ export interface TiledObject {
    /**
     *	Only used for text objects
     */
-   text: TiledText;
+   text: RawTiledText;
 
    /**
     * Whether or not object is an ellipse
@@ -290,7 +293,7 @@ export interface TiledObject {
    polyline: TiledPoint[];
 }
 
-export interface TiledText {
+export interface RawTiledText {
    text: string;
    /**
     * Whether to use a bold font (default: false)
@@ -338,7 +341,7 @@ export interface TiledText {
    wrap: boolean;
 }
 
-export interface TiledTileset {
+export interface RawTiledTileset {
    type: 'tileset';
    /**
     * The JSON format version
@@ -353,10 +356,6 @@ export interface TiledTileset {
     * Image used for tiles in this set
     */
    image: string;
-   /**
-    * Excalibur texture associated with this tileset
-    */
-   imageTexture: ex.Texture;
    /**
     * Height of source image in pixels
     */
@@ -528,7 +527,7 @@ export interface TiledTile {
    animation: TiledFrame[];
    properites: TiledProperty[];
    terrain: number[];
-   objectgroup: TiledLayer;
+   objectgroup: RawTiledLayer;
    probability: number;
 }
 
