@@ -1,4 +1,4 @@
-import { ExcaliburCamera } from "./tiled-types";
+import { ExcaliburCamera, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 export class TiledObjectGroup extends TiledEntity {
@@ -31,12 +31,41 @@ export class TiledObjectGroup extends TiledEntity {
    public getObjectsByName(name: string): TiledObject[] {
       return this.objects.filter(o => o.name?.toLocaleLowerCase() === name.toLocaleLowerCase());
    }
+
+   public getText(): TiledObject[] {
+      return this.objects.filter(o => !!o.text);
+   }
+
+   public getPolyLines(): TiledObject[] {
+      return this.objects.filter(o => !!o.polyline);
+   }
+
+   public getPolygons(): TiledObject[] {
+      return this.objects.filter(o => !!o.polygon);
+   }
 }
 
 export class TiledObject extends TiledEntity {
    public type?: string;
    public x!: number;
    public y!: number;
+   public visible!: boolean;
+   public rotation!: number;
    public width?: number;
    public height?: number;
+   public text?: TiledText;
+   public polyline?: TiledPoint[];
+   public polygon?: TiledPoint[];
+}
+
+export interface TiledText {
+   text: string;
+   color?: string;
+   fontFamily: string;
+   pixelSize: number;
+   bold: boolean;
+   italic: boolean;
+   underline: boolean;
+   strikeout: boolean;
+   kerning: boolean;
 }

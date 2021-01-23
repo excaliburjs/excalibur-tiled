@@ -72,25 +72,16 @@ export class TiledMapResource extends Resource<TiledMap> {
       };
    }
 
-   public addTiledMapToScene(scene: Scene) {
-      this._parseExcaliburInfo();
-      const tm = this.getTileMap();
-      scene.add(tm);
-
+   private _addTiledCamera(scene: Scene) {
       const camera = this.ex.camera;
       if (camera) {
          scene.camera.x = camera.x;
          scene.camera.y = camera.y;
          scene.camera.z = camera.zoom;
       }
+   }
 
-      const solidLayers = this.data.getLayersByProperty('solid', true);
-      for (let solid of solidLayers) {
-         for(let i = 0; i < solid.data.length; i++) {
-            tm.data[i].solid = !!solid.data[i];
-         }
-      }
-
+   private _addTiledColliders(scene: Scene) {
       const colliders = this.ex.colliders;
       if (colliders) {
          for (let collider of colliders) {
@@ -115,6 +106,22 @@ export class TiledMapResource extends Resource<TiledMap> {
             if (collider.zIndex) {
                actor.z = collider.zIndex;
             }
+         }
+      }
+   }
+
+   public addTiledMapToScene(scene: Scene) {
+      this._parseExcaliburInfo();
+      const tm = this.getTileMap();
+      scene.add(tm);
+
+      this._addTiledCamera(scene);
+      this._addTiledColliders(scene);
+
+      const solidLayers = this.data.getLayersByProperty('solid', true);
+      for (let solid of solidLayers) {
+         for(let i = 0; i < solid.data.length; i++) {
+            tm.data[i].solid = !!solid.data[i];
          }
       }
    }

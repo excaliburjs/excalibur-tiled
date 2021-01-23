@@ -9,6 +9,7 @@ import { RawTiledMap } from './tiled-types';
 import { TiledLayer } from "./tiled-layer";
 import { TiledObject, TiledObjectGroup } from "./tiled-object-group";
 import { TiledTileset } from './tiled-tileset';
+import { Util } from 'excalibur';
 
 export class TiledMap {
    /**
@@ -110,8 +111,37 @@ export class TiledMap {
          objectlayer.objects.forEach((o: any) => o.properties = o.properties?.property ?? []);
          objectlayer.objects.forEach((o: any) => _convertToArray(o, 'properties'));
          objectlayer.properties = objectlayer.properties?.property ?? [];
+         
          _convertToArray(objectlayer, 'properties');
          delete objectlayer.object;
+
+         for (let object of objectlayer.objects) {
+            if (object.text) {
+               object.text.text = object.text['#text'];
+               object.text.halign = object.text.halign ?? 'left';
+               object.text.valign = object.text.valign ?? 'top';
+               object.text.fontfamily = object.text.fontfamily ?? 'sans-serif'
+               object.text.pixelsize = +(object.text.pixelsize ?? 16);
+               object.text.kerning = !!object.text.kerning;
+               object.text.italic = !!object.text.italic;
+               object.text.bold = !!object.text.bold;
+               object.text.underline = !!object.text.underline;
+               object.text.strikeout = !!object.text.strikeout;
+               object.text.color = object.text.color;
+            }
+            if (object.polyline) {
+               object.polyline = object.polyline.points.split(' ').map((p: string) => {
+                  const point = p.split(',')
+                  return {x: +point[0], y: +point[1]}
+               });
+            }
+            if (object.polygon) {
+               object.polygon = object.polygon.points.split(' ').map((p: string) => {
+                  const point = p.split(',')
+                  return {x: +point[0], y: +point[1]}
+               });
+            }
+         }
          rawMap.layers.push(objectlayer);
      }
      delete rawMap.objectgroup;
@@ -160,12 +190,23 @@ export class TiledMap {
          for (let object of objectlayer.objects) {
             const resultObject = new TiledObject();
             resultObject.id = +object.id;
+            resultObject.visible = object.visible ?? true;
             resultObject.name = object.name;
             resultObject.type = object.type;
             resultObject.x = +object.x;
             resultObject.y = +object.y;
+            resultObject.rotation = object.rotation ? Util.toRadians(object.rotation) : 0;
             resultObject.width = object.width ?? 0;
             resultObject.height = object.height ?? 0;
+            resultObject.polyline = object.polyline;
+            resultObject.polygon = object.polygon;
+            if (object.text) {
+               resultObject.text = {
+                  ...object.text,
+                  pixelSize: object.text.pixelsize,
+                  fontFamily: object.text.fontfamily
+               }
+            }
             resultObject.properties = object.properties ?? [];
             resultObjectGroup.objects.push(resultObject);
          } 
