@@ -1,8 +1,9 @@
+// tmx xml parsing
 import * as parser from 'fast-xml-parser'
 // gzip & zlib
-import * as pako from 'pako';
+import { inflate as pakoInflate } from 'pako';
 // zstd
-import * as zsdt from 'zstd-codec';
+import { ZSTDDecoder } from 'zstddec';
 
 import { RawTiledMap } from './tiled-types';
 import { TiledLayer } from "./tiled-layer";
@@ -243,7 +244,7 @@ const decompressors = {
          l: number,
          tmp: number,
          placeHolders: number,
-         arr: number[] | Uint8Array;
+         arr: Uint8Array;
 
       if (b64.length % 4 > 0) {
          throw new Error('Invalid string. Length must be a multiple of 4')
@@ -317,7 +318,7 @@ const decompressors = {
          // Byte array
          // handle compression
          if ("zlib" === compression || "gzip" === compression) {
-            arr = pako.inflate( arr );
+            arr = pakoInflate( arr );
 
             var resultLen = arr.length / 4;
             var result = new Array<number>(resultLen);
@@ -329,10 +330,9 @@ const decompressors = {
          }
 
          if ("zstd" === compression) {
-            const ZstdCodec = zsdt.ZstdCodec;
-            ZstdCodec.run(zsdt => {
-               const simple = new zsdt.Simple();
-               arr = simple.decompress(arr);
+            const decoder = new ZSTDDecoder();
+            decoder.init().then(() => {
+               arr = decoder.decode(arr);
                var resultLen = arr.length / 4;
                var result = new Array<number>(resultLen);
 
