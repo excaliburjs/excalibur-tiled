@@ -46,12 +46,14 @@ game.add(player);
 var start = (mapFile) => {
    var map = new Extensions.TiledResource(mapFile);
    var loader = new ex.Loader([map]);
-   
    game.currentScene.tileMaps = []
    game.start(loader).then(function() {
-      const start = map.data.getExcaliburObjects().getObjectByName('Start');
-      player.pos.x = start.x;
-      player.pos.y = start.y;
+      const excalibur = map.data.getExcaliburObjects();
+      if (excalibur) {
+         const start = excalibur.getObjectByName('Start');
+         player.pos.x = start.x;
+         player.pos.y = start.y;
+      }
       map.addTiledMapToScene(game.currentScene);
    });
 }

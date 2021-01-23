@@ -37,8 +37,9 @@ export class TiledResource extends Resource<TiledMap> {
    public imagePathAccessor: (path: string, ts: RawTiledTileset) => string;
    public externalTilesetPathAccessor: (path: string, ts: RawTiledTileset) => string;
 
-   constructor(path: string, mapFormat = TiledMapFormat.TMX) {
-      switch (mapFormat) {
+   constructor(path: string, mapFormatOverride?: TiledMapFormat) {
+      const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
+      switch (detectedType) {
          case TiledMapFormat.TMX:
             super(path, 'text');
             break;
@@ -46,9 +47,9 @@ export class TiledResource extends Resource<TiledMap> {
             super(path, "json");
             break;
          default:
-            throw `The format ${mapFormat} is not currently supported. Please export Tiled map as JSON.`;
+            throw `The format ${detectedType} is not currently supported. Please export Tiled map as JSON.`;
       }
-      this.mapFormat = mapFormat;
+      this.mapFormat = detectedType;
       this.imageMap = {};
       this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 

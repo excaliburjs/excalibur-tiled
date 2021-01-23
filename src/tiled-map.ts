@@ -146,7 +146,7 @@ export class TiledMap {
          resultLayer.data = layer.data;
          resultLayer.encoding = layer.encoding;
          resultLayer.compression = layer.compression;
-         resultLayer.properties = layer.properties;
+         resultLayer.properties = layer.properties ?? [];
          resultMap.layers.push(resultLayer);
       }
 
@@ -155,7 +155,7 @@ export class TiledMap {
          const resultObjectGroup = new TiledObjectGroup();
          resultObjectGroup.id = +objectlayer.id;
          resultObjectGroup.name = objectlayer.name;
-         resultObjectGroup.properties = objectlayer.properties;
+         resultObjectGroup.properties = objectlayer.properties ?? [];
          for (let object of objectlayer.objects) {
             const resultObject = new TiledObject();
             resultObject.id = +object.id;
@@ -165,7 +165,7 @@ export class TiledMap {
             resultObject.y = +object.y;
             resultObject.width = object.width ?? 0;
             resultObject.height = object.height ?? 0;
-            resultObject.properties = object.properties;
+            resultObject.properties = object.properties ?? [];
             resultObjectGroup.objects.push(resultObject);
          } 
          resultMap.objectGroups.push(resultObjectGroup);
