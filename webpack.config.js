@@ -16,6 +16,9 @@ module.exports = {
      }
    ]
  },
+ node: {
+   fs: "empty"
+ },
  mode: 'development',
  devtool: 'source-map',
  devServer: {
@@ -27,7 +30,7 @@ module.exports = {
  output: {
    filename: "[name].js",
    path: path.join(__dirname, "dist"),
-   library: ["Extensions","Tiled"],
+   library: ["ex", "Plugin", "Tiled"],
    libraryTarget: "umd"
  },
  optimization: {

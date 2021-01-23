@@ -4,7 +4,7 @@ import * as pako from 'pako';
 // zstd
 import * as zsdt from 'zstd-codec';
 
-import { RawTiledMap } from './Tiled';
+import { RawTiledMap } from './tiled-types';
 import { TiledLayer } from "./tiled-layer";
 import { TiledObject, TiledObjectGroup } from "./tiled-object-group";
 import { TiledTileset } from './tiled-tileset';

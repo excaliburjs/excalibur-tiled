@@ -1,5 +1,7 @@
 module.exports = {
  entry: './test/test.ts',
+ mode: 'development',
+ devtool: 'source-map',
  module: {
    rules: [
      {

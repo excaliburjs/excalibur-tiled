@@ -1,4 +1,4 @@
-import { ExcaliburCamera } from "./Tiled";
+import { ExcaliburCamera } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 export class TiledObjectGroup extends TiledEntity {

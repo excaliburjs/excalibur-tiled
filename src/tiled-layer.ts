@@ -1,4 +1,4 @@
-import { TiledCompression, TiledEncoding } from "./Tiled";
+import { TiledCompression, TiledEncoding } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 export class TiledLayer extends TiledEntity {

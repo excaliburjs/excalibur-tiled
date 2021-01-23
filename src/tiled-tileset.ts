@@ -1,4 +1,4 @@
-import { TiledGrid, TiledMapTerrain, TiledProperty, TiledTile, TiledTileOffset, TiledWangSet } from "./Tiled";
+import { TiledGrid, TiledMapTerrain, TiledProperty, TiledTile, TiledTileOffset, TiledWangSet } from "./tiled-types";
 
 export interface TiledTileset {
    /**

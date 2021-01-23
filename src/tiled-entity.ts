@@ -1,4 +1,4 @@
-import { TiledProperty } from "./Tiled";
+import { TiledProperty } from "./tiled-types";
 
 
 export class TiledEntity {

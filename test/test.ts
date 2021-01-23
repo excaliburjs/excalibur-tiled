@@ -44,7 +44,7 @@ player.onPostUpdate = () => {
 game.add(player);
 
 var start = (mapFile) => {
-   var map = new Extensions.TiledResource(mapFile);
+   var map = new Extensions.TiledMapResource(mapFile);
    var loader = new ex.Loader([map]);
    game.currentScene.tileMaps = []
    game.start(loader).then(function() {
