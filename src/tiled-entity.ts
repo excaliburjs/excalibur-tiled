@@ -6,6 +6,8 @@ export class TiledEntity {
    public name?: string;
    public properties: TiledProperty[] = [];
    public getProperty<T = unknown>(prop: string): TiledProperty<T> | undefined {
-      return this.properties.filter(p => p.name?.toLocaleLowerCase() === prop.toLocaleLowerCase())[0] as TiledProperty<T>;
+      if (Array.isArray(this.properties)) {
+         return this.properties?.filter(p => p.name?.toLocaleLowerCase() === prop.toLocaleLowerCase())[0] as TiledProperty<T>;
+      }
    }
 }
