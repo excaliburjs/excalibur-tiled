@@ -1,12 +1,28 @@
 # Tiled Extension for Excalibur.js
 
-This extension adds support for a new `TiledResource` to Excalibur.js to read [Tiled map editor](http://mapeditor.org) files (currently only JSON).
+This extension adds support for a new `TiledMapeResource` to Excalibur.js to read [Tiled map editor](http://mapeditor.org) files (now all types supported!).
+
+## Features
+
+* Parse default Tiled tmx files
+  - Supports all Tiled compressions zlib, gzip, and zstd
+* Parse Tiled exported json files
+* New TypeScript based object model for working with Tiled data
+* Automatic Excalibur wiring for certain Tiled properties and objects:
+  * Camera
+  * Colliders
+  * Solid TileMap Layers
+
+### Excalibur Wiring
+
+
+
 
 ## Quickstart
 
 Install using [npm](http://npmjs.org):
 
-    npm install @excaliburjs/excalibur-tiled
+    npm install @excaliburjs/plugin-tiled
 
 ## ES2015 (TS/JS)
 
@@ -14,29 +30,19 @@ The ES2015 `import` syntax is the recommended way to use Excalibur with Excalibu
 
 ```ts
 import * as ex from 'excalibur';
-import { TiledResource } from '@excaliburjs/excalibur-tiled';
+import { TiledMapeResource } from '@excaliburjs/plugin-tiled';
 
 // Create tiled map resource, pointing to static asset path
-const map = new TiledResource("/assets/map.json");
+const tiledMap = new TiledMapResource("/assets/map.tmx");
 
 // Create a loader and reference the map
-const loader = new ex.Loader([map]);
+const loader = new ex.Loader([tiledMap]);
 
 // Start the game (starts the loader)
 game.start(loader).then(function() {
    
    console.log("Game loaded");
-   
-   // Process the data in the map as you like
-   map.data.tilesets.forEach(function(ts) {
-      console.log(ts.image, ts.imageTexture.isLoaded());
-   });
-   
-   // get a Excalibur `TileMap` instance
-   const tm = map.getTileMap();
-   
-   // draw the tile map
-   game.add(tm);
+   tiledMap.addTiledMapToScene(game.currentScene);
    
 });
 ```
@@ -63,36 +69,27 @@ and then you can use it like this:
 // New game
 const game = new ex.Engine({ width: 500, height: 400, canvasElementId: "game" });
 
-// Create a new TiledResource loadable
-const map = new Extensions.Tiled.TiledResource("test.json");
+// Create a new TiledMapResource loadable
+const tiledMap = new ex.Plugin.Tiled.TiledMapResource("test.tmx");
 
 // Create a loader and reference the map
-const loader = new ex.Loader([map]);
+const loader = new ex.Loader([tiledMap]);
 
 // Start the game (starts the loader)
 game.start(loader).then(function() {
    
    console.log("Game loaded");
    
-   // Process the data in the map as you like
-   map.data.tilesets.forEach(function(ts) {
-      console.log(ts.image, ts.imageTexture.isLoaded());
-   });
-   
-   // get a Excalibur `TileMap` instance
-   const tm = map.getTileMap();
-   
-   // draw the tile map
-   game.add(tm);
+   tiledMap.addTiledMapToScene(game.currentScene);
    
 });
 ```
 
-The dist uses a UMD build and will attach itself to the `ex.Extensions.Tiled` global if running in the browser standalone.
+The dist uses a UMD build and will attach itself to the `ex.Plugin.Tiled` global if running in the browser standalone.
 
 ## Documentation
 
-The `TiledResource` loadable will load the map file you specify along with any referenced tile set assets (images). 
+The `TiledMapResource` loadable will load the map file you specify along with any referenced tile set assets (images). 
 
 ### Handling Tiled Paths
 
@@ -133,18 +130,18 @@ assets/
   - tsx/map.tsx
 ```
 
-When your game loads and the extension loads your map file (`/assets/maps/map.json`), the paths will be loaded **relative** to the map JSON file, so they will return 404 responses:
+When your game loads and the extension loads your map file (`/assets/maps/map.tmx`), the paths will be loaded **relative** to the map tmx file, so they will return 404 responses:
 
 ```
 GET /assets/maps/map.png -> 404 Not Found
 GET /assets/maps/map.tsx -> 404 Not Found
 ```
 
-If you need to override this behavior, you can set `imagePathAccessor` or `externalTilesetPathAccessor` to a custom function that takes two parameters: path and `ITiledTileSet` data.
+If you need to override this behavior, you can set `imagePathAccessor` or `externalTilesetPathAccessor` to a custom function that takes two parameters: path and `TiledTileSet` data.
 
 ```js
 // Create a new TiledResource loadable
-var map = new Extensions.Tiled.TiledResource("map.json");
+var map = new ex.Plugin.Tiled.TiledMapResource("map.tmx");
 
 map.imagePathAccessor = function (path, tileset) {
    return "/assets/tx/" + path;
@@ -163,11 +160,14 @@ GET /assets/tsx/map.tsx -> 200 OK
 
 ### Supported Formats
 
-Only supports JSON file format with CSV or Base64 (uncompressed) tile layer format.
+Supports all currently supported Tiled 1.4.3 formats!
+
+* TMX - CSV, Base64 + Compressed (`zlib`, `gzip`, and `zstd`)
+* JSON Tiled Export
 
 ## Contributing
 
-- Built with webpack 3
+- Built with webpack 4
 - Uses webpack-dev-server
 
 To start development server:
