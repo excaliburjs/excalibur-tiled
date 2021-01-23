@@ -25,7 +25,10 @@ module.exports = {
    contentBase: '.',
  },
  resolve: {
-   extensions: [".tsx", ".ts", ".js"]
+   extensions: [".tsx", ".ts", ".js"],
+   alias: {
+      "@excalibur-tiled": path.resolve(__dirname, './src/')
+   }
  },
  output: {
    filename: "[name].js",

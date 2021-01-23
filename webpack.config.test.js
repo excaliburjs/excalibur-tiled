@@ -1,3 +1,4 @@
+const path = require("path")
 module.exports = {
  entry: './test/test.ts',
  mode: 'development',
@@ -11,8 +12,14 @@ module.exports = {
      }
    ]
  },
+ node: {
+   fs: "empty"
+ },
  resolve: {
-   extensions: [".tsx", ".ts", ".js"]
+   extensions: [".tsx", ".ts", ".js"],
+   alias: {
+      "@excalibur-tiled": path.resolve(__dirname, './src/')
+   }
  },
  output: {
    filename: 'test/test.js',
