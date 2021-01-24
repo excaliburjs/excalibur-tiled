@@ -340,24 +340,20 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const spriteSheet = this.sheetMap[tileset.firstgid.toString()];
       if (spriteSheet) {
          let sprite = spriteSheet.sprites[spriteIndex];
-         let cloned = false;
-         if (d) {
+         if (d || h || v) {
             sprite = sprite.clone();
-            sprite.anchor = vec(0, 1);
-            sprite.offset = vec(0, -2 * sprite.height);
-            sprite.rotation = Math.PI/2;
-            sprite.flipVertical = true;
+            sprite.anchor = Vector.Half;
+         }
+         // See https://github.com/mapeditor/tiled/issues/2119#issuecomment-491533214
+         if (d) {
+            sprite.rotation = -Math.PI / 2;
+            sprite.scale = vec(-1, 1);
          }
          if (h) {
-            sprite = sprite.clone();
-            sprite.flipHorizontal = d ? false : true;
-            sprite.flipVertical = d ? true : false;
+            sprite.scale = vec((d ? 1 : -1) * sprite.scale.x, (d ? -1 : 1) * sprite.scale.y);
          }
-
          if (v) {
-            sprite = sprite.clone();
-            sprite.flipHorizontal = d ? true : false;
-            sprite.flipVertical = d ? false : true;
+            sprite.scale = vec((d ? -1 : 1) * sprite.scale.x, (d ? 1 : -1) * sprite.scale.y);
          }
          return sprite;
       }
