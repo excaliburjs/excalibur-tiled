@@ -40,7 +40,7 @@ For reference, see this [CodeSandbox sample](https://codesandbox.io/s/excalibur-
 * Parse default Tiled tmx files
   - Supports all Tiled compressions zlib, gzip, and zstd
 * Parse Tiled exported json files
-* Supports external tilesets `.tsx`
+* Supports external tilesets `.tsx` and `json`
 * New TypeScript based object model for working with Tiled data
   * Query for layers by property
   * Query for objects by property

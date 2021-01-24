@@ -373,7 +373,7 @@ const decompressors = {
             var result = new Array<number>(resultLen);
 
             for (i = 0; i < resultLen; i++) {
-               result[i] = toNumber(arr.slice(i * 4, i * 4 + 3));
+               result[i] = toNumber(arr.slice(i * 4, i * 4 + 4));
             }
             resolve(result);
          }
@@ -386,7 +386,7 @@ const decompressors = {
                var result = new Array<number>(resultLen);
 
                for (i = 0; i < resultLen; i++) {
-                  result[i] = toNumber(arr.slice(i * 4, i * 4 + 3));
+                  result[i] = toNumber(arr.slice(i * 4, i * 4 + 4));
                }
                resolve(result);
             });
