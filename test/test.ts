@@ -5,11 +5,13 @@ const game = new ex.Engine({
    width: 800, 
    height: 600, 
    canvasElementId: 'game',
-   pointerScope: ex.Input.PointerScope.Canvas
+   pointerScope: ex.Input.PointerScope.Canvas,
+   antialiasing: false,
 });
 // game.isDebug = true;
 
 const reset = () => {
+   game.currentScene.camera.clearAllStrategies();
    game.currentScene.actors.forEach(a => {
       game.currentScene.remove(a);
    });
@@ -23,6 +25,8 @@ const start = (mapFile: string) => {
       color: ex.Color.Blue,
       collisionType: ex.CollisionType.Active
    });
+   (window as any).player = player;
+   (window as any).game = game;
    player.on('collisionstart', () => {
       console.log('entered an area');
    });
@@ -30,7 +34,7 @@ const start = (mapFile: string) => {
       console.log('left an area');
    });
    
-   game.currentScene.camera.strategy.elasticToActor(player, .5, .9);
+   game.currentScene.camera.strategy.elasticToActor(player, .8, .9);
    
    player.onPostUpdate = () => {
       player.vel.setTo(0, 0);
@@ -56,9 +60,11 @@ const start = (mapFile: string) => {
    game.start(loader).then(function() {
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur) {
-         const start = excalibur.getObjectByName('Start');
-         player.pos.x = start.x;
-         player.pos.y = start.y;
+         const start = excalibur.getObjectByName('player-start');
+         if (start) {
+            player.pos.x = start.x;
+            player.pos.y = start.y;
+         }
 
 
          // Use polyline for patrols

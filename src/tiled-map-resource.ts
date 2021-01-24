@@ -1,9 +1,7 @@
 import {
    Resource,
-   Promise as ExcaliburPromise,
    Texture,
    TileMap,
-   TileSprite,
    SpriteSheet,
    Logger,
    CollisionType,
@@ -14,11 +12,13 @@ import {
    Scene,
    FontUnit,
    Label,
-   Sprite
+   Sprite,
+   Loadable
 } from 'excalibur';
-import { ExcaliburData, RawTiledTileset } from './tiled-types';
+import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
 import { parseExternalTsx } from './tiled-tileset';
+import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
 
 export enum TiledMapFormat {
 
@@ -33,7 +33,9 @@ export enum TiledMapFormat {
    JSON = 'JSON'
 }
 
-export class TiledMapResource extends Resource<TiledMap> {
+export class TiledMapResource implements Loadable<TiledMap> {
+   private _resource: Resource<string | RawTiledMap>;
+   public data!: TiledMap;
 
    readonly mapFormat: TiledMapFormat;
    public ex: ExcaliburData;
@@ -43,14 +45,14 @@ export class TiledMapResource extends Resource<TiledMap> {
    public imagePathAccessor: (path: string, ts: RawTiledTileset) => string;
    public externalTilesetPathAccessor: (path: string, ts: RawTiledTileset) => string;
 
-   constructor(path: string, mapFormatOverride?: TiledMapFormat) {
+   constructor(public path: string, mapFormatOverride?: TiledMapFormat) {
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
       switch (detectedType) {
          case TiledMapFormat.TMX:
-            super(path, 'text');
+            this._resource = new Resource(path, 'text');
             break;
          case TiledMapFormat.JSON:
-            super(path, "json");
+            this._resource = new Resource(path, 'json');
             break;
          default:
             throw `The format ${detectedType} is not currently supported. Please export Tiled map as JSON.`;
@@ -118,7 +120,7 @@ export class TiledMapResource extends Resource<TiledMap> {
    }
 
    private _addTiledText(scene: Scene) {
-      const excalibur = this.data.getExcaliburObjects();
+      const excalibur = this.data?.getExcaliburObjects();
       if (excalibur) {
          const textobjects = excalibur.getText();
          for (const text of textobjects) {
@@ -126,8 +128,6 @@ export class TiledMapResource extends Resource<TiledMap> {
                x: text.x,
                y: text.y + (text.height ?? 0),
                anchor: vec(0, 0),
-               width: text.width,
-               height: text.height,
                text: text.text?.text, 
                rotation: text.rotation,
                fontFamily: text.text?.fontFamily,
@@ -141,7 +141,7 @@ export class TiledMapResource extends Resource<TiledMap> {
    }
 
    private _addTiledInsertedTiles(scene: Scene) {
-      const excalibur = this.data.getExcaliburObjects();
+      const excalibur = this.data?.getExcaliburObjects();
       if (excalibur) {
          const inserted = excalibur.getInsertedTiles();
          for (const tile of inserted) {
@@ -175,6 +175,7 @@ export class TiledMapResource extends Resource<TiledMap> {
    public addTiledMapToScene(scene: Scene) {
       this._parseExcaliburInfo();
       const tm = this.getTileMap();
+      tm.components.transform.z = -1;
       scene.add(tm);
 
       this._addTiledCamera(scene);
@@ -182,7 +183,7 @@ export class TiledMapResource extends Resource<TiledMap> {
       this._addTiledText(scene);
       this._addTiledInsertedTiles(scene);
 
-      const solidLayers = this.data.getLayersByProperty('solid', true);
+      const solidLayers = this.data?.getLayersByProperty('solid', true) ?? [];
       for (let solid of solidLayers) {
          for(let i = 0; i < solid.data.length; i++) {
             tm.data[i].solid = !!solid.data[i];
@@ -192,7 +193,7 @@ export class TiledMapResource extends Resource<TiledMap> {
 
    private _parseExcaliburInfo() {
       // Tiled+Excalibur smarts
-      const excalibur = this.data.getExcaliburObjects();
+      const excalibur = this.data?.getExcaliburObjects();
 
       const ex: ExcaliburData = {};
       if (excalibur) {
@@ -238,89 +239,88 @@ export class TiledMapResource extends Resource<TiledMap> {
       this.ex = ex;
    }
 
-   public load(): ExcaliburPromise<TiledMap> {
-      var p = new ExcaliburPromise<TiledMap>();
+   public isLoaded() {
+      return !!this.data;
+   }
 
-      super.load().then((map?: TiledMap) => {
-         this._importMapData(map).then(() => {
-            let promises: ExcaliburPromise<any>[] = [];
+   public async load(): Promise<TiledMap> {
+      const mapData = await this._resource.load();
+      const tiledMap = await this._importMapData(mapData);
+      let externalTilesets: Promise<any>[] = [];
 
-            // Loop through loaded tileset data
-            // If we find an image property, then
-            // load the image and sprite
+      // Loop through loaded tileset data
+      // If we find an image property, then
+      // load the image and sprite
 
-            // If we find a source property, then
-            // load the tileset data, merge it with
-            // existing data, and load the image and sprite
+      tiledMap.rawMap.tilesets.forEach(ts => {
+         // If we find a source property, then
+         // load the tileset data, merge it with
+         // existing data, and load the image and sprite
+         if (ts.source) {
+            const type = ts.source.includes('.tsx') ? 'text' : 'json';
+            var tileset = new Resource<RawTiledTileset>(
+               this.externalTilesetPathAccessor(ts.source, ts), type);
 
-            this.data.rawMap.tilesets.forEach(ts => {
-               if (ts.source) {
-                  const type = ts.source.includes('.tsx') ? 'text' : 'json';
-                  var tileset = new Resource<RawTiledTileset>(
-                     this.externalTilesetPathAccessor(ts.source, ts), type);
-
-                  promises.push(tileset.load().then((external: any) => {
-                     if (type === 'text') {
-                        external = parseExternalTsx(external, ts);
-                     }
-                     (Object as any).assign(ts, external);
-                     this.data.tileSets.push(external);
-                  }));
+            externalTilesets.push(tileset.load().then((external: any) => {
+               if (type === 'text') {
+                  external = parseExternalTsx(external, ts);
                }
-            });
+               Object.assign(ts, external);
+               tiledMap.tileSets.push(external);
+            }, () => {
+               Logger.getInstance().error(`[Tiled] Error loading external tileset file ${tileset.path}`)
+            }));
+         }
+      });
 
-            // wait or immediately resolve pending promises
-            // for external tilesets
-            ExcaliburPromise.join.apply(this, promises).then(() => {
+      // Load all tilesets if necessary
+      await Promise.all(externalTilesets).then(() => {
 
-               // clear pending promises
-               promises = [];
+         // external images
+         let externalImages: Promise<any>[] = [];
 
-               // retrieve images from tilesets and create textures
-               this.data.rawMap.tilesets.forEach(ts => {
-                  const tx = new Texture(this.imagePathAccessor(ts.image, ts));
-                  this.imageMap[ts.firstgid] = tx;
-                  promises.push(tx.load());
+         // retrieve images from tilesets and create textures
+         tiledMap.rawMap.tilesets.forEach(ts => {
+            const tx = new Texture(this.imagePathAccessor(ts.image, ts));
+            this.imageMap[ts.firstgid] = tx;
+            externalImages.push(tx.load());
 
-                  Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
-               });
+            Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+         });
 
-               ExcaliburPromise.join.apply(this, promises).then(() => {
-                  this._createTileMap();
-                  p.resolve(map);
-               }, (value?: any) => {
-                  p.reject(value);
-               });
-            }, (value?: any) => {
-               p.reject(value);
-            });
+         return Promise.all(externalImages).then(() => {
+            this._createTileMap();
+         }, () => {
+            Logger.getInstance().error("[Tiled] Error loading tileset images")
          });
       });
 
-      return p;
+      return tiledMap;
    }
 
-   private async _importMapData(data: any): Promise<TiledMap> {
+   private async _importMapData(data: string | RawTiledMap): Promise<TiledMap> {
       if (data === void 0) {
          throw `Tiled map resource ${this.path} is empty`;
       }
 
       switch (this.mapFormat) {
          case TiledMapFormat.TMX:
-            return this.data = await TiledMap.fromTmx(data as any);
+            return this.data = await TiledMap.fromTmx(data as string);
          case TiledMapFormat.JSON:
-            return this.data = await TiledMap.fromJson(data as any);
+            return this.data = await TiledMap.fromJson(data as RawTiledMap);
          default:
             throw new Error('Unknown map format: ' + this.mapFormat);
       }
    }
 
    public getTilesetForTile(gid: number): RawTiledTileset {
-      for (var i = this.data.rawMap.tilesets.length - 1; i >= 0; i--) {
-         var ts = this.data.rawMap.tilesets[i];
-
-         if (ts.firstgid <= gid) {
-            return ts;
+      if (this.data) {
+         for (var i = this.data.rawMap.tilesets.length - 1; i >= 0; i--) {
+            var ts = this.data.rawMap.tilesets[i];
+   
+            if (ts.firstgid <= gid) {
+               return ts;
+            }
          }
       }
       throw Error(`No tileset exists for tiled gid [${gid}]!`);
@@ -331,11 +331,25 @@ export class TiledMapResource extends Resource<TiledMap> {
     * @param gid 
     */
    public getSpriteForGid(gid: number): Sprite {
+      const h = isFlippedHorizontally(gid);
+      const v = isFlippedVertically(gid);
+      const d = isFlippedDiagonally(gid);
+      const canGid = getCanonicalGid(gid);
       const tileset = this.getTilesetForTile(gid);
-      const spriteIndex = gid - tileset.firstgid;
+      const spriteIndex = canGid - tileset.firstgid;
       const spriteSheet = this.sheetMap[tileset.firstgid.toString()];
       if (spriteSheet) {
-         return spriteSheet.sprites[spriteIndex];
+         let sprite = spriteSheet.sprites[spriteIndex];
+         if (d) {
+            sprite = sprite.clone();
+            sprite.rotation = Math.PI / 2;
+         }
+         if (h || v){
+            sprite = sprite.clone();
+            sprite.flipHorizontal = h;
+            sprite.flipVertical = v;
+         }
+         return sprite;
       }
       throw new Error(`Could not find sprite for gid: [${gid}]`);
    }
@@ -356,15 +370,13 @@ export class TiledMapResource extends Resource<TiledMap> {
       }
 
       for (var layer of this.data.rawMap.layers) {
-
          if (layer.type === "tilelayer") {
             for (var i = 0; i < layer.data.length; i++) {
                let gid = <number>layer.data[i];
 
                if (gid !== 0) {
-                  var ts = this.getTilesetForTile(gid);
-
-                  map.data[i].sprites.push(new TileSprite(ts.firstgid.toString(), gid - ts.firstgid))
+                  const sprite = this.getSpriteForGid(gid)
+                  map.data[i].sprites.push(sprite);
                }
             }
          }

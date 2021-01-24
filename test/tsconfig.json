@@ -7,5 +7,7 @@
       "paths": {
          "@excalibur-tiled": ["../src/"]
       }
-   }
+   },
+   "include": ["*.ts"],
+   "exclude": ["*.tsx"]
 }

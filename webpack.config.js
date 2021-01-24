@@ -9,7 +9,7 @@ module.exports = {
  module: {
    rules: [
      {
-       test: /\.tsx?$/,
+       test: /\.ts$/,
        use: 'ts-loader',
        exclude: /node_modules/
      }
@@ -24,7 +24,7 @@ module.exports = {
    contentBase: '.',
  },
  resolve: {
-   extensions: [".tsx", ".ts", ".js"],
+   extensions: [".ts", ".js"],
    alias: {
       "@excalibur-tiled": path.resolve(__dirname, './src/')
    }

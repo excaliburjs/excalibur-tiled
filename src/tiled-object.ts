@@ -16,7 +16,7 @@ export class TiledObjectGroup extends TiledEntity {
       }
    }
 
-   public getObjectByType(type: string): TiledObject {
+   public getObjectByType(type: string): TiledObject | undefined {
       return this.getObjectsByType(type)[0];
    }
 
@@ -24,7 +24,7 @@ export class TiledObjectGroup extends TiledEntity {
       return this.objects.filter(o => o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
    }
 
-   public getObjectByName(name: string): TiledObject {
+   public getObjectByName(name: string): TiledObject | undefined {
       return this.getObjectsByName(name)[0];
    }
 
