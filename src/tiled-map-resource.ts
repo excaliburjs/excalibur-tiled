@@ -156,7 +156,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   x: tile.x,
                   y: tile.y,
                   width: tile.width,
-                  height: tile.width,
+                  height: tile.height,
                   anchor: vec(0, 1),
                   rotation: tile.rotation,
                   collisionType
