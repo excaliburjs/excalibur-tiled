@@ -8,10 +8,13 @@ const game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false,
 });
-// game.isDebug = true;
+// game.toggleDebug();
 
 const reset = () => {
    game.currentScene.camera.clearAllStrategies();
+   game.currentScene.tileMaps.forEach(t => {
+      game.currentScene.remove(t);
+   });
    game.currentScene.actors.forEach(a => {
       game.currentScene.remove(a);
    });
