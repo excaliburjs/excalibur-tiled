@@ -62,7 +62,7 @@ tiledMapResouce.addTiledMapToScene(game.currentScene);
 ```
 
 * Camera Position & Zoom - You may set the starting camera position and 
-  - In an object layer named "Excalibur"
+  - In an object layer with a custom property "excalibur"=true
   - Create a Tiled "Point" with the Tiled Type "Camera"
   - Optionally, to set zoom other than the default of 1.0, create a custom property named "Zoom" with a numeric value
 
@@ -71,7 +71,7 @@ tiledMapResouce.addTiledMapToScene(game.currentScene);
   - The presence of a tile in this layer indicates that space is solid, the abscence of a tile means it is not solid
 
 * Colliders - You may position Excalibur colliders within Tiled
-  - In an object layer named "Excalibur"
+  - In an object layer with a custom property "excalibur"=true
   - Create a "Circle" (ellipses are not supported) or "Rectangle"
      - Set the Tiled type to "BoxCollider" or "CircleCollider" 
      - Optionally, to set an Excalibur collision type specify a custom property named "CollisionType" with the value
@@ -81,11 +81,11 @@ tiledMapResouce.addTiledMapToScene(game.currentScene);
         - "PreventCollision" - all collisions are ignored
 
 * Text - You may insert excalibur labels within Tiled
-   - In an object layer named "Excalibur"
+   - In an object layer with a custom property "excalibur"=true
    - Create a Tiled Text object
 
 * Inserted Tiles - You may insert tiles off grid in Tiled
-   - In an object layer named "Excalibur"
+   - In an object layer with a custom property "excalibur"=true
    - Create a Tiled inserted Tile
    - Optionally, to set an Excalibur collision type specify a custom property named "CollisionType" with the value
         - "Fixed" non-movable object
