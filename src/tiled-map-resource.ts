@@ -184,9 +184,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this._addTiledInsertedTiles(scene);
 
       const solidLayers = this.data?.getLayersByProperty('solid', true) ?? [];
-      for (let solid of solidLayers) {
+      for (const solid of solidLayers) {
          for(let i = 0; i < solid.data.length; i++) {
-            tm.data[i].solid = !!solid.data[i];
+            tm.data[i].solid ||= !!solid.data[i];
          }
       }
    }
@@ -334,9 +334,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const h = isFlippedHorizontally(gid);
       const v = isFlippedVertically(gid);
       const d = isFlippedDiagonally(gid);
-      const canGid = getCanonicalGid(gid);
-      const tileset = this.getTilesetForTile(gid);
-      const spriteIndex = canGid - tileset.firstgid;
+      const normalizedGid = getCanonicalGid(gid);
+      const tileset = this.getTilesetForTile(normalizedGid);
+      const spriteIndex = normalizedGid - tileset.firstgid;
       const spriteSheet = this.sheetMap[tileset.firstgid.toString()];
       if (spriteSheet) {
          let sprite = spriteSheet.sprites[spriteIndex];
@@ -357,7 +357,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          }
          return sprite;
       }
-      throw new Error(`Could not find sprite for gid: [${gid}]`);
+      throw new Error(`Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
    }
 
    /**
