@@ -1,6 +1,6 @@
 node_modules/
 dist/
 lib/
-.js
-.js.map
-.d.ts
+*.js
+*.js.map
+*.d.ts

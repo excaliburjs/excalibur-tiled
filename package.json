@@ -33,7 +33,7 @@
     "start": "webpack-dev-server --config webpack.config.test.js --open",
     "watch": "webpack --progress --watch",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "webpack --config webpack.config.test.js"
+    "test": "webpack --config webpack.config.test.js && node ./test/tests.js"
   },
   "devDependencies": {
     "@types/pako": "1.0.1",
@@ -44,7 +44,11 @@
     "webpack": "4.46.0",
     "webpack-bundle-analyzer": "4.4.0",
     "webpack-cli": "3.3.12",
-    "webpack-dev-server": "3.11.2"
+    "webpack-dev-server": "3.11.2",
+    "node-static": "0.7.11",
+    "pixelmatch": "5.2.1",
+    "pngjs": "6.0.0",
+    "puppeteer": "5.5.0"
   },
   "dependencies": {
     "fast-xml-parser": "3.17.6",

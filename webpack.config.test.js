@@ -1,6 +1,6 @@
 const path = require("path")
 module.exports = {
- entry: './test/test.ts',
+ entry: './example/test.ts',
  mode: 'development',
  devtool: 'source-map',
  module: {
@@ -22,16 +22,8 @@ module.exports = {
    }
  },
  output: {
-   filename: 'test/test.js',
+   filename: 'example/test.js',
    path: __dirname,
    libraryTarget: "umd"
- },
- externals: {
-   "excalibur": {
-       commonjs: "excalibur",
-       commonjs2: "excalibur",
-       amd: "excalibur",
-       root: "ex"
-    }
  }
 };

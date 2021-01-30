@@ -23,8 +23,8 @@ const reset = () => {
 const start = (mapFile: string) => {
    var player = new ex.Actor({
       pos: ex.vec(100, 100),
-      width: 25,
-      height: 25,
+      width: 16,
+      height: 16,
       color: ex.Color.Blue,
       collisionType: ex.CollisionType.Active
    });
@@ -116,4 +116,4 @@ document.getElementById('select-map')!.addEventListener('change', (e) => {
    return true;
 })
 
-start("test.tmx");
+start("example-city.tmx");
