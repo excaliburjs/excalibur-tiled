@@ -395,6 +395,15 @@ const decompressors = {
                resolve(result);
             });
          }
+
+         if (!compression) {
+            var resultLen = arr.length / 4;
+            var result = new Array<number>(resultLen);
+            for (i = 0; i < resultLen; i++) {
+               result[i] = toNumber(arr.slice(i * 4, i * 4 + 4));
+            }
+            resolve(result);
+         }
       });
    }
 }
