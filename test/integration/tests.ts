@@ -53,7 +53,7 @@ const selectMap = async (page, map) => {
    await page.select('#select-map', value);
 }
 
-const expect = async (page, map, name, shouldLoad = true) => {
+const expectMap = async (page, map, name, shouldLoad = true) => {
    if (shouldLoad) {
       await selectMap(page, map);
       await isLoaded(page);
@@ -86,17 +86,17 @@ const expect = async (page, map, name, shouldLoad = true) => {
         
         await isLoaded(page);
 
-        (await expect(page, 'tmx map', 'tmx', false)).toBe('expected-play');
-        (await expect(page, 'tmx map - external tsx', 'external-tmx')).toBe('expected-play');
-        (await expect(page, 'tmx base64 map', 'base64-tmx')).toBe('expected-play');
-        (await expect(page, 'tmx gzip map', 'gzip-tmx')).toBe('expected-play');
-        (await expect(page, 'tmx zlib map', 'zlib-tmx')).toBe('expected-play');
-        (await expect(page, 'tmx zstd map', 'zstd-tmx')).toBe('expected-play');
-        (await expect(page, 'json map', 'json')).toBe('expected-play');
-        (await expect(page, 'v1 map', 'v1')).toBe('expected-play-v1');
-        (await expect(page, 'v1 external tileset map', 'v1-external')).toBe('expected-play-v1-external');
-        (await expect(page, 'v0 map gzip', 'v0-gzip')).toBe('expected-play-v0');
-        (await expect(page, 'v0 map zlib', 'v0-zlib')).toBe('expected-play-v0');
+        (await expectMap(page, 'tmx map', 'tmx', false)).toBe('expected-play');
+        (await expectMap(page, 'tmx map - external tsx', 'external-tmx')).toBe('expected-play');
+        (await expectMap(page, 'tmx base64 map', 'base64-tmx')).toBe('expected-play');
+        (await expectMap(page, 'tmx gzip map', 'gzip-tmx')).toBe('expected-play');
+        (await expectMap(page, 'tmx zlib map', 'zlib-tmx')).toBe('expected-play');
+        (await expectMap(page, 'tmx zstd map', 'zstd-tmx')).toBe('expected-play');
+        (await expectMap(page, 'json map', 'json')).toBe('expected-play');
+        (await expectMap(page, 'v1 map', 'v1')).toBe('expected-play-v1');
+        (await expectMap(page, 'v1 external tileset map', 'v1-external')).toBe('expected-play-v1-external');
+        (await expectMap(page, 'v0 map gzip', 'v0-gzip')).toBe('expected-play-v0');
+        (await expectMap(page, 'v0 map zlib', 'v0-zlib')).toBe('expected-play-v0');
 
         await browser.close();
 

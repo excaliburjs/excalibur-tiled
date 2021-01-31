@@ -11,6 +11,6 @@
          "@excalibur-tiled": ["./src/"]
       }
    },
-   "include": ["./**/*.ts", "./test/unit/*.spec.ts"],
+   "include": ["example/**/*.ts", "./src/**/*.ts", "./test/unit/*.spec.ts"],
    "exclude": ["./example/**/*.tsx", "./test/integration/*.ts"]
 }
