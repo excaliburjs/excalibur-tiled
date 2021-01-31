@@ -45,8 +45,8 @@ export class TiledMap {
     */
    objectGroups: TiledObjectGroup[] = [];
 
-   public getExcaliburObjects(): TiledObjectGroup {
-      return this.getObjectGroupsByProperty('excalibur', true)[0];
+   public getExcaliburObjects(): TiledObjectGroup[] {
+      return this.getObjectGroupsByProperty('excalibur', true);
    }
 
    public getObjectGroupByName(name: string): TiledObjectGroup {

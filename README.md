@@ -60,23 +60,32 @@ You may opt-in to the Excalibur wiring by calling `addTiledMapToScene(someScene)
 
 ```typescript
 // After loading tiledMapResource
-tiledMapResouce.addTiledMapToScene(game.currentScene);
+tiledMapResource.addTiledMapToScene(game.currentScene);
 ```
 
-* Camera Position & Zoom - You may set the starting camera position and zoom
+* **Only object layers with `"excalibur"=true` are parsed for objects**. These object layers can be retrieved with
+
+   ```typescript
+   const objects: TiledObjectGroup[] = tiledMapResource.getExcaliburObjects();
+   ```
+
+  ![](./readme/excalibur-object.png)
+
+* **Camera Position & Zoom** - You may set the starting camera position and zoom
 
   ![](./readme/camera.png)
   - In an object layer with a custom property "excalibur"=true
+  - **Note** Only the first Camera in the first "excalibur"=true layer will be used 
   - Create a Tiled "Point" with the Tiled Type "Camera"
   - Optionally, to set zoom other than the default of 1.0, create a custom property named "Zoom" with a numeric value
 
-* Solid layers - You can mark a particular layers tiles as solid in Tiled
+* **Solid layers** - You can mark a particular layers tiles as solid in Tiled
 
   ![](./readme/solid.png)  
   - In the Tiled layer properties, add a custom property named "Solid" with a boolean value `true`
   - The presence of a tile in this layer indicates that space is solid, the abscence of a tile means it is not solid
 
-* Colliders - You may position Excalibur colliders within Tiled
+* **Colliders** - You may position Excalibur colliders within Tiled
   ![](./readme/collider.png)
   - In an object layer with a custom property "excalibur"=true
   - Create a "Circle" (ellipses are not supported) or "Rectangle"
@@ -87,14 +96,14 @@ tiledMapResouce.addTiledMapToScene(game.currentScene);
         - "Active" - participates in collision and can be pushed around
         - "PreventCollision" - all collisions are ignored
 
-* Text - You may insert excalibur labels within Tiled
+* **Text** - You may insert excalibur labels within Tiled
    ![](./readme/text.png)
    - In an object layer with a custom property "excalibur"=true
    - Create a Tiled Text object
    - Optionally, you can set the "ZIndex" as a float custom tiled property 
    - **⚠ A word of caution around fonts ⚠** - fonts are different on every operating system (some may not be available to your user unless you explicitly load them into the page with a font loader). See [here for some detail](https://erikonarheim.com/posts/dont-test-fonts/)
 
-* Inserted Tiles - You may insert tiles off grid in Tiled
+* **Inserted Tile Objects** - You may insert tiles on or off grid in Tiled with inserted tiles
    ![](./readme/insertedtile.png)
    - In an object layer with a custom property "excalibur"=true
    - Create a Tiled inserted Tile

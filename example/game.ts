@@ -63,7 +63,7 @@ const start = (mapFile: string) => {
    game.start(loader).then(function() {
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur) {
-         const start = excalibur.getObjectByName('player-start');
+         const start = excalibur[0].getObjectByName('player-start');
          if (start) {
             player.pos.x = start.x;
             player.pos.y = start.y;
@@ -71,7 +71,7 @@ const start = (mapFile: string) => {
 
 
          // Use polyline for patrols
-         const lines = excalibur.getPolyLines();
+         const lines = excalibur[0].getPolyLines();
          for (let line of lines) {
             if (line && line.polyline) {
                const start = ex.vec(line.x, line.y);
@@ -86,7 +86,7 @@ const start = (mapFile: string) => {
          }
 
          // Use polygon for patrols
-         const polys = excalibur.getPolygons();
+         const polys = excalibur[0].getPolygons();
          for (let poly of polys) {
             poly.polygon?.push(poly.polygon[0]); // needs to end where it started
             if (poly && poly.polygon) {

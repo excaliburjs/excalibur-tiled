@@ -120,8 +120,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    private _addTiledText(scene: Scene) {
       const excalibur = this.data?.getExcaliburObjects();
-      if (excalibur) {
-         const textobjects = excalibur.getText();
+      if (excalibur.length > 0) {
+         const textobjects = excalibur.flatMap(o => o.getText());
          for (const text of textobjects) {
             const label = new Label({
                x: text.x,
@@ -143,8 +143,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    private _addTiledInsertedTiles(scene: Scene) {
       const excalibur = this.data?.getExcaliburObjects();
-      if (excalibur) {
-         const inserted = excalibur.getInsertedTiles();
+      if (excalibur.length > 0) {
+         const inserted = excalibur.flatMap(o => o.getInsertedTiles());
          for (const tile of inserted) {
             const collisionTypeProp = tile.getProperty<CollisionType>('collisionType');
             let collisionType = CollisionType.PreventCollision;
@@ -197,12 +197,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const excalibur = this.data?.getExcaliburObjects();
 
       const ex: ExcaliburData = {};
-      if (excalibur) {
+      if (excalibur.length > 0) {
          // Parse cameras
-         ex.camera = excalibur.getCamera();
+         ex.camera = excalibur[0].getCamera();
          // Parse colliders
          ex.colliders = [];
-         const boxColliders = excalibur.getObjectsByType('boxcollider');
+         const boxColliders = excalibur.flatMap(o => o.getObjectsByType('boxcollider'));
          for (let box of boxColliders) {
             const collisionType = box.getProperty<CollisionType>('collisiontype');
             const color = box.getProperty<string>('color');
@@ -219,7 +219,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             });
          }
 
-         const circleColliders = excalibur.getObjectsByType('circlecollider');
+         const circleColliders = excalibur.flatMap(o => o.getObjectsByType('circlecollider'));
          for (let circle of circleColliders) {
             var collisionType = circle.getProperty<CollisionType>('collisiontype');
             var color = circle.getProperty<string>('color');
