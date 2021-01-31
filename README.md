@@ -2,7 +2,7 @@
 
 This extension adds support for tile maps from all [Tiled map editor](http://mapeditor.org) files in Excalibur. Use the `TiledMapResource` to load and interact with Tiled based maps!
 
-![](./example.gif)
+![](./readme/example.gif)
 
 ## Quickstart
 
@@ -63,12 +63,16 @@ You may opt-in to the Excalibur wiring by calling `addTiledMapToScene(someScene)
 tiledMapResouce.addTiledMapToScene(game.currentScene);
 ```
 
-* Camera Position & Zoom - You may set the starting camera position and 
+* Camera Position & Zoom - You may set the starting camera position and zoom
+
+  ![]('./readme/camera.png')
   - In an object layer with a custom property "excalibur"=true
   - Create a Tiled "Point" with the Tiled Type "Camera"
   - Optionally, to set zoom other than the default of 1.0, create a custom property named "Zoom" with a numeric value
 
 * Solid layers - You can mark a particular layers tiles as solid in Tiled
+
+  ![]('./readme/solid.png')  
   - In the Tiled layer properties, add a custom property named "Solid" with a boolean value `true`
   - The presence of a tile in this layer indicates that space is solid, the abscence of a tile means it is not solid
 
