@@ -42,9 +42,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public imageMap: Record<string, Texture>;
    public sheetMap: Record<string, SpriteSheet>;
    public map?: TileMap;
-   public imagePathAccessor: (path: string, ts: RawTiledTileset) => string;
-   public externalTilesetPathAccessor: (path: string, ts: RawTiledTileset) => string;
-   public pathFinder: (originPath: string, relativePath: string) => string;
+
+   /**
+    * Given an origin file path, converts a file relative to that origin to a full path accessible from excalibur
+    */
+   public convertRelativePath: (originPath: string, relativePath: string) => string;
 
    constructor(public path: string, mapFormatOverride?: TiledMapFormat) {
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
@@ -62,33 +64,20 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this.ex = {};
       this.imageMap = {};
       this.sheetMap = {};
-      this.pathFinder = (originPath: string, relativePath: string) => {
+      this.convertRelativePath = (originPath: string, relativePath: string) => {
+         // Use absolute path if specified
+         if (relativePath.indexOf('/') === 0) {
+            return relativePath;
+         }
+
          const originSplit = originPath.split('/');
          const relativeSplit = relativePath.split('/');
-         // if origin path is a file
+         // if origin path is a file, remove it so it's a directory
          if (originSplit[originSplit.length - 1].includes('.')) {
             originSplit.pop();
          }
          return originSplit.concat(relativeSplit).join('/');
       }
-      this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
-
-         // Use absolute path if specified
-         if (p.indexOf('/') === 0) {
-            return p;
-         }
-
-         // Load relative to map path
-         let pp = path.split('/');
-         let relPath = pp.concat([]);
-
-         if (pp.length > 0) {
-            // remove file part of path
-            relPath.splice(-1);
-         }
-         relPath.push(p);
-         return relPath.join('/');
-      };
    }
 
    private _addTiledCamera(scene: Scene) {
@@ -268,8 +257,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
          // existing data, and load the image and sprite
          if (ts.source) {
             const type = ts.source.includes('.tsx') ? 'text' : 'json';
-            var tileset = new Resource<RawTiledTileset>(
-               this.externalTilesetPathAccessor(ts.source, ts), type);
+            var tileset = new Resource<RawTiledTileset>(this.convertRelativePath(this.path, ts.source), type);
+               // this.externalTilesetPathAccessor(ts.source, ts), type);
 
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
@@ -291,12 +280,14 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
          // retrieve images from tilesets and create textures
          tiledMap.rawMap.tilesets.forEach(ts => {
-            // if external
             let tileSetImage = ts.image;
+            // if external images are relative to external tileset
             if (ts.source) {
-               tileSetImage = this.pathFinder(ts.source, ts.image)
+               tileSetImage = this.convertRelativePath(ts.source, ts.image)
+            } else {
+               tileSetImage = this.convertRelativePath(this.path, ts.image)
             }
-            const tx = new Texture(this.imagePathAccessor(tileSetImage, ts));
+            const tx = new Texture(tileSetImage);
             this.imageMap[ts.firstgid] = tx;
             externalImages.push(tx.load());
 
