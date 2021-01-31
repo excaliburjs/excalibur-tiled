@@ -131,7 +131,7 @@ export class TiledMap {
                object.text.bold = !!object.text.bold;
                object.text.underline = !!object.text.underline;
                object.text.strikeout = !!object.text.strikeout;
-               object.text.color = object.text.color;
+               object.text.color = object.text.color ?? '#000000';
             }
             if (object.polyline) {
                object.polyline = object.polyline.points.split(' ').map((p: string) => {

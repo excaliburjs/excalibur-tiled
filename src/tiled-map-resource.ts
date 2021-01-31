@@ -132,8 +132,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
                fontFamily: text.text?.fontFamily,
                fontSize: text.text?.pixelSize,
                fontUnit: FontUnit.Px,
-               color: Color.fromHex(text.text?.color ?? '#ffffff')
+               color: Color.fromHex(text.text?.color ?? '#000000'),
             });
+            label.width = text.width ?? 0;
+            label.height = text.height ?? 0;
             scene.add(label);
          }
       }
