@@ -33,7 +33,9 @@
     "start": "webpack-dev-server --config webpack.config.test.js --open",
     "watch": "webpack --progress --watch",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "webpack --config webpack.config.test.js && node ./test/tests.js"
+    "test": "webpack --config webpack.config.test.js && npm run test:unit && npm run test:integration",
+    "test:unit": "echo 'Unit Tests Go Here'",
+    "test:integration": "tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
   },
   "devDependencies": {
     "@types/pako": "1.0.1",

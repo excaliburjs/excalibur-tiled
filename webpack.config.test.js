@@ -1,6 +1,6 @@
 const path = require("path")
 module.exports = {
- entry: './example/test.ts',
+ entry: './example/game.ts',
  mode: 'development',
  devtool: 'source-map',
  module: {
@@ -22,7 +22,7 @@ module.exports = {
    }
  },
  output: {
-   filename: 'example/test.js',
+   filename: 'example/game.js',
    path: __dirname,
    libraryTarget: "umd"
  }
