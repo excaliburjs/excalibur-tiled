@@ -233,24 +233,23 @@ assets/
   - tsx/map.tsx
 ```
 
-When your game loads and the extension loads your map file (`/assets/maps/map.tmx`), the paths will be loaded **relative** to the map tmx file, so they will return 404 responses:
+When your game loads and the extension loads your map file (`/assets/maps/map.tmx`), the paths will be loaded **relative** to the map tmx or any tsx file, so they will return 404 responses:
 
 ```
 GET /assets/maps/map.png -> 404 Not Found
 GET /assets/maps/map.tsx -> 404 Not Found
 ```
 
-If you need to override this behavior, you can set `imagePathAccessor` or `externalTilesetPathAccessor` to a custom function that takes two parameters: path and `TiledTileSet` data.
+If you need to override this behavior, you can set `convertPath` to a custom function that takes two parameters: `originPath` and `relativePath` data.
+
+`originPath` is the path of the original source file (for example the `map.tmx`), and `relativePath` is referenced external fil (for example the `map.tsx`)
 
 ```js
 // Create a new TiledResource loadable
 var map = new ex.Plugin.Tiled.TiledMapResource("map.tmx");
 
-map.imagePathAccessor = function (path, tileset) {
+map.convertPath = function (originPath, relativePath) {
    return "/assets/tx/" + path;
-}
-map.externalTilesetPathAccessor = function (path, tileset) {
-   return "/assets/tsx/" + path;
 }
 ```
 
@@ -285,6 +284,6 @@ To compile only:
 
     npm run build
 
-To compile test:
+To run tests:
 
     npm test

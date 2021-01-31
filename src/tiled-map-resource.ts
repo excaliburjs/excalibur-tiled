@@ -46,7 +46,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
    /**
     * Given an origin file path, converts a file relative to that origin to a full path accessible from excalibur
     */
-   public convertRelativePath: (originPath: string, relativePath: string) => string;
+   public convertPath: (originPath: string, relativePath: string) => string;
 
    constructor(public path: string, mapFormatOverride?: TiledMapFormat) {
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
@@ -64,7 +64,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this.ex = {};
       this.imageMap = {};
       this.sheetMap = {};
-      this.convertRelativePath = (originPath: string, relativePath: string) => {
+      this.convertPath = (originPath: string, relativePath: string) => {
          // Use absolute path if specified
          if (relativePath.indexOf('/') === 0) {
             return relativePath;
@@ -259,7 +259,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          // existing data, and load the image and sprite
          if (ts.source) {
             const type = ts.source.includes('.tsx') ? 'text' : 'json';
-            var tileset = new Resource<RawTiledTileset>(this.convertRelativePath(this.path, ts.source), type);
+            var tileset = new Resource<RawTiledTileset>(this.convertPath(this.path, ts.source), type);
 
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
@@ -284,10 +284,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
             let tileSetImage = ts.image;
             if (ts.source) {
                // if external tileset "source" is specified and images are relative to external tileset
-               tileSetImage = this.convertRelativePath(ts.source, ts.image)
+               tileSetImage = this.convertPath(ts.source, ts.image)
             } else {
                // otherwise for embedded tilesets, images are relative to the tmx (this.path)
-               tileSetImage = this.convertRelativePath(this.path, ts.image)
+               tileSetImage = this.convertPath(this.path, ts.image)
             }
             const tx = new Texture(tileSetImage);
             this.imageMap[ts.firstgid] = tx;
