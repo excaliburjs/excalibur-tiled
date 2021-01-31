@@ -5,12 +5,12 @@
       "target": "es2015",
       "lib": ["DOM", "ES2019.Array"],
       "declaration": true,
-      "outDir": "../lib",
+      "outDir": "./dist",
       "sourceMap": true,
       "paths": {
          "@excalibur-tiled": ["./src/"]
       }
    },
-   "include": ["./**/*.ts"],
-   "exclude": ["./example/**/*.tsx", "./test/**/*.ts"]
+   "include": ["./**/*.ts", "./test/unit/*.spec.ts"],
+   "exclude": ["./example/**/*.tsx", "./test/integration/*.ts"]
 }
