@@ -150,6 +150,16 @@ export class TiledMap {
      }
      delete rawMap.objectgroup;
 
+     _convertToArray(rawMap, 'imagelayer', true);
+     for (let imagelayer of rawMap.imagelayers) {
+       imagelayer.type = imagelayer.type ?? 'imagelayer';
+       imagelayer.image = imagelayer.image.source;
+       imagelayer.properties = imagelayer.properties?.property ?? [];
+       _convertToArray(imagelayer, 'properties');
+       rawMap.layers.push(imagelayer);
+     }
+     delete rawMap.imagelayer
+
      _convertToArray(rawMap, 'tileset', true);
      for(let tileset of rawMap.tilesets) {
         // Map non-embedded tilesets
