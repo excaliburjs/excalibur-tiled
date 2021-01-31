@@ -62,7 +62,7 @@ const start = (mapFile: string) => {
    game.currentScene.tileMaps = []
    game.start(loader).then(function() {
       const excalibur = map.data.getExcaliburObjects();
-      if (excalibur) {
+      if (excalibur.length > 0) {
          const start = excalibur[0].getObjectByName('player-start');
          if (start) {
             player.pos.x = start.x;
