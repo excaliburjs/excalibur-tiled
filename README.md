@@ -122,9 +122,13 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 
 * Layer offsets are yet not supported.
 
-* Image Layers - Tiled image layers are not yet supported, but do show up in the `RawTiledMap`. Using inserted [Tile Objects](https://doc.mapeditor.org/fr/latest/manual/layers/#image-layers) is a way to achieve the same effect.
+* [Layer tinting](https://doc.mapeditor.org/en/latest/manual/layers/#tinting-layers) is not yet supported
 
-* Group Layers - Tiled group layers are not yet supported, but do show up in the `RawTiledMap`. Currently layers in a group do not load.
+* [Parallax factor](https://doc.mapeditor.org/en/latest/manual/layers/#parallax-factor) is not yet supported.
+
+* Image Layers - Tiled image layers are not yet fully supported, but do show up in the `RawTiledMap` so can be used that way. Using inserted [Tile Objects](https://doc.mapeditor.org/fr/latest/manual/layers/#image-layers) is a way to achieve the same effect in a fully supported way.
+
+* Group Layers - Tiled group layers are not yet supported at all, currently layers in a group do not load.
 
 * Infinite maps - Tiled infinite maps are not yet supported, but do show up in the `RawTiledMap`.
 
