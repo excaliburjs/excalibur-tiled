@@ -41,7 +41,7 @@ const start = (mapFile: string) => {
    
    player.onPostUpdate = () => {
       player.vel.setTo(0, 0);
-      const speed = 100;
+      const speed = 64;
       if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
          player.vel.x = speed;
       }

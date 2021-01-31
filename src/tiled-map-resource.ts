@@ -44,6 +44,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public map?: TileMap;
    public imagePathAccessor: (path: string, ts: RawTiledTileset) => string;
    public externalTilesetPathAccessor: (path: string, ts: RawTiledTileset) => string;
+   public pathFinder: (originPath: string, relativePath: string) => string;
 
    constructor(public path: string, mapFormatOverride?: TiledMapFormat) {
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
@@ -61,6 +62,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this.ex = {};
       this.imageMap = {};
       this.sheetMap = {};
+      this.pathFinder = (originPath: string, relativePath: string) => {
+         const originSplit = originPath.split('/');
+         const relativeSplit = relativePath.split('/');
+         // if origin path is a file
+         if (originSplit[originSplit.length - 1].includes('.')) {
+            originSplit.pop();
+         }
+         return originSplit.concat(relativeSplit).join('/');
+      }
       this.imagePathAccessor = this.externalTilesetPathAccessor = (p, tileset) => {
 
          // Use absolute path if specified
@@ -281,7 +291,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
          // retrieve images from tilesets and create textures
          tiledMap.rawMap.tilesets.forEach(ts => {
-            const tx = new Texture(this.imagePathAccessor(ts.image, ts));
+            // if external
+            let tileSetImage = ts.image;
+            if (ts.source) {
+               tileSetImage = this.pathFinder(ts.source, ts.image)
+            }
+            const tx = new Texture(this.imagePathAccessor(tileSetImage, ts));
             this.imageMap[ts.firstgid] = tx;
             externalImages.push(tx.load());
 
