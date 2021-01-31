@@ -258,7 +258,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
          if (ts.source) {
             const type = ts.source.includes('.tsx') ? 'text' : 'json';
             var tileset = new Resource<RawTiledTileset>(this.convertRelativePath(this.path, ts.source), type);
-               // this.externalTilesetPathAccessor(ts.source, ts), type);
 
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
@@ -281,10 +280,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
          // retrieve images from tilesets and create textures
          tiledMap.rawMap.tilesets.forEach(ts => {
             let tileSetImage = ts.image;
-            // if external images are relative to external tileset
             if (ts.source) {
+               // if external tileset "source" is specified and images are relative to external tileset
                tileSetImage = this.convertRelativePath(ts.source, ts.image)
             } else {
+               // otherwise for embedded tilesets, images are relative to the tmx (this.path)
                tileSetImage = this.convertRelativePath(this.path, ts.image)
             }
             const tx = new Texture(tileSetImage);
