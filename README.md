@@ -2,6 +2,8 @@
 
 This extension adds support for tile maps from all [Tiled map editor](http://mapeditor.org) files in Excalibur. Use the `TiledMapResource` to load and interact with Tiled based maps!
 
+![](./example.gif)
+
 ## Quickstart
 
 Install using [npm](http://npmjs.org):
