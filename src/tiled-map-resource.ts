@@ -173,23 +173,36 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
    }
 
-   public addTiledMapToScene(scene: Scene) {
-      this._parseExcaliburInfo();
+   /**
+    * Use any layers with the custom property "solid"= true, to mark the TileMap
+    * cells solid.
+    */
+   public useSolidLayers() {
       const tm = this.getTileMap();
-      tm.components.transform.z = -1;
-      scene.add(tm);
-
-      this._addTiledCamera(scene);
-      this._addTiledColliders(scene);
-      this._addTiledText(scene);
-      this._addTiledInsertedTiles(scene);
-
       const solidLayers = this.data?.getLayersByProperty('solid', true) ?? [];
       for (const solid of solidLayers) {
          for(let i = 0; i < solid.data.length; i++) {
             tm.data[i].solid ||= !!solid.data[i];
          }
       }
+   }
+
+   /**
+    * Adds the TileMap and any parsed objects from Tiled into the Scene
+    * @param scene 
+    */
+   public addTiledMapToScene(scene: Scene) {
+      const tm = this.getTileMap();
+      tm.components.transform.z = -1;
+      scene.add(tm);
+      
+      this._parseExcaliburInfo();
+      this._addTiledCamera(scene);
+      this._addTiledColliders(scene);
+      this._addTiledText(scene);
+      this._addTiledInsertedTiles(scene);
+
+      this.useSolidLayers();
    }
 
    private _parseExcaliburInfo() {
@@ -263,7 +276,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
-                  external = parseExternalTsx(external, ts);
+                  external = parseExternalTsx(external, ts.firstgid, ts.source);
                }
                Object.assign(ts, external);
                tiledMap.tileSets.push(external);
@@ -321,6 +334,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
    }
 
+   /**
+    * Given a Tiled gid (global identifier) return the Tiled tileset data
+    * @param gid 
+    */
    public getTilesetForTile(gid: number): RawTiledTileset {
       if (this.data) {
          for (var i = this.data.rawMap.tilesets.length - 1; i >= 0; i--) {
@@ -380,9 +397,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
          const rows = Math.floor(tileset.imageheight / tileset.tileheight);
          const ss = new SpriteSheet(this.imageMap[tileset.firstgid], cols, rows, tileset.tilewidth, tileset.tileheight);
          this.sheetMap[tileset.firstgid.toString()] = ss;
-         map.registerSpriteSheet(tileset.firstgid.toString(), ss);
       }
 
+      // Create Excalibur sprites for each cell
       for (var layer of this.data.rawMap.layers) {
          if (layer.type === "tilelayer") {
             for (var i = 0; i < layer.data.length; i++) {
@@ -398,6 +415,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this.map = map;
    }
 
+   /**
+    * Return the TileMap for the parsed Tiled map
+    */
    public getTileMap(): TileMap {
       if (this.map) {
          return this.map;

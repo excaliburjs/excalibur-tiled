@@ -14,7 +14,7 @@ module.exports = {
        exclude: /node_modules/
      },
      {
-        test: [/\.tmx$/],
+        test: [/\.tmx$/, /\.tsx$/],
         use: 'raw-loader'
      }
    ]
@@ -48,7 +48,7 @@ module.exports = {
        commonjs2: "excalibur",
        amd: "excalibur",
        root: "ex"
-    }
+   }
  },
  plugins: [
    //  new BundleAnalyzerPlugin()

@@ -45,9 +45,35 @@ export const getCanonicalGid = (gid: number): number => {
 
 
 export class TiledLayer extends TiledEntity {
-   public data!: number[] | string;
+   /**
+    * Array of gid's (global Tiled identitifiers) that point to a unique tile
+    * 
+    * Note: the most significant byte may have flipped data encoded making the gid appear like a negative
+    * integer.
+    * 
+    * * Use `getCanonicalGid(gid)` to strip the bit flags from the high order byte
+    * * Check flipped flags with:
+    *   * `isFlippedDiagonally(gid)`
+    *   * `isFlippedVertically(gid)`
+    *   * `isFlippedHorizontally(gid)`
+    */
+   public data!: number[];
+
+   /**
+    * Width of layer in tiles
+    */
    public width!: number;
+
+   /**
+    * Height of layer in tiles
+    */
    public height!: number;
+   /**
+    * Original encoding of the Tiled layer
+    */
    public encoding: TiledEncoding = 'csv';
+   /**
+    * Original compression of the Tiled layer if any
+    */
    public compression?: TiledCompression;
 }

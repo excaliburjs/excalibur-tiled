@@ -199,7 +199,7 @@ export class TiledMap {
          const resultLayer = new TiledLayer();
          resultLayer.id = +layer.id;
          resultLayer.name = layer.name;
-         resultLayer.data = layer.data;
+         resultLayer.data = (layer.data as number[]);
          resultLayer.width = layer.width;
          resultLayer.height = layer.height;
          resultLayer.encoding = layer.encoding ?? 'csv';

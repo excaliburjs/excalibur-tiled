@@ -33,7 +33,7 @@
     "start": "webpack-dev-server --config webpack.config.test.js --open",
     "watch": "webpack --progress --watch",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "webpack --config webpack.config.test.js && npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit && npm run test:integration",
     "test:unit": "karma start",
     "test:integration": "tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
   },
@@ -64,5 +64,8 @@
     "fast-xml-parser": "3.17.6",
     "pako": "1.0.11",
     "zstddec": "0.0.2"
+  },
+  "peerDependencies": {
+    "excalibur": "0.25.0-alpha-04092a4"
   }
 }

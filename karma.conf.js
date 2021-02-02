@@ -19,11 +19,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'node_modules/excalibur/build/dist/excalibur.js',
       'test/unit/_boot.ts',
-      {
-         pattern: '**/*.js.map',
-         included: false
-      }
+      { pattern: '**/*.js.map', included: false, served: true },
+      { pattern: '**/*.tmx', included: false, served: true },
+      { pattern: '**/*.tsx', included: false, served: true },
+      { pattern: '**/*.png', included: false, served: true }
     ],
 
 

@@ -40,7 +40,7 @@ export interface TiledTileset {
     */
    objectAlignment: 'unspecified' | 'topleft' | 'top' | 'topright' | 'left' | 'center' | 'right' | 'bottomleft' | 'bottom' | 'bottomright'
    /**
-    * Refers to external tileset file (should be JSON)
+    * Refers to external tileset file
     */
    source: string;
    /**
@@ -100,7 +100,7 @@ export interface TiledTileset {
    wangSets: TiledWangSet[]
 }
 
-export const parseExternalTsx = (tsxData: string, tiledRef: any): TiledTileset => {
+export const parseExternalTsx = (tsxData: string, firstGid: number, source: string): TiledTileset => {
 
    const options: parser.X2jOptionsOptional = {
       attributeNamePrefix : "",
@@ -119,8 +119,8 @@ export const parseExternalTsx = (tsxData: string, tiledRef: any): TiledTileset =
    const rawTsx = parser.parse(tsxData, options).tileset;
    const rawTileset = rawTsx;
 
-   rawTileset.firstgid = tiledRef.firstgid;
-   rawTileset.source = tiledRef.source;
+   rawTileset.firstgid = firstGid;
+   rawTileset.source = source;
    rawTileset.imagewidth = rawTsx.image.width;
    rawTileset.imageheight = rawTsx.image.height;
    rawTileset.objectalignment = rawTsx.objectalignment ?? 'unspecified';
