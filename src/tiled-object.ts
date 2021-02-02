@@ -32,6 +32,14 @@ export class TiledObjectGroup extends TiledEntity {
       return this.objects.filter(o => o.name?.toLocaleLowerCase() === name.toLocaleLowerCase());
    }
 
+   public getPoints(): TiledObject[] {
+      return this.objects.filter(o => !!o.point);
+   }
+
+   public getEllipses(): TiledObject[] {
+      return this.objects.filter(o => !!o.ellipse);
+   }
+
    public getText(): TiledObject[] {
       return this.objects.filter(o => !!o.text);
    }
@@ -57,6 +65,17 @@ export class TiledObject extends TiledEntity {
    public rotation!: number;
    public width?: number;
    public height?: number;
+
+   /**
+    * Present on point objects
+    */
+   public point?: boolean;
+
+   /**
+    * Present on ellipse objects
+    */
+   public ellipse?: boolean;
+
    /**
     * Present on text objects
     */

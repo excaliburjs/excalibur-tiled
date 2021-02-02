@@ -46,6 +46,8 @@ export const getCanonicalGid = (gid: number): number => {
 
 export class TiledLayer extends TiledEntity {
    public data!: number[] | string;
+   public width!: number;
+   public height!: number;
    public encoding: TiledEncoding = 'csv';
    public compression?: TiledCompression;
 }

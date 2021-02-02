@@ -108,6 +108,7 @@ export class TiledMap {
         _convertToArray(layer, 'properties');
      }
 
+     rawMap.objectgroup = rawMap.objectgroup ?? [];
      let objectlayers = Array.isArray(rawMap.objectgroup) ? rawMap.objectgroup : [rawMap.objectgroup];
      for (let objectlayer of objectlayers) {
          objectlayer.type = objectlayer.type ?? 'objectgroup';
@@ -132,6 +133,12 @@ export class TiledMap {
                object.text.underline = !!object.text.underline;
                object.text.strikeout = !!object.text.strikeout;
                object.text.color = object.text.color ?? '#000000';
+            }
+            if (object.point === '') {
+               object.point = true;
+            }
+            if (object.ellipse === '') {
+               object.ellipse = true;
             }
             if (object.polyline) {
                object.polyline = object.polyline.points.split(' ').map((p: string) => {
@@ -191,8 +198,11 @@ export class TiledMap {
          if (layer.type !== 'tilelayer') continue;
          const resultLayer = new TiledLayer();
          resultLayer.id = +layer.id;
+         resultLayer.name = layer.name;
          resultLayer.data = layer.data;
-         resultLayer.encoding = layer.encoding;
+         resultLayer.width = layer.width;
+         resultLayer.height = layer.height;
+         resultLayer.encoding = layer.encoding ?? 'csv';
          resultLayer.compression = layer.compression;
          resultLayer.properties = layer.properties ?? [];
          resultMap.layers.push(resultLayer);
@@ -216,6 +226,8 @@ export class TiledMap {
             resultObject.rotation = object.rotation ? Util.toRadians(object.rotation) : 0;
             resultObject.width = object.width ?? 0;
             resultObject.height = object.height ?? 0;
+            resultObject.point = object.point;
+            resultObject.ellipse = object.ellipse;
             resultObject.polyline = object.polyline;
             resultObject.polygon = object.polygon;
             if (object.text) {

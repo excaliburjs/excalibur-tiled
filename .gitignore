@@ -7,5 +7,5 @@ lib/
 actual-*.png
 diff-*.png
 coverage/
-
+!files.d.ts
 !karma.conf.js
