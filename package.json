@@ -35,7 +35,7 @@
     "build": "cross-env NODE_ENV=production webpack",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "karma start",
-    "test:integration": "tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
+    "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
   },
   "devDependencies": {
     "@types/jasmine": "3.6.3",
