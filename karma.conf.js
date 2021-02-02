@@ -21,10 +21,14 @@ module.exports = function(config) {
     files: [
       'node_modules/excalibur/build/dist/excalibur.js',
       'test/unit/_boot.ts',
-      { pattern: '**/*.js.map', included: false, served: true },
-      { pattern: '**/*.tmx', included: false, served: true },
-      { pattern: '**/*.tsx', included: false, served: true },
-      { pattern: '**/*.png', included: false, served: true }
+      { pattern: './src/**/*.js.map', included: false, served: true },
+      { pattern: './test/**/*.js.map', included: false, served: true },
+      { pattern: './example/**/*.tmx', included: false, served: true },
+      { pattern: './example/**/*.tsx', included: false, served: true },
+      { pattern: './example/**/*.png', included: false, served: true },
+      { pattern: './test/**/*.tmx', included: false, served: true },
+      { pattern: './test/**/*.tsx', included: false, served: true },
+      { pattern: './test/**/*.png', included: false, served: true }
     ],
 
 
