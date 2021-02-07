@@ -15,6 +15,8 @@ import {
    Sprite,
    Loadable,
    Graphics,
+   TextAlign,
+   BaseAlign,
 } from 'excalibur';
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -126,14 +128,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
          for (const text of textobjects) {
             const label = new Label({
                x: text.x,
-               y: text.y + (text.height ?? 0),
+               y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
                text: text.text?.text ?? '', 
                fontFamily: text.text?.fontFamily,
                fontSize: text.text?.pixelSize,
                fontUnit: FontUnit.Px,
             });
+            label.font.textAlign = TextAlign.Left;
+            label.font.baseAlign = BaseAlign.Top;
             label.rotation = text.rotation,
-            label.anchor = vec(0, 0),
             label.color = Color.fromHex(text.text?.color ?? '#000000'),
             label.width = text.width ?? 0;
             label.height = text.height ?? 0;
