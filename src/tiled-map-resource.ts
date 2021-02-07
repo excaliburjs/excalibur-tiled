@@ -126,14 +126,14 @@ export class TiledMapResource implements Loadable<TiledMap> {
             const label = new Label({
                x: text.x,
                y: text.y + (text.height ?? 0),
-               anchor: vec(0, 0),
-               text: text.text?.text, 
-               rotation: text.rotation,
+               text: text.text?.text ?? '', 
                fontFamily: text.text?.fontFamily,
                fontSize: text.text?.pixelSize,
                fontUnit: FontUnit.Px,
-               color: Color.fromHex(text.text?.color ?? '#000000'),
             });
+            label.rotation = text.rotation,
+            label.anchor = vec(0, 0),
+            label.color = Color.fromHex(text.text?.color ?? '#000000'),
             label.width = text.width ?? 0;
             label.height = text.height ?? 0;
             scene.add(label);
@@ -407,7 +407,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
                if (gid !== 0) {
                   const sprite = this.getSpriteForGid(gid)
-                  map.data[i].sprites.push(sprite);
+                  map.data[i].addSprite(sprite);
                }
             }
          }
