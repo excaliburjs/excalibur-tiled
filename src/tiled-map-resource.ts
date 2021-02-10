@@ -17,6 +17,7 @@ import {
    Graphics,
    TextAlign,
    BaseAlign,
+   Flags,
 } from 'excalibur';
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -166,9 +167,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   rotation: tile.rotation,
                   collisionType
                });
-               actor.addDrawing(sprite);
-               actor.graphics.anchor = vec(0, 1);
-               actor.graphics.use(Graphics.Sprite.fromLegacySprite(sprite));
+               if (Flags.isEnabled('use-legacy-drawing')) {
+                  actor.addDrawing(sprite);
+               } else {
+                  actor.graphics.anchor = vec(0, 1);
+                  actor.graphics.use(Graphics.Sprite.fromLegacySprite(sprite));
+               }
                scene.add(actor);
                const z = tile.getProperty<number>('zindex');
                if (z) {
