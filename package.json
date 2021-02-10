@@ -2,8 +2,8 @@
   "name": "@excaliburjs/plugin-tiled",
   "version": "0.25.0",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
-  "main": "dist/excalibur-tiled.js",
-  "typings": "dist/lib/index.d.ts",
+  "main": "dist/excalibur-tiled.min.js",
+  "typings": "dist/src/index.d.ts",
   "author": {
     "name": "Excalibur.js Team",
     "email": "excaliburjs@gmail.com",
