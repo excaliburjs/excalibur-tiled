@@ -46,22 +46,22 @@ export class TiledMap {
    objectGroups: TiledObjectGroup[] = [];
 
    public getExcaliburObjects(): TiledObjectGroup[] {
-      return this.getObjectGroupsByProperty('excalibur', true);
+      return this.getObjectLayerByProperty('excalibur', true);
    }
 
-   public getObjectGroupByName(name: string): TiledObjectGroup {
+   public getObjectLayerByName(name: string): TiledObjectGroup {
       return this.objectGroups.filter(l => l.name === name)[0];
    }
 
-   public getObjectGroupsByProperty(name: string, value: any): TiledObjectGroup[] {
+   public getObjectLayerByProperty(name: string, value: any): TiledObjectGroup[] {
       return this.objectGroups.filter(l => l.getProperty(name)?.value === value);
    }
 
-   public getLayerByName(name: string): TiledLayer {
+   public getTileLayerByName(name: string): TiledLayer {
       return this.layers.filter(l => l.name === name)[0];
    }
 
-   public getLayersByProperty(name: string, value: any): TiledLayer[] {
+   public getTileLayersByProperty(name: string, value: any): TiledLayer[] {
       return this.layers.filter(l => l.getProperty(name)?.value === value);
    }
 

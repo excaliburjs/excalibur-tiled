@@ -189,7 +189,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
     */
    public useSolidLayers() {
       const tm = this.getTileMap();
-      const solidLayers = this.data?.getLayersByProperty('solid', true) ?? [];
+      const solidLayers = this.data?.getTileLayersByProperty('solid', true) ?? [];
       for (const solid of solidLayers) {
          for(let i = 0; i < solid.data.length; i++) {
             tm.data[i].solid ||= !!solid.data[i];
