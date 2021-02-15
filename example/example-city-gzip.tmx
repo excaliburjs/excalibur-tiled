@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="6">
+ <editorsettings>
+  <export format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
+  <image source="assets/kenny-rpg-urban-pack/tilemap_packed.png" width="432" height="288"/>
+ </tileset>
+ <layer id="1" name="Ground" width="100" height="100" locked="1">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACu3ZTVIaQRgG4EZX0YUn0BVx4Ql0JVwyuPQKGPOjuUJM1MB9bCqNRZChZpgO0+qzeKqrgW/Q/nhhZvowhHC4oaPoVy+E39F91I/zjzUdL9Vu+jfwsh/TFv2Y6kf2fshHGeSjLPJRFvkoi3zkd9rCWfQ5ruV19CU6j/NBTcOl2q7XoRSjuBZ3vTBoalb3KZqk75w/aT6qqU3tW3aV1iSOg+m/8+fxtmIcp9dcpHFcUb9qrKqteq/3Mt4lo7+f+9DEz+gmref3NN9G7Vu2Eza3u/Qb8CHO92raX1M7e+5rfOxbw2POa7v+DehKzvOr/ornmh5zXtv1unTdjxzXH1X9mJ+zHehHEfmYfaf+6IXLusfWj/+bD/2Qj9dKPsojH2WRj7LkysfivcihfnSej9n1+OJ9tUl6fH59fqIfW83Hw4p7OY+uzzvLR9V9qrq50I+8+WiaA/1YLdf+oH7ky0fb/UH5yNuP5T2+Ohb3B/Ujfz7a7A/qR3n0oyz6URb9KEuTc+V1hgX8LwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6zwBOpAPjECcAAA=
+  </data>
+ </layer>
+ <layer id="4" name="Ground Level 2" width="100" height="100">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACu3RsQ2AMAxFwUSsgZiAHmX/xXCadCCaEBd3kis3X3qlAAAAAABf1Lht9QiGPe5YPYLhrcdZ/1xCp0cueuSiRy565HLFtYefHrnoAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPPdTZeCV0CcAAA=
+  </data>
+ </layer>
+ <layer id="2" name="Solid" width="100" height="100" locked="1">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACu2aO2/TUABG7QnG8pAQK8yAhPgRwAiZgI3CBkzAxEsVEpSlMDFAN1gKE1DERKUiYOLxB4qAtfwAmPhMrtVLGydN45t8Ts6RjuLYrm35JHXt29Usy1b79FfWnRPyZGQrzD8lT8sz4f1c3mNDE8i2vH+79Tis5Xf0ejdyNiy7LK/Iq+H9Aj02UH7m++mxvcd53Cl3Re4O8+fkfflAHqFFR+LzvG+T7pfT8rz8na35J3hUHos8HvZ1Xd6QN+VKF6fyyXHHus9lfJ7XL9sqnXrs1bZf6vWVXKxnN2NBt3NeV4+zcjryXJj/WX6RX+vZzVgwjB6weQbtMat17lWst9TjZ/fQewOD9niidZ5yXmtjFL+vlrXddzTsyCh6rGi73+jRkSZcz5fatyj/WB7dYQyF1D3KZ1Txc6oF+Szy+eC7GRtSfwfKZyLlc5GC9/JD5MctbPdtLUfnR+oe8b15+Zzku/wR+TPtITSK1D2Ke/MZ7eN2vnZfDtWM4ppdNR4C6Xt0up5fkBcjL6U9hEaRukc55hSPO1WNT8Fo/r6qGp+C9D2uyVtyJkwXHJAHIw+lPYRGkbrHQ/lIzofpgqrxQkjf44V8Ld+E6QJ6VJO6xyf5WPuYz9vTBcU9SStvjxW2uC/5D5dnhtCGHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl404f99Jgl6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcX9PCCHl7Qwwt6eEEPL+jhBT28oIcXvXpM4dAFAGgifwEMI5XVQJwAAA==
+  </data>
+ </layer>
+ <layer id="3" name="Solid Level 2" width="100" height="100" locked="1">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACu3YwU3DQBAF0MwJmoB+AiI0QhG0kj4IbdAEHLljy0ixo41im6wZwnvSaHyILGt+RlrtalXXJvbPj3H8d5RdVZrZZ53XXrxr/+E0zpnFU+yr9SzndNZNJndN3ctmec3Mb6PrfTeyAADgD3NH9TPvM+rjV770f2jvD6fWqXuV1+iK6ebkcWo/1u5EZquRx6GNbEZbIg/Gq5mHvZhuqf14iWGnrMb5qp354dzfYtgpO/d+bKObeVvb3ux3MeyU1chj9139PB5i2CmrkUfpmXGcd3ORRy41zlfMZz9ykUcu8shFHrnIIxd55OK8CwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACX7wvBYQP0QJwAAA==
+  </data>
+ </layer>
+ <objectgroup id="5" name="Objects" locked="1">
+  <properties>
+   <property name="excalibur" type="bool" value="true"/>
+  </properties>
+  <object id="1" gid="409" x="304" y="112" width="16" height="16">
+   <properties>
+    <property name="ZIndex" type="float" value="3"/>
+   </properties>
+  </object>
+  <object id="2" name="player-start" type="player-start" x="375" y="104">
+   <point/>
+  </object>
+  <object id="3" name="Camera" type="Camera" x="444.5" y="404.5">
+   <properties>
+    <property name="Zoom" type="float" value="4"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="4" gid="1073741992" x="640" y="176" width="16" height="16"/>
+  <object id="5" gid="2147484058" x="592" y="176" width="16" height="16"/>
+ </objectgroup>
+</map>

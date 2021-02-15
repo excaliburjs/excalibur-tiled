@@ -1,6 +1,5 @@
-const path = require("path")
-const webpack = require("webpack")
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const path = require("path");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
  entry: {
@@ -10,11 +9,18 @@ module.exports = {
  module: {
    rules: [
      {
-       test: /\.tsx?$/,
+       test: /\.ts$/,
        use: 'ts-loader',
        exclude: /node_modules/
+     },
+     {
+        test: [/\.tmx$/, /\.tsx$/],
+        use: 'raw-loader'
      }
    ]
+ },
+ node: {
+   fs: "empty"
  },
  mode: 'development',
  devtool: 'source-map',
@@ -22,22 +28,19 @@ module.exports = {
    contentBase: '.',
  },
  resolve: {
-   extensions: [".tsx", ".ts", ".js"]
+   extensions: [".ts", ".js"],
+   alias: {
+      "@excalibur-tiled": path.resolve(__dirname, './src/')
+   }
  },
  output: {
    filename: "[name].js",
    path: path.join(__dirname, "dist"),
-   library: ["Extensions","Tiled"],
+   library: ["ex", "Plugin", "Tiled"],
    libraryTarget: "umd"
  },
  optimization: {
    minimize: true,
-   minimizer: [
-      new UglifyJsPlugin({
-         sourceMap: true,
-         include: /\.min\.js$/
-      })
-   ]
  },
  externals: {
     "excalibur": {
@@ -45,6 +48,9 @@ module.exports = {
        commonjs2: "excalibur",
        amd: "excalibur",
        root: "ex"
-    }
- }
+   }
+ },
+ plugins: [
+   //  new BundleAnalyzerPlugin()
+ ]
 };

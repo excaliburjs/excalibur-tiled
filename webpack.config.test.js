@@ -1,34 +1,29 @@
+const path = require("path")
 module.exports = {
- entry: './test/test.ts',
+ entry: './example/game.ts',
+ mode: 'development',
+ devtool: 'source-map',
  module: {
    rules: [
      {
-       test: /\.tsx?$/,
+       test: /\.ts$/,
        use: 'ts-loader',
        exclude: /node_modules/
      }
    ]
  },
+ node: {
+   fs: "empty"
+ },
  resolve: {
-   extensions: [".tsx", ".ts", ".js"]
+   extensions: [".ts", ".js"],
+   alias: {
+      "@excalibur-tiled": path.resolve(__dirname, './src/')
+   }
  },
  output: {
-   filename: 'test/test.js',
+   filename: 'example/game.js',
    path: __dirname,
    libraryTarget: "umd"
- },
- externals: {
-   "excalibur": {
-       commonjs: "excalibur",
-       commonjs2: "excalibur",
-       amd: "excalibur",
-       root: "ex"
-    },
-    "excalibur-tiled": {
-      commonjs: "excalibur-tiled",
-      commonjs2: "excalibur-tiled",
-      amd: "excalibur-tiled",
-      root: "ExtensionsTiled"
-    }
  }
 };
