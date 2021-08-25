@@ -18,6 +18,8 @@ import {
    TextAlign,
    BaseAlign,
    Flags,
+   Shape,
+   TransformComponent,
 } from 'excalibur';
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -89,7 +91,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       if (camera) {
          scene.camera.x = camera.x;
          scene.camera.y = camera.y;
-         scene.camera.z = camera.zoom;
+         scene.camera.zoom = camera.zoom;
       }
    }
 
@@ -107,10 +109,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
             }
             
             if (collider.type === 'box') { 
-               actor.body.useBoxCollider(collider.width, collider.height, Vector.Zero);
+               actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
             }
             if (collider.type === 'circle') {
-               actor.body.useCircleCollider(collider.radius);
+               actor.collider.useCircleCollider(collider.radius);
             }
    
             scene.add(actor);
@@ -133,14 +135,13 @@ export class TiledMapResource implements Loadable<TiledMap> {
                text: text.text?.text ?? '', 
                fontFamily: text.text?.fontFamily,
                fontSize: text.text?.pixelSize,
-               fontUnit: FontUnit.Px,
+               fontUnit: FontUnit.Px
             });
             label.font.textAlign = TextAlign.Left;
             label.font.baseAlign = BaseAlign.Top;
             label.rotation = text.rotation,
             label.color = Color.fromHex(text.text?.color ?? '#000000'),
-            label.width = text.width ?? 0;
-            label.height = text.height ?? 0;
+            label.collider.collider = Shape.Box(text.width ?? 0, text.height ?? 0);
             scene.add(label);
          }
       }
@@ -203,7 +204,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
     */
    public addTiledMapToScene(scene: Scene) {
       const tm = this.getTileMap();
-      tm.components.transform.z = -1;
+      const tx = tm.get(TransformComponent);
+      tx!.z = -1;
       scene.add(tm);
       
       this._parseExcaliburInfo();
@@ -417,7 +419,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
                if (gid !== 0) {
                   const sprite = this.getSpriteForGid(gid)
-                  map.data[i].addSprite(sprite);
+                  map.data[i].addGraphic(sprite);
                }
             }
          }

@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
 import { TiledMapResource } from '@excalibur-tiled';
 
+ex.Flags.enable(ex.Experiments.WebGL);
 const game = new ex.Engine({ 
    width: 800, 
    height: 600, 
@@ -8,7 +9,7 @@ const game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false,
 });
-// game.toggleDebug();
+game.toggleDebug();
 
 const reset = () => {
    game.currentScene.camera.clearAllStrategies();
@@ -59,7 +60,6 @@ const start = (mapFile: string) => {
 
    var map = new TiledMapResource(mapFile);
    var loader = new ex.Loader([map]);
-   game.currentScene.tileMaps = []
    game.start(loader).then(function() {
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur.length > 0) {
@@ -77,10 +77,11 @@ const start = (mapFile: string) => {
                const start = ex.vec(line.x, line.y);
                const firstpoint = line.polyline[0];
                const patrol = new ex.Actor({x: line.x + firstpoint.x, y: line.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
-               for (const p of line.polyline) {
-                  patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
-               }
-               patrol.actions.repeatForever();
+               patrol.actions.repeatForever(ctx => {
+                  for (const p of (line.polyline ?? [])) {
+                     ctx.moveTo(p.x + start.x, p.y + start.y, 100);
+                  }
+               });
                game.add(patrol);
             }
          }
@@ -93,10 +94,11 @@ const start = (mapFile: string) => {
                const start = ex.vec(poly.x, poly.y);
                const firstpoint = poly.polygon[0];
                const patrol = new ex.Actor({x: poly.x + firstpoint.x, y: poly.y + firstpoint.y, color: ex.Color.Green, width: 25, height: 25});
-               for (const p of poly.polygon) {
-                  patrol.actions.moveTo(p.x + start.x, p.y + start.y, 100);
-               }
-               patrol.actions.repeatForever();
+               patrol.actions.repeatForever(ctx => {
+                  for (const p of (poly.polygon ?? [])) {
+                     ctx.moveTo(p.x + start.x, p.y + start.y, 100);
+                  }
+               })
                game.add(patrol);
             }
          }
