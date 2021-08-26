@@ -1,6 +1,6 @@
 {
   "name": "@excaliburjs/plugin-tiled",
-  "version": "0.25.0",
+  "version": "0.25.0-alpha.1",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
   "main": "dist/excalibur-tiled.min.js",
   "typings": "dist/src/index.d.ts",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/jasmine": "3.6.3",
-    "@types/pako": "1.0.1",
+    "@types/pako": "1.0.2",
     "@types/webpack-env": "1.16.0",
     "cross-env": "7.0.3",
     "excalibur": "0.25.0-alpha.179",
@@ -53,8 +53,8 @@
     "pngjs": "6.0.0",
     "puppeteer": "5.5.0",
     "raw-loader": "4.0.2",
-    "ts-loader": "8.0.17",
-    "typescript": "4.1.5",
+    "ts-loader": "8.3.0",
+    "typescript": "4.3.5",
     "webpack": "4.46.0",
     "webpack-bundle-analyzer": "4.4.0",
     "webpack-cli": "3.3.12",
