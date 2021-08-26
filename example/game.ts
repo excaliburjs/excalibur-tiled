@@ -9,7 +9,7 @@ const game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false,
 });
-game.toggleDebug();
+//game.toggleDebug();
 
 const reset = () => {
    game.currentScene.camera.clearAllStrategies();
