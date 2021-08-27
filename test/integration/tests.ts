@@ -54,6 +54,7 @@ const selectMap = async (page, map) => {
 }
 
 const expectMap = async (page, map, name, shouldLoad = true) => {
+   console.log(`TEST: ${map}`)
    if (shouldLoad) {
       await selectMap(page, map);
       await isLoaded(page);
@@ -76,7 +77,7 @@ const expectMap = async (page, map, name, shouldLoad = true) => {
 (async () => {
     try {
         const browser = await puppeteer.launch({
-            dumpio: true,
+            dumpio: false,
             args: [
               '--window-size=800,600',
             ],

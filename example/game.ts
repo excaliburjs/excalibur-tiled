@@ -22,7 +22,7 @@ const reset = () => {
 }
 
 const start = (mapFile: string) => {
-   var player = new ex.Actor({
+   let player = new ex.Actor({
       pos: ex.vec(100, 100),
       width: 16,
       height: 16,
@@ -58,9 +58,10 @@ const start = (mapFile: string) => {
    }
    game.add(player);
 
-   var map = new TiledMapResource(mapFile);
-   var loader = new ex.Loader([map]);
-   game.start(loader).then(function() {
+   const map = new TiledMapResource(mapFile);
+   const loader = new ex.Loader([map]);
+   game.start(loader).then(() => {
+      player.pos = ex.vec(100, 100);
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur.length > 0) {
          const start = excalibur[0].getObjectByName('player-start');
@@ -68,7 +69,6 @@ const start = (mapFile: string) => {
             player.pos.x = start.x;
             player.pos.y = start.y;
          }
-
 
          // Use polyline for patrols
          const lines = excalibur[0].getPolyLines();
@@ -103,6 +103,11 @@ const start = (mapFile: string) => {
             }
          }
       }
+      // Camera init bug :( forcing a a hack
+      setTimeout(() => {
+         game.currentScene.camera.x = player.pos.x;
+         game.currentScene.camera.y = player.pos.y;
+      });
       map.addTiledMapToScene(game.currentScene);
    });
 }
