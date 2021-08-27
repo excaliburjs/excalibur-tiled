@@ -1,1 +1,11 @@
 node_modules/
+dist/
+lib/
+*.js
+*.js.map
+*.d.ts
+actual-*.png
+diff-*.png
+coverage/
+!files.d.ts
+!karma.conf.js

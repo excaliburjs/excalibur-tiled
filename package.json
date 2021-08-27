@@ -1,9 +1,9 @@
 {
-  "name": "@excaliburjs/excalibur-tiled",
-  "version": "2.3.1",
+  "name": "@excaliburjs/plugin-tiled",
+  "version": "0.25.0-alpha.1",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
-  "main": "dist/excalibur-tiled.js",
-  "typings": "dist/lib/index.d.ts",
+  "main": "dist/excalibur-tiled.min.js",
+  "typings": "dist/src/index.d.ts",
   "author": {
     "name": "Excalibur.js Team",
     "email": "excaliburjs@gmail.com",
@@ -33,18 +33,39 @@
     "start": "webpack-dev-server --config webpack.config.test.js --open",
     "watch": "webpack --progress --watch",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "webpack --config webpack.config.test.js"
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "karma start",
+    "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
   },
   "devDependencies": {
+    "@types/jasmine": "3.6.3",
     "@types/pako": "1.0.2",
+    "@types/webpack-env": "1.16.0",
     "cross-env": "7.0.3",
-    "excalibur": "0.24.5",
-    "pako": "1.0.11",
+    "excalibur": "0.25.0-alpha.179",
+    "jasmine-core": "3.6.0",
+    "karma": "6.0.3",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-jasmine": "4.0.1",
+    "karma-webpack": "4.0.2",
+    "node-static": "0.7.11",
+    "pixelmatch": "5.2.1",
+    "pngjs": "6.0.0",
+    "puppeteer": "5.5.0",
+    "raw-loader": "4.0.2",
     "ts-loader": "8.3.0",
     "typescript": "4.4.2",
-    "uglifyjs-webpack-plugin": "2.2.0",
     "webpack": "4.46.0",
+    "webpack-bundle-analyzer": "4.4.0",
     "webpack-cli": "3.3.12",
     "webpack-dev-server": "3.11.2"
+  },
+  "dependencies": {
+    "fast-xml-parser": "3.17.6",
+    "pako": "1.0.11",
+    "zstddec": "0.0.2"
+  },
+  "peerDependencies": {
+    "excalibur": "0.25.0-alpha.179"
   }
 }

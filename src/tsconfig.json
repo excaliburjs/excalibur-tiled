@@ -1,9 +1,0 @@
-{
-   "compilerOptions": {
-      "module": "commonjs",
-      "target": "ES5",
-      "declaration": true,
-      "outDir": "../lib",
-      "sourceMap": true
-   }
-}

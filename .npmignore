@@ -2,5 +2,8 @@
 src
 test
 node_modules
+coverage
+example
+test
 **/webpack.config.js
 **/webpack.config.test.js

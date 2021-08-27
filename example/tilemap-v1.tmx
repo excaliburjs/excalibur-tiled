@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" nextobjectid="15">
+ <tileset firstgid="1" source="../test/tilemap.json"/>
+ <layer name="Board" width="10" height="10">
+  <data encoding="csv">
+7,7,7,7,7,7,7,7,7,7,
+7,5,5,5,5,5,5,5,5,7,
+7,5,8,8,8,8,8,8,5,7,
+7,5,8,6,6,6,6,8,5,7,
+7,5,8,6,2,2,6,8,5,7,
+7,5,8,6,2,2,6,8,5,7,
+7,5,8,6,6,6,6,8,5,7,
+7,5,8,8,8,8,8,8,5,7,
+7,5,5,5,5,5,5,5,5,7,
+7,7,7,7,7,7,7,7,7,7
+</data>
+ </layer>
+ <layer name="Static" width="10" height="10">
+  <data encoding="csv">
+3,0,0,0,0,0,0,0,0,3,
+0,1,0,0,0,0,0,0,1,0,
+0,0,4,0,0,0,0,4,0,0,
+0,0,0,2,0,0,2,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,2,0,0,2,0,0,0,
+0,0,4,0,0,0,0,4,0,0,
+0,1,0,0,0,0,0,0,1,0,
+3,0,0,0,0,0,0,0,0,3
+</data>
+ </layer>
+ <objectgroup name="Enemies">
+  <object id="1" name="John" type="Enemy" x="292.334" y="178.667">
+   <properties>
+    <property name="Aggressive" value="false"/>
+   </properties>
+  </object>
+  <object id="2" name="Elana" type="Enemy" x="29.6667" y="142.667"/>
+  <object id="5" name="Katie" type="Enemy" x="157.667" y="300"/>
+  <object id="7" name="Herp" type="Shape" x="219" y="250.667">
+   <polygon points="0,0 24,-14.6667 29.3333,14.6667 56,-14.6667 58.6667,8"/>
+  </object>
+  <object id="8" name="Fanny" type="Enemy" x="32.3333" y="228" width="24" height="24">
+   <ellipse/>
+  </object>
+  <object id="9" name="Cory" type="Enemy" x="125.667" y="12.0002" width="24" height="24">
+   <properties>
+    <property name="Aggressive" value="true"/>
+    <property name="Path" value="Path1"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Players">
+  <object id="13" name="Main" type="Player" x="199.333" y="96"/>
+ </objectgroup>
+ <objectgroup name="Paths">
+  <object id="10" name="Path1" type="Simpl" x="172" y="11">
+   <polyline points="0,0 104,0 140,20 140,89.3333 61.3333,22.6667"/>
+  </object>
+ </objectgroup>
+</map>

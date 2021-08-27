@@ -1,0 +1,16 @@
+{
+   "compilerOptions": {
+      "moduleResolution": "node",
+      "strict": true,
+      "target": "es2015",
+      "lib": ["DOM", "ES2019.Array"],
+      "declaration": true,
+      "outDir": "./dist",
+      "sourceMap": true,
+      "paths": {
+         "@excalibur-tiled": ["./src/"]
+      }
+   },
+   "include": ["example/**/*.ts", "./src/**/*.ts", "./test/unit/*.spec.ts", "files.d.ts"],
+   "exclude": ["./example/**/*.tsx", "./test/integration/*.ts"]
+}
