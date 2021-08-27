@@ -47,7 +47,7 @@
     "karma": "6.0.3",
     "karma-chrome-launcher": "3.1.0",
     "karma-jasmine": "4.0.1",
-    "karma-webpack": "4.0.2",
+    "karma-webpack": "5.0.0",
     "node-static": "0.7.11",
     "pixelmatch": "5.2.1",
     "pngjs": "6.0.0",
