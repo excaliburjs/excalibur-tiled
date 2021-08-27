@@ -38,7 +38,7 @@
     "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/tests.ts && node ./test/integration/tests.js"
   },
   "devDependencies": {
-    "@types/jasmine": "3.6.3",
+    "@types/jasmine": "3.8.2",
     "@types/pako": "1.0.2",
     "@types/webpack-env": "1.16.2",
     "cross-env": "7.0.3",
