@@ -18,7 +18,7 @@ import {
    Flags,
    Shape,
    TransformComponent,
-   LegacyDrawing
+   ImageSource
 } from 'excalibur';
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -44,8 +44,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    readonly mapFormat: TiledMapFormat;
    public ex: ExcaliburData;
-   public imageMap: Record<string, LegacyDrawing.Texture>;
-   public sheetMap: Record<string, LegacyDrawing.SpriteSheet>;
+   public imageMap: Record<string, ImageSource>;
+   public sheetMap: Record<string, SpriteSheet>;
    public map?: TileMap;
 
    /**
@@ -168,10 +168,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   collisionType
                });
                if (Flags.isEnabled('use-legacy-drawing')) {
-                  actor.addDrawing(sprite);
+                  actor.addDrawing(Sprite.toLegacySprite(sprite));
                } else {
                   actor.graphics.anchor = vec(0, 1);
-                  actor.graphics.use(Sprite.fromLegacySprite(sprite));
+                  actor.graphics.use(sprite);
                }
                scene.add(actor);
                const z = tile.getProperty<number>('zindex');
@@ -313,7 +313,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                // otherwise for embedded tilesets, images are relative to the tmx (this.path)
                tileSetImage = this.convertPath(this.path, ts.image)
             }
-            const tx = new LegacyDrawing.Texture(tileSetImage);
+            const tx = new ImageSource(tileSetImage);
             this.imageMap[ts.firstgid] = tx;
             externalImages.push(tx.load());
 
@@ -366,7 +366,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Given a Tiled TileSet gid, return the equivalent Excalibur Sprite
     * @param gid 
     */
-   public getSpriteForGid(gid: number): LegacyDrawing.Sprite {
+   public getSpriteForGid(gid: number): Sprite {
       const h = isFlippedHorizontally(gid);
       const v = isFlippedVertically(gid);
       const d = isFlippedDiagonally(gid);
@@ -378,7 +378,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
          let sprite = spriteSheet.sprites[spriteIndex];
          if (d || h || v) {
             sprite = sprite.clone();
-            sprite.anchor = Vector.Half;
          }
          // See https://github.com/mapeditor/tiled/issues/2119#issuecomment-491533214
          if (d) {
@@ -406,7 +405,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
          const rows = Math.floor(tileset.imageheight / tileset.tileheight);
-         const ss = new LegacyDrawing.SpriteSheet(this.imageMap[tileset.firstgid], cols, rows, tileset.tilewidth, tileset.tileheight);
+         const ss = SpriteSheet.fromGrid({
+            image:this.imageMap[tileset.firstgid],
+            grid: {
+               columns: cols,
+               rows: rows,
+               spriteWidth: tileset.tilewidth,
+               spriteHeight: tileset.tileheight
+            }
+         });
          this.sheetMap[tileset.firstgid.toString()] = ss;
       }
 
