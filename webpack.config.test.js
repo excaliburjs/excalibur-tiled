@@ -3,6 +3,9 @@ module.exports = {
  entry: './example/game.ts',
  mode: 'development',
  devtool: 'source-map',
+ devServer: {
+   static: '.',
+ },
  module: {
    rules: [
      {
@@ -12,10 +15,10 @@ module.exports = {
      }
    ]
  },
- node: {
-   fs: "empty"
- },
  resolve: {
+   fallback: {
+      fs: false
+   },
    extensions: [".ts", ".js"],
    alias: {
       "@excalibur-tiled": path.resolve(__dirname, './src/')

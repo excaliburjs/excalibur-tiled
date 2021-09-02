@@ -19,15 +19,15 @@ module.exports = {
      }
    ]
  },
- node: {
-   fs: "empty"
- },
  mode: 'development',
  devtool: 'source-map',
  devServer: {
-   contentBase: '.',
+   static: '.',
  },
  resolve: {
+   fallback: {
+      fs: false
+   },
    extensions: [".ts", ".js"],
    alias: {
       "@excalibur-tiled": path.resolve(__dirname, './src/')
