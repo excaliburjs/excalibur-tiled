@@ -18,7 +18,8 @@ import {
    Flags,
    Shape,
    TransformComponent,
-   ImageSource
+   ImageSource,
+   Font
 } from 'excalibur';
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
@@ -131,16 +132,18 @@ export class TiledMapResource implements Loadable<TiledMap> {
             const label = new Label({
                x: text.x,
                y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
-               text: text.text?.text ?? '', 
-               fontFamily: text.text?.fontFamily,
-               fontSize: text.text?.pixelSize,
-               fontUnit: FontUnit.Px
+               text: text.text?.text ?? '',
+               font: new Font({
+                  family: text.text?.fontFamily,
+                  size: text.text?.pixelSize,
+                  unit: FontUnit.Px
+               })
             });
             label.font.textAlign = TextAlign.Left;
             label.font.baseAlign = BaseAlign.Top;
             label.rotation = text.rotation,
             label.color = Color.fromHex(text.text?.color ?? '#000000'),
-            label.collider.collider = Shape.Box(text.width ?? 0, text.height ?? 0);
+            label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
             scene.add(label);
          }
       }
@@ -405,7 +408,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
          const rows = Math.floor(tileset.imageheight / tileset.tileheight);
-         const ss = SpriteSheet.fromGrid({
+         const ss = SpriteSheet.fromImageSource({
             image:this.imageMap[tileset.firstgid],
             grid: {
                columns: cols,
