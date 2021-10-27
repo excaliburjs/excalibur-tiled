@@ -37,7 +37,8 @@ module.exports = {
    filename: "[name].js",
    path: path.join(__dirname, "dist"),
    library: ["ex", "Plugin", "Tiled"],
-   libraryTarget: "umd"
+   libraryTarget: "umd",
+   hashFunction: "xxhash64"
  },
  optimization: {
    minimize: true,

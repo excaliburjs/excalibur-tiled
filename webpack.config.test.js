@@ -27,6 +27,7 @@ module.exports = {
  output: {
    filename: 'example/game.js',
    path: __dirname,
-   libraryTarget: "umd"
+   libraryTarget: "umd",
+   hashFunction: "xxhash64"
  }
 };
