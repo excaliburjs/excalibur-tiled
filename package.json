@@ -58,7 +58,7 @@
     "webpack-dev-server": "4.4.0"
   },
   "dependencies": {
-    "fast-xml-parser": "3.21.0",
+    "fast-xml-parser": "3.21.1",
     "pako": "1.0.11",
     "zstddec": "0.0.2"
   },
