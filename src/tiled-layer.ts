@@ -1,4 +1,4 @@
-import { TiledCompression, TiledEncoding } from "./tiled-types";
+import { TiledCompression, TiledEncoding, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 // Most significant byte of 32 bit id contains flags for flipping
@@ -29,6 +29,19 @@ export const isFlippedVertically = (gid: number): boolean => {
  */
 export const isFlippedDiagonally = (gid: number): boolean => {
    return !!(gid & FLIPPED_DIAGONALLY_FLAG);
+}
+
+/**
+ * Get tile position by index
+ * @param layer 
+ * @param index 
+ * @returns 
+ */
+export const getPosition = (layer: TiledLayer, index: number): TiledPoint => {
+   return {
+      x: index % layer.width,
+      y: Math.round((index / layer.width) + 0.5), // Round up
+   }
 }
 
 

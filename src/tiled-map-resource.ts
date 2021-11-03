@@ -24,7 +24,7 @@ import {
 import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
 import { parseExternalTsx } from './tiled-tileset';
-import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
+import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically, getPosition } from './tiled-layer';
 
 export enum TiledMapFormat {
 
@@ -149,7 +149,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
    }
 
-   private _addTiledInsertedTiles(scene: Scene) {
+   /**
+    * Add tile objects as actors with additional capabilities like zIndex and collisionType
+    * @param scene
+    */
+   private _addTiledInsertedTilesAsActors(scene: Scene) {
       const excalibur = this.data?.getExcaliburObjects();
       if (excalibur.length > 0) {
          const inserted = excalibur.flatMap(o => o.getInsertedTiles());
@@ -187,6 +191,45 @@ export class TiledMapResource implements Loadable<TiledMap> {
    }
 
    /**
+    * Add tiles with zindex properties as actors for additional capabilities like zIndex and collisionType
+    * @param scene
+    */
+   private _addLayerTilesAsActors(scene: Scene) {
+      for (const layer of this.data.layers) {
+         const z = layer.getProperty<number>('zindex')?.value;
+         const collisionTypeProp = layer.getProperty<CollisionType>('collisionType')?.value;
+         if (typeof z !== 'number' && !collisionTypeProp) {
+            continue;
+         }
+
+         for (var i = 0; i < layer.data.length; i++) {
+            let gid = <number>layer.data[i];
+            if (gid) {
+               const pos = getPosition(layer, i);
+               const sprite = this.getSpriteForGid(gid);
+               const actor = new Actor({
+                  x: pos.x * this.data.rawMap.tilewidth,
+                  y: pos.y * this.data.rawMap.tileheight,
+                  z,
+                  width: this.data.rawMap.tilewidth,
+                  height: this.data.rawMap.tileheight,
+                  anchor: vec(0, 1),
+                  collisionType: collisionTypeProp || CollisionType.PreventCollision,
+               });
+               if (Flags.isEnabled('use-legacy-drawing')) {
+                  actor.addDrawing(Sprite.toLegacySprite(sprite));
+               } else {
+                  actor.graphics.anchor = vec(0, 1);
+                  actor.graphics.use(sprite);
+               }
+               scene.add(actor);
+            }
+         }
+      }
+
+   }
+
+   /**
     * Use any layers with the custom property "solid"= true, to mark the TileMap
     * cells solid.
     */
@@ -214,7 +257,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
       this._addTiledText(scene);
-      this._addTiledInsertedTiles(scene);
+      this._addTiledInsertedTilesAsActors(scene);
+      this._addLayerTilesAsActors(scene);
 
       this.useSolidLayers();
    }
