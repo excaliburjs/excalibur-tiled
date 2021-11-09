@@ -1,3 +1,7 @@
+import {
+   CollisionType
+} from 'excalibur';
+
 /**
  * Tiled Map Interface
  *
@@ -91,7 +95,7 @@ export interface ExcaliburCamera {
 
 export interface ExcaliburCollider {
    type: 'box' | 'circle';
-   collisionType: ex.CollisionType;
+   collisionType: CollisionType;
    color: TiledProperty<string> | undefined;
    zIndex: number;
    x: number;
