@@ -43,16 +43,16 @@
     "@types/pako": "1.0.2",
     "@types/webpack-env": "1.16.3",
     "cross-env": "7.0.3",
-    "excalibur": "0.25.0",
+    "excalibur": "0.25.1",
     "jasmine-core": "3.10.1",
-    "karma": "6.3.7",
+    "karma": "6.3.8",
     "karma-chrome-launcher": "3.1.0",
     "karma-jasmine": "4.0.1",
     "karma-webpack": "5.0.0",
     "raw-loader": "4.0.2",
     "ts-loader": "9.2.6",
     "typescript": "4.4.4",
-    "webpack": "5.61.0",
+    "webpack": "5.62.2",
     "webpack-bundle-analyzer": "4.5.0",
     "webpack-cli": "4.9.1",
     "webpack-dev-server": "4.4.0"
@@ -63,6 +63,6 @@
     "zstddec": "0.0.2"
   },
   "peerDependencies": {
-    "excalibur": "0.25.0"
+    "excalibur": "0.25.1"
   }
 }
