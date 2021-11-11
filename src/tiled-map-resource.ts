@@ -55,7 +55,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
     */
    public convertPath: (originPath: string, relativePath: string) => string;
 
-   constructor(public path: string, mapFormatOverride?: TiledMapFormat) {
+   constructor(public path: string, mapFormatOverride?: TiledMapFormat, private readonly layerZIndexStart = -1) {
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
       switch (detectedType) {
          case TiledMapFormat.TMX:
@@ -210,7 +210,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public addTiledMapToScene(scene: Scene) {
       const tms = this.getTileMapLayers();
       for (const tm of tms) {
-         const tx = tm.get(TransformComponent);
          scene.add(tm);
       }
       
@@ -406,6 +405,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Creates the Excalibur tile map representation
     */
    private _createTileMap() {
+      let layerZIndexBase = this.layerZIndexStart;
+
       // register sprite sheets for each tileset in map
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
@@ -426,7 +427,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       for (var rawLayer of this.data.rawMap.layers) {
          if (rawLayer.type === "tilelayer") {
             const layer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
-            const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value || -1;
+            const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value || layerZIndexBase++;
             layer.z = zindex;
             for (var i = 0; i < rawLayer.data.length; i++) {
                let gid = <number>rawLayer.data[i];
