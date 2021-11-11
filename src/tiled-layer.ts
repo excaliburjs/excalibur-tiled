@@ -1,4 +1,4 @@
-import { TiledCompression, TiledEncoding } from "./tiled-types";
+import { TiledCompression, TiledEncoding, TiledProperty } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 
 // Most significant byte of 32 bit id contains flags for flipping
