@@ -21,7 +21,7 @@ import {
    ImageSource,
    Font
 } from 'excalibur';
-import { ExcaliburData, RawTiledMap, RawTiledTileset } from './tiled-types';
+import { ExcaliburData, RawTiledLayer, RawTiledMap, RawTiledTileset } from './tiled-types';
 import { TiledMap } from './tiled-map';
 import { parseExternalTsx } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
@@ -49,6 +49,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public imageMap: Record<string, ImageSource>;
    public sheetMap: Record<string, SpriteSheet>;
    public layers?: TileMap[] = [];
+
+   private _mapToRawLayer = new Map<TileMap, RawTiledLayer>();
 
    /**
     * Given an origin file path, converts a file relative to that origin to a full path accessible from excalibur
@@ -193,11 +195,14 @@ export class TiledMapResource implements Loadable<TiledMap> {
     */
    public useSolidLayers() {
       const tms = this.getTileMapLayers();
-      const solidLayers = this.data?.getTileLayersByProperty('solid', true) ?? [];
-      for (const solid of solidLayers) {
-         for (const tm of tms) {
-            for(let i = 0; i < solid.data.length; i++) {
-               tm.data[i].solid ||= !!solid.data[i];
+      for (const tm of tms) {
+         const rawLayer = this._mapToRawLayer.get(tm);
+         if (rawLayer) {
+            const solidLayer = getProperty<number>(rawLayer.properties, 'solid')?.value ?? false;
+            if (solidLayer) {
+               for (let i = 0; i < rawLayer.data.length; i++) {
+                  tm.data[i].solid ||= !!rawLayer.data[i];
+               }
             }
          }
       }
@@ -436,6 +441,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   layer.data[i].addGraphic(sprite);
                }
             }
+            this._mapToRawLayer.set(layer, rawLayer);
             this.layers?.push(layer);
          }
       }
