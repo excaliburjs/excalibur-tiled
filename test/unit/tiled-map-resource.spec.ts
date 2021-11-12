@@ -67,4 +67,15 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(layers[1].z).toBe(-4);
       expect(layers[2].z).toBe(5);
    });
+
+   it('can find a camera in a non-first layer', async () => {
+      const tiled = new TiledMapResource('base/test/unit/camera.tmx');
+      await tiled.load();
+      expect(tiled.isLoaded()).toBe(true);
+
+      expect(tiled.ex.camera).toBeDefined();
+      expect(tiled.ex.camera?.x).toBe(50);
+      expect(tiled.ex.camera?.y).toBe(50);
+      expect(tiled.ex.camera?.zoom).toBe(4);
+   });
 });

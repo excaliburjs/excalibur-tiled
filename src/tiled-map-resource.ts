@@ -217,8 +217,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       for (const tm of tms) {
          scene.add(tm);
       }
-      
-      this._parseExcaliburInfo();
+
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
       this._addTiledText(scene);
@@ -233,8 +232,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
       const ex: ExcaliburData = {};
       if (excalibur.length > 0) {
-         // Parse cameras
-         ex.camera = excalibur[0].getCamera();
+         // Parse cameras find the first
+         ex.camera = excalibur.find(objectlayer => objectlayer.getObjectByType('camera'))?.getCamera();
          // Parse colliders
          ex.colliders = [];
          const boxColliders = excalibur.flatMap(o => o.getObjectsByType('boxcollider'));
@@ -338,6 +337,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          });
       });
 
+      this._parseExcaliburInfo();
       return tiledMap;
    }
 
