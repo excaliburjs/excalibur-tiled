@@ -33,8 +33,9 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: echo "Deploying version ${{inputs.versionUpdateType}} of @excaliburjs/plugin-tiled"
-      - run: git config --global user.name 'Excalibur Bot'
-      - run: git config --global user.email 'excaliburjs@gmail.com'
-      - run: npm ci
-      - run: npm run build
+      - run: |
+          echo "Deploying version ${{ github.event.inputs.versionUpdateType}} of @excaliburjs/plugin-tiled"
+          git config --global user.name 'Excalibur Bot'
+          git config --global user.email 'excaliburjs@gmail.com'
+          npm ci
+          npm run build
