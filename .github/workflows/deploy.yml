@@ -41,4 +41,5 @@ jobs:
           npm run build
           npm version ${{ github.event.inputs.versionUpdateType }} -m "chore: Deploy %s release"
           git push
-          npm publish
+          git push --tags
+          npm publish --access public
