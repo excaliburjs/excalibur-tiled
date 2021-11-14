@@ -8,7 +8,7 @@ on:
         default: patch
 
 env:
-  NODE_AUTH_TOKEN: secrets.NPM_AUTH_TOKEN
+  NPM_TOKEN: secrets.NPM_AUTH_TOKEN
 
 jobs:
   deploy:
@@ -39,6 +39,6 @@ jobs:
           git config --global user.email 'excaliburjs@gmail.com'
           npm ci
           npm run build
-          npm version ${{ github.eventinputs.versionUpdateType }} -m "chore: Deploy %s release"
+          npm version ${{ github.event.inputs.versionUpdateType }} -m "chore: Deploy %s release"
           git push
           npm publish
