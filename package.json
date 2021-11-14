@@ -63,6 +63,6 @@
     "zstddec": "0.0.2"
   },
   "peerDependencies": {
-    "excalibur": "0.25.1"
+    "excalibur": "0.25.x"
   }
 }
