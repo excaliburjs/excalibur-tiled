@@ -11,6 +11,8 @@ const game = new ex.Engine({
 });
 //game.toggleDebug();
 
+
+
 const reset = () => {
    game.currentScene.camera.clearAllStrategies();
    game.currentScene.tileMaps.forEach(t => {
@@ -39,6 +41,8 @@ const start = (mapFile: string) => {
    });
    
    game.currentScene.camera.strategy.elasticToActor(player, .8, .9);
+
+
    
    player.onPostUpdate = () => {
       player.vel.setTo(0, 0);
@@ -109,6 +113,15 @@ const start = (mapFile: string) => {
          game.currentScene.camera.y = player.pos.y;
       });
       map.addTiledMapToScene(game.currentScene);
+
+      game.currentScene.camera.strategy.limitCameraBounds(
+         new ex.BoundingBox({
+            left: 0,
+            top: 0,
+            right: map.data.width * map.data.tileWidth,
+            bottom: map.data.height * map.data.tileHeight
+         })
+      )
    });
 }
 
