@@ -1,5 +1,6 @@
 import { TiledCompression, TiledEncoding, TiledProperty } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
+import { RawTiledLayer } from ".";
 
 // Most significant byte of 32 bit id contains flags for flipping
 // See https://doc.mapeditor.org/en/stable/reference/tmx-map-format/#tile-flipping
@@ -76,4 +77,9 @@ export class TiledLayer extends TiledEntity {
     * Original compression of the Tiled layer if any
     */
    public compression?: TiledCompression;
+
+   /**
+    * Reference to the raw tiled layer data
+    */
+   public rawLayer!: RawTiledLayer;
 }

@@ -1,6 +1,7 @@
 import {
    CollisionType
 } from 'excalibur';
+import { TiledObject } from '.';
 
 /**
  * Tiled Map Interface
@@ -103,6 +104,7 @@ export interface ExcaliburCollider {
    width: number;
    height: number;
    radius: number;
+   tiled: TiledObject;
 }
 export interface TiledProperty<T = unknown> {
    /**
