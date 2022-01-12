@@ -82,4 +82,19 @@ export class TiledLayer extends TiledEntity {
     * Reference to the raw tiled layer data
     */
    public rawLayer!: RawTiledLayer;
+
+   public static parse(layer: RawTiledLayer): TiledLayer {
+      if (layer.type !== 'tilelayer') throw Error('Cannot parse a non tilelayer type layer');
+      const resultLayer = new TiledLayer();
+      resultLayer.id = +layer.id;
+      resultLayer.name = layer.name;
+      resultLayer.data = (layer.data as number[]);
+      resultLayer.width = layer.width;
+      resultLayer.height = layer.height;
+      resultLayer.encoding = layer.encoding ?? 'csv';
+      resultLayer.compression = layer.compression;
+      resultLayer.properties = layer.properties ?? [];
+      resultLayer.rawLayer = layer;
+      return resultLayer
+   }
 }
