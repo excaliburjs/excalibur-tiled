@@ -44,7 +44,7 @@ export enum TiledMapFormat {
 
 export interface TiledMapOptions {
    /**
-    * Optionally override the map format, by default files ending in .tmx are treated as TMX format, otherise treated as JSON format
+    * By default files ending in .tmx are treated as TMX format, otherwise treated as JSON format
     */
    mapFormatOverride?: TiledMapFormat;
 
