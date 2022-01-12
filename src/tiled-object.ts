@@ -1,8 +1,11 @@
 import { ExcaliburCamera, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
+import { RawTiledLayer, RawTiledObject } from ".";
 
 export class TiledObjectGroup extends TiledEntity {
    public objects: TiledObject[] = [];
+
+   public rawObjectGroup!: RawTiledLayer;
 
    public getCamera(): ExcaliburCamera | undefined {
       const camera = this.getObjectByType('camera');
@@ -92,6 +95,8 @@ export class TiledObject extends TiledEntity {
     * Present on inserted tile objects
     */
    public gid?: number;
+
+   public rawObject!: RawTiledObject;
 }
 
 export interface TiledText {

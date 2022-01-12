@@ -26,7 +26,8 @@ import { TiledMap } from './tiled-map';
 import { parseExternalTsx } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
 import { getProperty } from './tiled-entity';
-import { TiledDataComponent } from './tiled-data-component';
+import { TiledObjectComponent } from './tiled-object-component';
+import { TiledLayerComponent } from './tiled-layer-component';
 
 export enum TiledMapFormat {
 
@@ -118,7 +119,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             if (collider.type === 'circle') {
                actor.collider.useCircleCollider(collider.radius);
             }
-            actor.addComponent(new TiledDataComponent(collider.tiled));
+            actor.addComponent(new TiledObjectComponent(collider.tiled));
             scene.add(actor);
             if (collider.zIndex) {
                actor.z = collider.zIndex;
@@ -147,7 +148,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             label.rotation = text.rotation,
             label.color = Color.fromHex(text.text?.color ?? '#000000'),
             label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
-            label.addComponent(new TiledDataComponent(text));
+            label.addComponent(new TiledObjectComponent(text));
             scene.add(label);
          }
       }
@@ -174,7 +175,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   rotation: tile.rotation,
                   collisionType
                });
-               actor.addComponent(new TiledDataComponent(tile));
+               actor.addComponent(new TiledObjectComponent(tile));
                if (Flags.isEnabled('use-legacy-drawing')) {
                   actor.addDrawing(Sprite.toLegacySprite(sprite));
                } else {
@@ -433,20 +434,23 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
 
       // Create Excalibur sprites for each cell
-      for (var rawLayer of this.data.rawMap.layers) {
-         if (rawLayer.type === "tilelayer") {
-            const layer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
+      for (var layer of this.data.layers) {
+         if (layer.rawLayer.type === "tilelayer") {
+            const rawLayer = layer.rawLayer;
+            const tileMapLayer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
+            tileMapLayer.addComponent(new TiledLayerComponent(layer));
+
             const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value || layerZIndexBase++;
-            layer.z = zindex;
+            tileMapLayer.z = zindex;
             for (var i = 0; i < rawLayer.data.length; i++) {
                let gid = <number>rawLayer.data[i];
                if (gid !== 0) {
                   const sprite = this.getSpriteForGid(gid)
-                  layer.data[i].addGraphic(sprite);
+                  tileMapLayer.data[i].addGraphic(sprite);
                }
             }
-            this._mapToRawLayer.set(layer, rawLayer);
-            this.layers?.push(layer);
+            this._mapToRawLayer.set(tileMapLayer, rawLayer);
+            this.layers?.push(tileMapLayer);
          }
       }
    }

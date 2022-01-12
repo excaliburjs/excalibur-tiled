@@ -16,6 +16,12 @@ module.exports = function(config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
+    proxies: {
+      // smooths over loading files because karma prepends '/base/' to everything
+      '/src/' : '/base/src/',
+      '/test/' : '/base/test/',
+    },
+
 
     // list of files / patterns to load in the browser
     files: [

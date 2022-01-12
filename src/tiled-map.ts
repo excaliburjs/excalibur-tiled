@@ -11,6 +11,9 @@ import { TiledObject, TiledObjectGroup } from "./tiled-object";
 import { TiledTileset } from './tiled-tileset';
 import { Util } from 'excalibur';
 
+/**
+ * Responsible for representing the Tiled TileMap in total and parsing from the source Tiled files (tmx)
+ */
 export class TiledMap {
    /**
     * Raw tilemap data
@@ -205,6 +208,7 @@ export class TiledMap {
          resultLayer.encoding = layer.encoding ?? 'csv';
          resultLayer.compression = layer.compression;
          resultLayer.properties = layer.properties ?? [];
+         resultLayer.rawLayer = layer;
          resultMap.layers.push(resultLayer);
       }
 
@@ -214,6 +218,7 @@ export class TiledMap {
          resultObjectGroup.id = +objectlayer.id;
          resultObjectGroup.name = objectlayer.name;
          resultObjectGroup.properties = objectlayer.properties ?? [];
+         resultObjectGroup.rawObjectGroup = objectlayer;
          for (let object of objectlayer.objects) {
             const resultObject = new TiledObject();
             resultObject.id = +object.id;
@@ -230,6 +235,7 @@ export class TiledMap {
             resultObject.ellipse = object.ellipse;
             resultObject.polyline = object.polyline;
             resultObject.polygon = object.polygon;
+            resultObject.rawObject = object;
             if (object.text) {
                resultObject.text = {
                   ...object.text,

@@ -111,7 +111,7 @@ describe('A Tiled Map', () => {
       expect(tiledMap.objectGroups[0].getPolyLines().length).toBe(1);
       expect(tiledMap.objectGroups[0].getPolygons().length).toBe(1);
       expect(tiledMap.objectGroups[0].getText().length).toBe(1);
-      expect(tiledMap.objectGroups[0].getInsertedTiles().length).toBe(1);
+      expect(tiledMap.objectGroups[0].getInsertedTiles().length).toBe(2);
       expect(tiledMap.objectGroups[0].getCamera()).toEqual({x: 16, y: 16, zoom: 1});
    });
 
