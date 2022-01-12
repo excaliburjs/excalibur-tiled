@@ -197,6 +197,12 @@ export class TiledMap {
       resultMap.tileWidth = +rawMap.tilewidth;
       resultMap.tileHeight = +rawMap.tileheight;
 
+      // Tag the raw layers with their original order
+      let order = 0; 
+      for (let layer of rawMap.layers) {
+         layer.order = order++;
+      }
+
       for (let layer of rawMap.layers) {
          if (layer.type !== 'tilelayer') continue;
          const resultLayer = new TiledLayer();

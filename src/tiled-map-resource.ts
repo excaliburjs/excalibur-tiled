@@ -42,6 +42,18 @@ export enum TiledMapFormat {
    JSON = 'JSON'
 }
 
+export interface TiledMapOptions {
+   /**
+    * Optionally override the map format, by default files ending in .tmx are treated as TMX format, otherise treated as JSON format
+    */
+   mapFormatOverride?: TiledMapFormat;
+
+   /**
+    * Optionally Specify the first layer z-index value, each layer will increment up 1 unless overridden (default -1)
+    */
+   firstLayerZIndex?: number;
+}
+
 export class TiledMapResource implements Loadable<TiledMap> {
    private _resource: Resource<string | RawTiledMap>;
    public data!: TiledMap;
@@ -51,6 +63,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public imageMap: Record<string, ImageSource>;
    public sheetMap: Record<string, SpriteSheet>;
    public layers?: TileMap[] = [];
+   private _layerZIndexStart = -1;
 
    private _mapToRawLayer = new Map<TileMap, RawTiledLayer>();
 
@@ -59,8 +72,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
     */
    public convertPath: (originPath: string, relativePath: string) => string;
 
-   constructor(public path: string, mapFormatOverride?: TiledMapFormat, private readonly layerZIndexStart = -1) {
-      const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON); 
+   /**
+    * 
+    * @param path Specify a path to your Tiled map source files (usually path/to/my_map.tmx)
+    * @param options Optionally configure other aspecits 
+    */
+   constructor(public path: string, options?: TiledMapOptions) {
+      const { mapFormatOverride, firstLayerZIndex } = { ...options};
+      this._layerZIndexStart = firstLayerZIndex ?? this._layerZIndexStart;
+      const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON);
       switch (detectedType) {
          case TiledMapFormat.TMX:
             this._resource = new Resource(path, 'text');
@@ -108,12 +128,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
                pos: vec(collider.x, collider.y),
                collisionType: collider.collisionType ?? CollisionType.Fixed
             });
-   
+
             if (collider.color) {
                actor.color = Color.fromHex(collider.color.value);
             }
-            
-            if (collider.type === 'box') { 
+
+            if (collider.type === 'box') {
                actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
             }
             if (collider.type === 'circle') {
@@ -146,8 +166,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
             label.font.textAlign = TextAlign.Left;
             label.font.baseAlign = BaseAlign.Top;
             label.rotation = text.rotation,
-            label.color = Color.fromHex(text.text?.color ?? '#000000'),
-            label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
+               label.color = Color.fromHex(text.text?.color ?? '#000000'),
+               label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
             label.addComponent(new TiledObjectComponent(text));
             scene.add(label);
          }
@@ -155,37 +175,39 @@ export class TiledMapResource implements Loadable<TiledMap> {
    }
 
    private _addTiledInsertedTiles(scene: Scene) {
-      const excalibur = this.data?.getExcaliburObjects();
-      if (excalibur.length > 0) {
-         const inserted = excalibur.flatMap(o => o.getInsertedTiles());
-         for (const tile of inserted) {
-            const collisionTypeProp = tile.getProperty<CollisionType>('collisionType');
-            let collisionType = CollisionType.PreventCollision;
-            if (collisionTypeProp) {
-               collisionType = collisionTypeProp.value;
-            }
-            if (tile.gid) {
-               const sprite = this.getSpriteForGid(tile.gid);
-               const actor = new Actor({
-                  x: tile.x,
-                  y: tile.y,
-                  width: tile.width,
-                  height: tile.height,
-                  anchor: vec(0, 1),
-                  rotation: tile.rotation,
-                  collisionType
-               });
-               actor.addComponent(new TiledObjectComponent(tile));
-               if (Flags.isEnabled('use-legacy-drawing')) {
-                  actor.addDrawing(Sprite.toLegacySprite(sprite));
-               } else {
-                  actor.graphics.anchor = vec(0, 1);
-                  actor.graphics.use(sprite);
+      const excaliburObjectLayers = this.data?.getExcaliburObjects();
+      if (excaliburObjectLayers.length > 0) {
+         for (const objectLayer of excaliburObjectLayers) {
+            const inserted = objectLayer.getInsertedTiles();
+            for (const tile of inserted) {
+               const collisionTypeProp = tile.getProperty<CollisionType>('collisionType');
+               let collisionType = CollisionType.PreventCollision;
+               if (collisionTypeProp) {
+                  collisionType = collisionTypeProp.value;
                }
-               scene.add(actor);
-               const z = tile.getProperty<number>('zindex');
-               if (z) {
-                  actor.z = +z.value;
+               if (tile.gid) {
+                  const sprite = this.getSpriteForGid(tile.gid);
+                  const actor = new Actor({
+                     x: tile.x,
+                     y: tile.y,
+                     width: tile.width,
+                     height: tile.height,
+                     anchor: vec(0, 1),
+                     rotation: tile.rotation,
+                     collisionType
+                  });
+                  actor.addComponent(new TiledObjectComponent(tile));
+                  if (Flags.isEnabled('use-legacy-drawing')) {
+                     actor.addDrawing(Sprite.toLegacySprite(sprite));
+                  } else {
+                     actor.graphics.anchor = vec(0, 1);
+                     actor.graphics.use(sprite);
+                  }
+                  scene.add(actor);
+                  const z = tile.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
+                  if (z) {
+                     actor.z = +z;
+                  }
                }
             }
          }
@@ -231,49 +253,53 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    private _parseExcaliburInfo() {
       // Tiled+Excalibur smarts
-      const excalibur = this.data?.getExcaliburObjects();
+      const excaliburObjectLayers = this.data?.getExcaliburObjects();
 
       const ex: ExcaliburData = {};
-      if (excalibur.length > 0) {
+      if (excaliburObjectLayers.length > 0) {
          // Parse cameras find the first
-         ex.camera = excalibur.find(objectlayer => objectlayer.getObjectByType('camera'))?.getCamera();
+         ex.camera = excaliburObjectLayers.find(objectlayer => objectlayer.getObjectByType('camera'))?.getCamera();
          // Parse colliders
          ex.colliders = [];
-         const boxColliders = excalibur.flatMap(o => o.getObjectsByType('boxcollider'));
-         for (let box of boxColliders) {
-            const collisionType = box.getProperty<CollisionType>('collisiontype');
-            const color = box.getProperty<string>('color');
-            const zIndex = box.getProperty<number>('zindex');
-            ex.colliders.push({
-               ...box,
-               width: +(box.width ?? 0),
-               height: +(box.height ?? 0),
-               collisionType: collisionType?.value ?? CollisionType.Fixed,
-               color,
-               zIndex: +(zIndex?.value ?? 0),
-               radius: 0,
-               type: 'box',
-               tiled: box
-            });
-         }
+         for (let objectLayer of excaliburObjectLayers) {
 
-         const circleColliders = excalibur.flatMap(o => o.getObjectsByType('circlecollider'));
-         for (let circle of circleColliders) {
-            var collisionType = circle.getProperty<CollisionType>('collisiontype');
-            var color = circle.getProperty<string>('color');
-            var zIndex = circle.getProperty<number>('zindex');
-            ex.colliders.push({
-               x: circle.x,
-               y: circle.y,
-               radius: Math.max(circle.width ?? 0, circle.height?? 0),
-               collisionType: collisionType?.value ?? CollisionType.Fixed,
-               color,
-               zIndex: +(zIndex?.value ?? 0),
-               width: circle.width ?? 0,
-               height: circle.height ?? 0,
-               type: 'circle',
-               tiled: circle
-            })
+            const boxColliders = objectLayer.getObjectsByType('boxcollider');
+
+            for (let box of boxColliders) {
+               const collisionType = box.getProperty<CollisionType>('collisiontype');
+               const color = box.getProperty<string>('color');
+               const zIndex = box.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
+               ex.colliders.push({
+                  ...box,
+                  width: +(box.width ?? 0),
+                  height: +(box.height ?? 0),
+                  collisionType: collisionType?.value ?? CollisionType.Fixed,
+                  color,
+                  zIndex: zIndex,
+                  radius: 0,
+                  type: 'box',
+                  tiled: box
+               });
+            }
+
+            const circleColliders = objectLayer.getObjectsByType('circlecollider');
+            for (let circle of circleColliders) {
+               var collisionType = circle.getProperty<CollisionType>('collisiontype');
+               var color = circle.getProperty<string>('color');
+               var zIndex = circle.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
+               ex.colliders.push({
+                  x: circle.x,
+                  y: circle.y,
+                  radius: Math.max(circle.width ?? 0, circle.height ?? 0),
+                  collisionType: collisionType?.value ?? CollisionType.Fixed,
+                  color,
+                  zIndex: zIndex,
+                  width: circle.width ?? 0,
+                  height: circle.height ?? 0,
+                  type: 'circle',
+                  tiled: circle
+               })
+            }
          }
       }
       this.ex = ex;
@@ -369,7 +395,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       if (this.data) {
          for (var i = this.data.rawMap.tilesets.length - 1; i >= 0; i--) {
             var ts = this.data.rawMap.tilesets[i];
-   
+
             if (ts.firstgid <= gid) {
                return ts;
             }
@@ -415,14 +441,14 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Creates the Excalibur tile map representation
     */
    private _createTileMap() {
-      let layerZIndexBase = this.layerZIndexStart;
+      let layerZIndexBase = this._layerZIndexStart;
 
       // register sprite sheets for each tileset in map
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
          const rows = Math.floor(tileset.imageheight / tileset.tileheight);
          const ss = SpriteSheet.fromImageSource({
-            image:this.imageMap[tileset.firstgid],
+            image: this.imageMap[tileset.firstgid],
             grid: {
                columns: cols,
                rows: rows,
@@ -440,7 +466,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             const tileMapLayer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
             tileMapLayer.addComponent(new TiledLayerComponent(layer));
 
-            const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value || layerZIndexBase++;
+            const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value ?? (layer.rawLayer.order + layerZIndexBase);
             tileMapLayer.z = zindex;
             for (var i = 0; i < rawLayer.data.length; i++) {
                let gid = <number>rawLayer.data[i];

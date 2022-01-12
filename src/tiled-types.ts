@@ -184,6 +184,11 @@ export interface RawTiledLayer {
     * Vertical layer offset in tiles. Always 0.
     */
    y: number;
+
+   /**
+    * Layer order in the original Tiled source
+    */
+   order: number;
    /**
     * Horizontal layer offset in pixels (default: 0)
     */
