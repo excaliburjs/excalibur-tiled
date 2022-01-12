@@ -197,11 +197,7 @@ export class TiledMap {
       resultMap.tileWidth = +rawMap.tilewidth;
       resultMap.tileHeight = +rawMap.tileheight;
 
-      // Tag the raw layers with their original order
-      let order = 0; 
-      for (let layer of rawMap.layers) {
-         layer.order = order++;
-      }
+      tagOriginalLayerOrder(rawMap);
 
       for (let layer of rawMap.layers) {
          if (layer.type !== 'tilelayer') continue;
@@ -305,6 +301,13 @@ export class TiledMap {
       }
 
       return rawJson;
+   }
+}
+
+const tagOriginalLayerOrder = (rawMap: RawTiledMap) => {
+   let order = 0; 
+   for (let layer of rawMap.layers) {
+      layer.order = order++;
    }
 }
 

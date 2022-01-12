@@ -25,9 +25,10 @@ import { ExcaliburData, RawTiledLayer, RawTiledMap, RawTiledTileset } from './ti
 import { TiledMap } from './tiled-map';
 import { parseExternalTsx } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
-import { getProperty } from './tiled-entity';
+import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
 import { TiledLayerComponent } from './tiled-layer-component';
+import { TiledLayer, TiledObjectGroup } from '.';
 
 export enum TiledMapFormat {
 
@@ -149,27 +150,30 @@ export class TiledMapResource implements Loadable<TiledMap> {
    }
 
    private _addTiledText(scene: Scene) {
-      const excalibur = this.data?.getExcaliburObjects();
-      if (excalibur.length > 0) {
-         const textobjects = excalibur.flatMap(o => o.getText());
-         for (const text of textobjects) {
-            const label = new Label({
-               x: text.x,
-               y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
-               text: text.text?.text ?? '',
-               font: new Font({
-                  family: text.text?.fontFamily,
-                  size: text.text?.pixelSize,
-                  unit: FontUnit.Px
-               })
-            });
-            label.font.textAlign = TextAlign.Left;
-            label.font.baseAlign = BaseAlign.Top;
-            label.rotation = text.rotation,
+      const excaliburObjectLayers = this.data?.getExcaliburObjects();
+      if (excaliburObjectLayers.length > 0) {
+         for (const objectLayer of excaliburObjectLayers) {
+            const textobjects = objectLayer.getText();
+            for (const text of textobjects) {
+               const label = new Label({
+                  x: text.x,
+                  y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
+                  text: text.text?.text ?? '',
+                  font: new Font({
+                     family: text.text?.fontFamily,
+                     size: text.text?.pixelSize,
+                     unit: FontUnit.Px
+                  })
+               });
+               label.font.textAlign = TextAlign.Left;
+               label.font.baseAlign = BaseAlign.Top;
+               label.rotation = text.rotation;
                label.color = Color.fromHex(text.text?.color ?? '#000000'),
                label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
-            label.addComponent(new TiledObjectComponent(text));
-            scene.add(label);
+               label.addComponent(new TiledObjectComponent(text));
+               scene.add(label);
+               label.z = this._calculateZIndex(text, objectLayer);
+            }
          }
       }
    }
@@ -204,10 +208,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      actor.graphics.use(sprite);
                   }
                   scene.add(actor);
-                  const z = tile.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
-                  if (z) {
-                     actor.z = +z;
-                  }
+                  actor.z = this._calculateZIndex(tile, objectLayer);
                }
             }
          }
@@ -268,7 +269,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             for (let box of boxColliders) {
                const collisionType = box.getProperty<CollisionType>('collisiontype');
                const color = box.getProperty<string>('color');
-               const zIndex = box.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
+               const zIndex = this._calculateZIndex(box, objectLayer);
                ex.colliders.push({
                   ...box,
                   width: +(box.width ?? 0),
@@ -284,9 +285,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
             const circleColliders = objectLayer.getObjectsByType('circlecollider');
             for (let circle of circleColliders) {
-               var collisionType = circle.getProperty<CollisionType>('collisiontype');
-               var color = circle.getProperty<string>('color');
-               var zIndex = circle.getProperty<number>('zindex')?.value ?? (objectLayer.rawObjectGroup.order + this._layerZIndexStart);
+               const collisionType = circle.getProperty<CollisionType>('collisiontype');
+               const color = circle.getProperty<string>('color');
+               const zIndex = this._calculateZIndex(circle, objectLayer);
                ex.colliders.push({
                   x: circle.x,
                   y: circle.y,
@@ -435,6 +436,18 @@ export class TiledMapResource implements Loadable<TiledMap> {
          return sprite;
       }
       throw new Error(`Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
+   }
+
+   private _calculateZIndex(entity: TiledEntity, tileLayerOrObjectGroup: TiledLayer | TiledObjectGroup): number {
+      let finalZ = entity.getProperty<number>('z')?.value ?? entity.getProperty<number>('zindex')?.value;
+
+      if (tileLayerOrObjectGroup instanceof TiledLayer) {
+         finalZ ??= (tileLayerOrObjectGroup.rawLayer.order + this._layerZIndexStart);
+      } else {
+         finalZ ??= (tileLayerOrObjectGroup.rawObjectGroup.order + this._layerZIndexStart);
+      }
+      // coerce to integer
+      return +finalZ
    }
 
    /**
