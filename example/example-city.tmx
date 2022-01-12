@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="8">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="8">
  <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
   <image source="assets/kenny-rpg-urban-pack/tilemap_packed.png" width="432" height="288"/>
  </tileset>
  <layer id="1" name="Ground" width="100" height="100" locked="1">
-  <properties>
-   <property name="zindex" type="int" value="-1"/>
-  </properties>
   <data encoding="csv">
 29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,30,462,463,464,36,37,37,37,37,37,37,37,37,37,37,38,462,463,464,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,
 29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,30,462,469,464,36,37,37,37,37,37,37,37,37,37,37,38,462,469,464,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,
@@ -111,9 +108,6 @@
 </data>
  </layer>
  <layer id="4" name="Ground Level 2" width="100" height="100">
-  <properties>
-   <property name="zindex" type="int" value="-1"/>
-  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -220,7 +214,6 @@
  <layer id="2" name="Solid" width="100" height="100">
   <properties>
    <property name="solid" type="bool" value="true"/>
-   <property name="zindex" type="int" value="0"/>
   </properties>
   <data encoding="csv">
 236,236,236,236,236,236,236,236,236,236,236,236,236,237,0,0,0,0,0,0,0,109,110,110,110,111,0,90,91,92,0,400,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -328,7 +321,6 @@
  <layer id="3" name="Solid Level 2" width="100" height="100">
   <properties>
    <property name="solid" type="bool" value="true"/>
-   <property name="zindex" type="int" value="0"/>
   </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,334,0,0,335,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -659,20 +651,8 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="1" gid="409" x="304" y="112" width="16" height="16">
-   <properties>
-    <property name="ZIndex" type="float" value="3"/>
-   </properties>
-  </object>
-  <object id="4" gid="1073741992" x="640" y="176" width="16" height="16">
-   <properties>
-    <property name="zindex" type="int" value="3"/>
-   </properties>
-  </object>
-  <object id="5" gid="2147484058" x="592" y="176" width="16" height="16">
-   <properties>
-    <property name="zindex" type="int" value="3"/>
-   </properties>
-  </object>
+  <object id="1" gid="409" x="304" y="112" width="16" height="16"/>
+  <object id="4" gid="1073741992" x="640" y="176" width="16" height="16"/>
+  <object id="5" gid="2147484058" x="592" y="176" width="16" height="16"/>
  </objectgroup>
 </map>

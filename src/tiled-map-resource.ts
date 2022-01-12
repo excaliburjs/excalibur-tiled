@@ -75,7 +75,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
    /**
     * 
     * @param path Specify a path to your Tiled map source files (usually path/to/my_map.tmx)
-    * @param options Optionally configure other aspecits 
+    * @param options Optionally configure other aspects of the tilemap like start layer z-index and map format 
     */
    constructor(public path: string, options?: TiledMapOptions) {
       const { mapFormatOverride, firstLayerZIndex } = { ...options};
