@@ -49,7 +49,7 @@ export interface TiledMapOptions {
    mapFormatOverride?: TiledMapFormat;
 
    /**
-    * Optionally Specify the first layer z-index value, each layer will increment up 1 unless overridden (default -1)
+    * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `zindex` property.
     */
    firstLayerZIndex?: number;
 }
