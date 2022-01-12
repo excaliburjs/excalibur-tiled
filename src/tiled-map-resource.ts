@@ -168,7 +168,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                label.font.textAlign = TextAlign.Left;
                label.font.baseAlign = BaseAlign.Top;
                label.rotation = text.rotation;
-               label.color = Color.fromHex(text.text?.color ?? '#000000'),
+               label.color = Color.fromHex(text.text?.color ?? '#000000');
                label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
                label.addComponent(new TiledObjectComponent(text));
                scene.add(label);
