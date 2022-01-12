@@ -479,8 +479,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
             const tileMapLayer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
             tileMapLayer.addComponent(new TiledLayerComponent(layer));
 
-            const zindex = getProperty<number>(rawLayer.properties, 'zindex')?.value ?? (layer.rawLayer.order + layerZIndexBase);
-            tileMapLayer.z = zindex;
+            // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
+            tileMapLayer.z = this._calculateZIndex(layer, layer); 
             for (var i = 0; i < rawLayer.data.length; i++) {
                let gid = <number>rawLayer.data[i];
                if (gid !== 0) {
