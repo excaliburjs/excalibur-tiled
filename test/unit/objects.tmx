@@ -37,8 +37,20 @@
   </object>
   <object id="8" gid="1073741992" x="42" y="42" width="16" height="16">
    <properties>
-    <property name="zindex" type="int" value="3"/>
+    <property name="z" type="int" value="3"/>
    </properties>
   </object>
+  <object id="9" gid="1073741992" x="42" y="42" width="16" height="16">
+   <properties>
+    <property name="zIndex" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="10" gid="1073741992" x="42" y="42" width="16" height="16" />
+ </objectgroup>
+ <objectgroup id="3" name="Object Layer 2">
+  <properties>
+   <property name="excalibur" type="bool" value="true"/>
+  </properties>
+   <object id="11" gid="1" x="64" y="80" width="16" height="16"/>
  </objectgroup>
 </map>

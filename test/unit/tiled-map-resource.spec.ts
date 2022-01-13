@@ -82,6 +82,33 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(tiled.ex.camera?.zoom).toBe(4);
    });
 
+   it('will support "z" and "zindex" otherwise default to owning layer', async () => {
+      const tiled = new TiledMapResource('test/unit/objects.tmx')
+      await tiled.load();
+      expect(tiled.isLoaded());
+
+      const scene = new Scene();
+      tiled.addTiledMapToScene(scene);
+
+      const objects = scene.actors.filter(a => a.get(TiledObjectComponent));
+
+      // z
+      const insertedTile1 = objects.find(a => a.get(TiledObjectComponent)?.object.id === 8);
+      expect(insertedTile1?.z).toBe(3);
+      
+      // z index
+      const insertedTile2 = objects.find(a => a.get(TiledObjectComponent)?.object.id === 9);
+      expect(insertedTile2?.z).toBe(3);
+      
+      // layer order
+      const insertedTile3 = objects.find(a => a.get(TiledObjectComponent)?.object.id === 10);
+      expect(insertedTile3?.z).toBe(0);
+
+      // layer order
+      const insertedTile4 = objects.find(a => a.get(TiledObjectComponent)?.object.id === 11);
+      expect(insertedTile4?.z).toBe(1);
+   });
+
    it('will parse inserted tile entities and include their TiledObject in the TileObjectComponent', async () => {
       const tiled = new TiledMapResource('test/unit/objects.tmx')
       await tiled.load();
@@ -109,7 +136,8 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(component?.object.y).toBe(42);
       expect(component?.object.width).toBe(16);
       expect(component?.object.height).toBe(16);
-      expect(component?.object.getProperty<number>("zindex")?.value).toBe(3);
+      expect(insertedTile?.z).toBe(3);
+      expect(component?.object.getProperty<number>("z")?.value).toBe(3);
       expect(component?.object.rawObject).toBeDefined();
    });
 
