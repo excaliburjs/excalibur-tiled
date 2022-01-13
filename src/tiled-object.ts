@@ -8,6 +8,8 @@ export class TiledObjectGroup extends TiledEntity {
 
    public rawObjectGroup!: RawTiledLayer;
 
+   public order!: number;
+
    public getCamera(): ExcaliburCamera | undefined {
       const camera = this.getObjectByType('camera');
       if (camera) {
@@ -67,6 +69,7 @@ export class TiledObjectGroup extends TiledEntity {
       resultObjectGroup.name = objectGroup.name;
       resultObjectGroup.properties = objectGroup.properties ?? [];
       resultObjectGroup.rawObjectGroup = objectGroup;
+      resultObjectGroup.order = objectGroup.order;
       for (let object of objectGroup.objects) {
          resultObjectGroup.objects.push(TiledObject.parse(object));
       } 

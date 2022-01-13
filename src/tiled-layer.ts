@@ -79,6 +79,11 @@ export class TiledLayer extends TiledEntity {
    public compression?: TiledCompression;
 
    /**
+    * Original order of the Tiled layer
+    */
+   public order!: number;
+
+   /**
     * Reference to the raw tiled layer data
     */
    public rawLayer!: RawTiledLayer;
@@ -93,6 +98,7 @@ export class TiledLayer extends TiledEntity {
       resultLayer.height = layer.height;
       resultLayer.encoding = layer.encoding ?? 'csv';
       resultLayer.compression = layer.compression;
+      resultLayer.order = layer.order;
       resultLayer.properties = layer.properties ?? [];
       resultLayer.rawLayer = layer;
       return resultLayer

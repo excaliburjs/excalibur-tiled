@@ -441,11 +441,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
    private _calculateZIndex(entity: TiledEntity, tileLayerOrObjectGroup: TiledLayer | TiledObjectGroup): number {
       let finalZ = entity.getProperty<number>('z')?.value ?? entity.getProperty<number>('zindex')?.value;
 
-      if (tileLayerOrObjectGroup instanceof TiledLayer) {
-         finalZ ??= (tileLayerOrObjectGroup.rawLayer.order + this._layerZIndexStart);
-      } else {
-         finalZ ??= (tileLayerOrObjectGroup.rawObjectGroup.order + this._layerZIndexStart);
-      }
+      finalZ ??= (tileLayerOrObjectGroup.order + this._layerZIndexStart);
+
       // coerce to integer
       return +finalZ
    }

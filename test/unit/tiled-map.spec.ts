@@ -103,9 +103,12 @@ describe('A Tiled Map', () => {
       expect(tiledMap).toBeDefined();
       expect(tiledMap.layers.length).toBe(1);
       expect(tiledMap.layers[0].name).toBe('Tile Layer 1');
+      expect(tiledMap.layers[0].order).toBe(0);
       expect(tiledMap.objectGroups.length).toBe(2);
       expect(tiledMap.objectGroups[0].name).toBe('Object Layer 1');
+      expect(tiledMap.objectGroups[0].order).toBe(1);
       expect(tiledMap.objectGroups[1].name).toBe('Object Layer 2');
+      expect(tiledMap.objectGroups[1].order).toBe(2);
 
       expect(tiledMap.objectGroups[0].getPoints().length).toBe(1);
       expect(tiledMap.objectGroups[0].getEllipses().length).toBe(1);
