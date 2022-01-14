@@ -35,7 +35,7 @@
   <object id="7" x="20.375" y="69.375">
    <polygon points="0,0 32.5,2.5 18.625,-5.375"/>
   </object>
-  <object id="8" gid="1073741992" x="42" y="42" width="16" height="16">
+  <object id="8" name="some-name" gid="1073741992" x="42" y="42" width="16" height="16">
    <properties>
     <property name="z" type="int" value="3"/>
    </properties>

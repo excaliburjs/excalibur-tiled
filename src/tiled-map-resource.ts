@@ -127,6 +127,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          for (let collider of colliders) {
             const actor = new Actor({
                pos: vec(collider.x, collider.y),
+               name: collider.name,
                collisionType: collider.collisionType ?? CollisionType.Fixed
             });
 
@@ -159,6 +160,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   x: text.x,
                   y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
                   text: text.text?.text ?? '',
+                  name: this._getEntityName(text),
                   font: new Font({
                      family: text.text?.fontFamily,
                      size: text.text?.pixelSize,
@@ -198,7 +200,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      height: tile.height,
                      anchor: vec(0, 1),
                      rotation: tile.rotation,
-                     collisionType
+                     collisionType,
+                     name: this._getEntityName(tile)
                   });
                   actor.addComponent(new TiledObjectComponent(tile));
                   if (Flags.isEnabled('use-legacy-drawing')) {
@@ -279,7 +282,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   zIndex: zIndex,
                   radius: 0,
                   type: 'box',
-                  tiled: box
+                  tiled: box,
+                  name: this._getEntityName(box)
                });
             }
 
@@ -298,7 +302,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   width: circle.width ?? 0,
                   height: circle.height ?? 0,
                   type: 'circle',
-                  tiled: circle
+                  tiled: circle,
+                  name: this._getEntityName(circle)
                })
             }
          }
@@ -447,6 +452,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
       return +finalZ
    }
 
+   private _getEntityName(entity: TiledEntity): string | undefined {
+      return entity.name;
+   }
    /**
     * Creates the Excalibur tile map representation
     */

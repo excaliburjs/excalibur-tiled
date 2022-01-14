@@ -104,6 +104,7 @@ export interface ExcaliburCollider {
    width: number;
    height: number;
    radius: number;
+   name?: string;
    tiled: TiledObject;
 }
 export interface TiledProperty<T = unknown> {

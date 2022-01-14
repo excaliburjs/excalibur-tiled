@@ -137,6 +137,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(component?.object.width).toBe(16);
       expect(component?.object.height).toBe(16);
       expect(insertedTile?.z).toBe(3);
+      expect(insertedTile?.name).toBe('some-name');
       expect(component?.object.getProperty<number>("z")?.value).toBe(3);
       expect(component?.object.rawObject).toBeDefined();
    });
