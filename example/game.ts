@@ -58,7 +58,7 @@ const start = (mapFile: string) => {
    }
    game.add(player);
 
-   const map = new TiledMapResource(mapFile);
+   const map = new TiledMapResource(mapFile, { startingLayerZIndex: -2 });
    const loader = new ex.Loader([map]);
    game.start(loader).then(() => {
       player.pos = ex.vec(100, 100);

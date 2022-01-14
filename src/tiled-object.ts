@@ -1,11 +1,14 @@
 import { ExcaliburCamera, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 import { RawTiledLayer, RawTiledObject } from ".";
+import { Util } from "excalibur";
 
 export class TiledObjectGroup extends TiledEntity {
    public objects: TiledObject[] = [];
 
    public rawObjectGroup!: RawTiledLayer;
+
+   public order!: number;
 
    public getCamera(): ExcaliburCamera | undefined {
       const camera = this.getObjectByType('camera');
@@ -58,6 +61,20 @@ export class TiledObjectGroup extends TiledEntity {
    public getInsertedTiles(): TiledObject[] {
       return this.objects.filter(o => !!o.gid);
    }
+
+   public static parse(objectGroup: RawTiledLayer): TiledObjectGroup {
+      if (objectGroup.type !== 'objectgroup') throw Error('Cannot parse non objectgroup type layer');
+      const resultObjectGroup = new TiledObjectGroup();
+      resultObjectGroup.id = +objectGroup.id;
+      resultObjectGroup.name = objectGroup.name;
+      resultObjectGroup.properties = objectGroup.properties ?? [];
+      resultObjectGroup.rawObjectGroup = objectGroup;
+      resultObjectGroup.order = objectGroup.order;
+      for (let object of objectGroup.objects) {
+         resultObjectGroup.objects.push(TiledObject.parse(object));
+      } 
+      return resultObjectGroup;
+   }
 }
 
 export class TiledObject extends TiledEntity {
@@ -97,6 +114,34 @@ export class TiledObject extends TiledEntity {
    public gid?: number;
 
    public rawObject!: RawTiledObject;
+
+   public static parse(object: RawTiledObject): TiledObject {
+      const resultObject = new TiledObject();
+      resultObject.id = +object.id;
+      resultObject.gid = object.gid;
+      resultObject.visible = object.visible ?? true;
+      resultObject.name = object.name;
+      resultObject.type = object.type;
+      resultObject.x = +object.x;
+      resultObject.y = +object.y;
+      resultObject.rotation = object.rotation ? Util.toRadians(object.rotation) : 0;
+      resultObject.width = object.width ?? 0;
+      resultObject.height = object.height ?? 0;
+      resultObject.point = object.point;
+      resultObject.ellipse = object.ellipse;
+      resultObject.polyline = object.polyline;
+      resultObject.polygon = object.polygon;
+      resultObject.rawObject = object;
+      if (object.text) {
+         resultObject.text = {
+            ...object.text,
+            pixelSize: object.text.pixelsize,
+            fontFamily: object.text.fontfamily
+         }
+      }
+      resultObject.properties = object.properties ?? [];
+      return resultObject
+   }
 }
 
 export interface TiledText {

@@ -197,56 +197,16 @@ export class TiledMap {
       resultMap.tileWidth = +rawMap.tilewidth;
       resultMap.tileHeight = +rawMap.tileheight;
 
-      for (let layer of rawMap.layers) {
-         if (layer.type !== 'tilelayer') continue;
-         const resultLayer = new TiledLayer();
-         resultLayer.id = +layer.id;
-         resultLayer.name = layer.name;
-         resultLayer.data = (layer.data as number[]);
-         resultLayer.width = layer.width;
-         resultLayer.height = layer.height;
-         resultLayer.encoding = layer.encoding ?? 'csv';
-         resultLayer.compression = layer.compression;
-         resultLayer.properties = layer.properties ?? [];
-         resultLayer.rawLayer = layer;
-         resultMap.layers.push(resultLayer);
-      }
+      tagLayerWithOriginalOrder(rawMap);
 
-      for (let objectlayer of rawMap.layers) {
-         if (objectlayer.type !== 'objectgroup') continue;
-         const resultObjectGroup = new TiledObjectGroup();
-         resultObjectGroup.id = +objectlayer.id;
-         resultObjectGroup.name = objectlayer.name;
-         resultObjectGroup.properties = objectlayer.properties ?? [];
-         resultObjectGroup.rawObjectGroup = objectlayer;
-         for (let object of objectlayer.objects) {
-            const resultObject = new TiledObject();
-            resultObject.id = +object.id;
-            resultObject.gid = object.gid;
-            resultObject.visible = object.visible ?? true;
-            resultObject.name = object.name;
-            resultObject.type = object.type;
-            resultObject.x = +object.x;
-            resultObject.y = +object.y;
-            resultObject.rotation = object.rotation ? Util.toRadians(object.rotation) : 0;
-            resultObject.width = object.width ?? 0;
-            resultObject.height = object.height ?? 0;
-            resultObject.point = object.point;
-            resultObject.ellipse = object.ellipse;
-            resultObject.polyline = object.polyline;
-            resultObject.polygon = object.polygon;
-            resultObject.rawObject = object;
-            if (object.text) {
-               resultObject.text = {
-                  ...object.text,
-                  pixelSize: object.text.pixelsize,
-                  fontFamily: object.text.fontfamily
-               }
-            }
-            resultObject.properties = object.properties ?? [];
-            resultObjectGroup.objects.push(resultObject);
-         } 
-         resultMap.objectGroups.push(resultObjectGroup);
+      for (let layer of rawMap.layers) {
+         if (layer.type == 'tilelayer') {
+            resultMap.layers.push(TiledLayer.parse(layer));
+         }
+
+         if (layer.type == 'objectgroup') {
+            resultMap.objectGroups.push(TiledObjectGroup.parse(layer));
+         };
       }
 
       for(let tileset of rawMap.tilesets) {
@@ -299,6 +259,13 @@ export class TiledMap {
       }
 
       return rawJson;
+   }
+}
+
+const tagLayerWithOriginalOrder = (rawMap: RawTiledMap) => {
+   let order = 0; 
+   for (let layer of rawMap.layers) {
+      layer.order = order++;
    }
 }
 
