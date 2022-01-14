@@ -79,8 +79,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * @param options Optionally configure other aspects of the tilemap like start layer z-index and map format 
     */
    constructor(public path: string, options?: TiledMapOptions) {
-      const { mapFormatOverride, firstLayerZIndex } = { ...options };
-      this._layerZIndexStart = firstLayerZIndex ?? this._layerZIndexStart;
+      const { mapFormatOverride, startingLayerZIndex } = { ...options };
+      this._layerZIndexStart = startingLayerZIndex ?? this._layerZIndexStart;
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? TiledMapFormat.TMX : TiledMapFormat.JSON);
       switch (detectedType) {
          case TiledMapFormat.TMX:

@@ -55,7 +55,7 @@ describe('A Tiled Map Excalibur Resource', () => {
 
    it('can overwrite the base z-index start value', async () => {
       const tiled = new TiledMapResource('base/test/unit/layer-zindex.tmx', {
-         firstLayerZIndex: -5
+         startingLayerZIndex: -5
       });
       await tiled.load();
 
