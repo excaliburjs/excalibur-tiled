@@ -52,7 +52,7 @@ export interface TiledMapOptions {
    /**
     * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `zindex` property.
     */
-   firstLayerZIndex?: number;
+   startingLayerZIndex?: number;
 }
 
 export class TiledMapResource implements Loadable<TiledMap> {
