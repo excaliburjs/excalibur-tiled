@@ -9,7 +9,6 @@ import { RawTiledMap } from './tiled-types';
 import { TiledLayer } from "./tiled-layer";
 import { TiledObject, TiledObjectGroup } from "./tiled-object";
 import { TiledTileset } from './tiled-tileset';
-import { Util } from 'excalibur';
 
 /**
  * Responsible for representing the Tiled TileMap in total and parsing from the source Tiled files (tmx)
@@ -178,6 +177,11 @@ export class TiledMap {
            tileset.imageheight = tileset.image.height;
            tileset.objectalignment = tileset.objectalignment ?? 'unspecified';
            tileset.image = tileset.image.source;
+           _convertToArray(tileset, 'tile', true);
+           tileset.tiles.forEach((t: any) => { 
+             t.objectgroup.type = 'objectgroup';
+             _convertToArray(t.objectgroup, 'object', true);
+           });
          }
      }
 
@@ -212,24 +216,7 @@ export class TiledMap {
       for(let tileset of rawMap.tilesets) {
          // Map non-embedded tilesets
          if (!tileset.source) {
-            const tileSet: TiledTileset = {
-               ...tileset,
-               firstGid: tileset.firstgid,
-               tileWidth: tileset.tilewidth,
-               tileHeight: tileset.tileheight,
-               tileCount: tileset.tilecount,
-               tileOffset: tileset.tileoffset,
-               tiledVersion: tileset.tiledversion,
-               backgroundColor: tileset.backgroundcolor,
-               transparentColor: tileset.transparentcolor,
-               wangSets: tileset.wangsets,
-               imageWidth: tileset.imagewidth,
-               imageHeight: tileset.imageheight,
-               objectAlignment: tileset.objectalignment ?? 'unspecified',
-               image: tileset.image,
-            };
-   
-            resultMap.tileSets.push(tileSet);
+            resultMap.tileSets.push(TiledTileset.parse(tileset));
          }
       }
 

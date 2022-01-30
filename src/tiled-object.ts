@@ -3,6 +3,28 @@ import { TiledEntity } from "./tiled-entity";
 import { RawTiledLayer, RawTiledObject } from ".";
 import { Util } from "excalibur";
 
+export interface Polygon {
+   x: number;
+   y: number;
+   polygon: {
+      points: string;
+   }
+}
+
+export interface Box {
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+}
+
+export interface Ellipse {
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+}
+
 export class TiledObjectGroup extends TiledEntity {
    public objects: TiledObject[] = [];
 
@@ -42,8 +64,8 @@ export class TiledObjectGroup extends TiledEntity {
       return this.objects.filter(o => !!o.point);
    }
 
-   public getEllipses(): TiledObject[] {
-      return this.objects.filter(o => !!o.ellipse);
+   public getEllipses(): (TiledObject & Ellipse)[] {
+      return this.objects.filter(o => !!o.ellipse) as (TiledObject & Ellipse)[];
    }
 
    public getText(): TiledObject[] {
@@ -54,8 +76,12 @@ export class TiledObjectGroup extends TiledEntity {
       return this.objects.filter(o => !!o.polyline);
    }
 
-   public getPolygons(): TiledObject[] {
-      return this.objects.filter(o => !!o.polygon);
+   public getPolygons(): (TiledObject & Polygon)[] {
+      return this.objects.filter(o => !!o.polygon) as (TiledObject & Polygon)[];
+   }
+
+   public getBoxes(): (TiledObject & Box)[] {
+      return this.objects.filter(o => !!o.width && !!o.height && !o.ellipse) as (TiledObject & Box)[];
    }
 
    public getInsertedTiles(): TiledObject[] {
@@ -128,7 +154,7 @@ export class TiledObject extends TiledEntity {
       resultObject.width = object.width ?? 0;
       resultObject.height = object.height ?? 0;
       resultObject.point = object.point;
-      resultObject.ellipse = object.ellipse;
+      resultObject.ellipse = object.ellipse === true || (object.ellipse as any === '');
       resultObject.polyline = object.polyline;
       resultObject.polygon = object.polygon;
       resultObject.rawObject = object;

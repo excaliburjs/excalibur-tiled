@@ -408,7 +408,7 @@ export interface RawTiledTileset {
    /**
     * Array of Tiles (optional)
     */
-   tiles: TiledTile[];
+   tiles: RawTilesetTile[];
 
    name: string;
    properties: TiledProperty[];
@@ -530,7 +530,7 @@ export interface TiledGrid {
    height: number;
 }
 
-export interface TiledTile {
+export interface RawTilesetTile {
    id: number;
    type: string;
    image: string;
@@ -542,7 +542,6 @@ export interface TiledTile {
    objectgroup: RawTiledLayer;
    probability: number;
 }
-
 
 
 export interface TiledFrame {
