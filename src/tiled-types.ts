@@ -56,7 +56,7 @@ export interface RawTiledMap {
    /**
     * Map orientation (orthogonal, isometric, staggered or hexagonal)
     */
-   orientation: 'orthoganal' | 'isometric' | 'staggered' | 'hexagonal';
+   orientation: 'orthogonal' | 'isometric' | 'staggered' | 'hexagonal';
 
    layers: RawTiledLayer[];
    properties: TiledProperty[];

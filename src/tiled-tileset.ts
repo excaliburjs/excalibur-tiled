@@ -133,18 +133,31 @@ export class TiledTileset {
 
 export class TiledTilesetTile {
    id!: number;
-   objectgroup!: TiledObjectGroup
+   objectgroup?: TiledObjectGroup
    
 
    public static parse(rawTilesetTile: RawTilesetTile) {
       const tile = new TiledTilesetTile();
       tile.id = +rawTilesetTile.id;
-      tile.objectgroup = TiledObjectGroup.parse(rawTilesetTile.objectgroup);
+      if (rawTilesetTile.objectgroup) {
+         tile.objectgroup = TiledObjectGroup.parse(rawTilesetTile.objectgroup);
+      }
       return tile;
    }
 }
 // TODO merge this with the other parser
 export const parseExternalTsx = (tsxData: string, firstGid: number, source: string): TiledTileset => {
+   const _convertToArray = (obj: any, prop: string, plurlalize = false) => {
+      if (!obj[prop]) {
+         obj[prop + (plurlalize ? 's' : '')] = [];
+         return;
+      }
+
+      obj[prop + (plurlalize ? 's' : '')] = Array.isArray(obj[prop]) ? obj[prop] : [obj[prop]];
+      if (plurlalize) {
+         delete obj[prop];
+      }
+   }
 
    const options: parser.X2jOptionsOptional = {
       attributeNamePrefix : "",
@@ -169,7 +182,14 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
    rawTileset.imageheight = rawTsx.image.height;
    rawTileset.objectalignment = rawTsx.objectalignment ?? 'unspecified';
    rawTileset.image = rawTsx.image.source;
-   
+   _convertToArray(rawTsx, "tile", true);
+   rawTsx.tiles.forEach((t: any) => { 
+      if (t.objectgroup){
+         t.objectgroup.type = 'objectgroup';
+         _convertToArray(t.objectgroup, 'object', true);
+       }
+   });
+   rawTileset.tiles = rawTsx.tiles;
 
    const origin = vec(rawTileset.tilewidth/2, rawTileset.tileheight/2);
    const result: TiledTileset = {

@@ -18,6 +18,7 @@ export class TiledMap {
     * Raw tilemap data
     */
    rawMap!: RawTiledMap;
+   orientation!: "isometric" | "orthogonal" | "staggered" | "hexagonal";
    /**
     * Width of the Tiled Map in tiles
     */
@@ -179,8 +180,10 @@ export class TiledMap {
            tileset.image = tileset.image.source;
            _convertToArray(tileset, 'tile', true);
            tileset.tiles.forEach((t: any) => { 
-             t.objectgroup.type = 'objectgroup';
-             _convertToArray(t.objectgroup, 'object', true);
+              if (t.objectgroup){
+                 t.objectgroup.type = 'objectgroup';
+                 _convertToArray(t.objectgroup, 'object', true);
+               }
            });
          }
      }
@@ -195,6 +198,7 @@ export class TiledMap {
    private static async _fromRawTiledMap(rawMap: RawTiledMap): Promise<TiledMap> {
       await TiledMap._decompresslayers(rawMap);
       const resultMap = new TiledMap();
+      resultMap.orientation = rawMap.orientation;
       resultMap.rawMap = rawMap;
       resultMap.width = +rawMap.width;
       resultMap.height = +rawMap.height;
