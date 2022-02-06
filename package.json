@@ -43,7 +43,7 @@
     "@types/pako": "1.0.3",
     "@types/webpack-env": "1.16.3",
     "cross-env": "7.0.3",
-    "excalibur": "0.25.2",
+    "excalibur": "0.25.3",
     "jasmine-core": "4.0.0",
     "karma": "6.3.15",
     "karma-chrome-launcher": "3.1.0",
