@@ -1,6 +1,7 @@
 import { ExcaliburCamera, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
-import { RawTiledLayer, RawTiledObject } from ".";
+import { RawTiledLayer } from "./raw-tiled-layer";
+import { RawTiledObject } from "./raw-tiled-object";
 import { Util } from "excalibur";
 
 export interface Polygon {

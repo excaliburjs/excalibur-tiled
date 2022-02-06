@@ -3,7 +3,9 @@ import { Matrix, vec } from 'excalibur';
 import * as parser from 'fast-xml-parser'
 import { TiledLayer, TiledObjectGroup } from '.';
 
-import { TiledGrid, TiledMapTerrain, TiledProperty, RawTilesetTile, TiledTileOffset, TiledWangSet, RawTiledTileset } from "./tiled-types";
+import { TiledGrid, TiledMapTerrain, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
+import { RawTiledTileset } from "./raw-tiled-tileset";
+import { RawTilesetTile } from "./raw-tileset-tile";
 
 export class TiledTileset {
    /**

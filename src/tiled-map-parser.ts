@@ -5,7 +5,7 @@ import { inflate as pakoInflate } from 'pako';
 // zstd
 import { ZSTDDecoder } from 'zstddec';
 
-import { RawTiledMap } from './tiled-types';
+import { RawTiledMap } from "./raw-tiled-map";
 import { TiledLayer } from "./tiled-layer";
 import { TiledObject, TiledObjectGroup } from "./tiled-object";
 import { TiledTileset } from './tiled-tileset';

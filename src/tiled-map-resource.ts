@@ -25,7 +25,10 @@ import {
    IsometricMap,
    IsometricEntityComponent
 } from 'excalibur';
-import { ExcaliburData, RawTiledLayer, RawTiledMap, RawTiledTileset } from './tiled-types';
+import { ExcaliburData } from './tiled-types';
+import { RawTiledTileset } from "./raw-tiled-tileset";
+import { RawTiledLayer } from "./raw-tiled-layer";
+import { RawTiledMap } from "./raw-tiled-map";
 import { TiledMap } from './tiled-map-parser';
 import { parseExternalTsx, TiledTileset } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
@@ -458,15 +461,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
       throw new Error(`Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
    }
 
-   private _isClockwiseWinding(points: Vector[]): boolean {
-      // https://stackoverflow.com/a/1165943
-      let sum = 0;
-      for (let i = 0; i < points.length; i++) {
-         sum += (points[(i + 1) % points.length].x - points[i].x) * (points[(i + 1) % points.length].y + points[i].y);
-      }
-      return sum < 0;
-   }
-
    private _transformPoints(points: Vector[], tileset: TiledTileset, gid: number) {
       const h = isFlippedHorizontally(gid);
       const v = isFlippedVertically(gid);
@@ -479,9 +473,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
       if (v) {
          points = points.map(p => tileset.verticalFlipTransform.multv(p));
-      }
-      if (!this._isClockwiseWinding(points)) {
-         points.reverse();
       }
       return points;
    }
@@ -541,8 +532,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Creates the Excalibur tile map representation
     */
    private _createTileMap() {
-      let layerZIndexBase = this._layerZIndexStart;
-
       // register sprite sheets for each tileset in map
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
@@ -565,7 +554,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             if (this.data.orientation === "orthogonal") {
 
                const rawLayer = layer.rawLayer;
-               const tileMapLayer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
+               const tileMapLayer = new TileMap(layer.offset.x, layer.offset.y, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
                
                // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
@@ -585,7 +574,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             if (this.data.orientation === "isometric") {
                const rawLayer = layer.rawLayer;
                const iso = new IsometricMap({
-                  pos: vec(0, 0),
+                  pos: vec(layer.offset.x, layer.offset.y),
                   width: this.data.width,
                   height: this.data.height,
                   tileWidth: this.data.tileWidth,
@@ -627,6 +616,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
          return this.layers;
       }
       return [];
-      // throw new Error('Error loading tile map layers');
+   }
+
+   public getIsometricMapLayers(): IsometricMap[] {
+      if (this.isoLayers?.length) {
+         return this.isoLayers;
+      }
+      return [];
    }
 }
