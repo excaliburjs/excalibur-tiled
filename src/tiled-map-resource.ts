@@ -57,7 +57,7 @@ export interface TiledMapOptions {
    mapFormatOverride?: TiledMapFormat;
 
    /**
-    * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `zindex` property.
+    * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `z-index` property.
     */
    startingLayerZIndex?: number;
 }
@@ -162,8 +162,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const excaliburObjectLayers = this.data?.getExcaliburObjects();
       if (excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
-            const textobjects = objectLayer.getText();
-            for (const text of textobjects) {
+            const textObjects = objectLayer.getText();
+            for (const text of textObjects) {
                const label = new Label({
                   x: text.x,
                   y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
@@ -618,6 +618,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
       return [];
    }
 
+   /**
+    * Return the IsometricMap layers for the parsed Tiled map
+    */
    public getIsometricMapLayers(): IsometricMap[] {
       if (this.isoLayers?.length) {
          return this.isoLayers;
