@@ -16,10 +16,10 @@ describe('A Tiled Map Excalibur Resource', () => {
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(1);
 
-      expect(layers[0].cols).toBe(5);
-      expect(layers[0].rows).toBe(5);
-      expect(layers[0].cellWidth).toBe(16);
-      expect(layers[0].cellHeight).toBe(16);
+      expect(layers[0].width).toBe(5);
+      expect(layers[0].height).toBe(5);
+      expect(layers[0].tileWidth).toBe(16);
+      expect(layers[0].tileHeight).toBe(16);
    });
 
    it('can load solid layers', async () => {
@@ -33,8 +33,8 @@ describe('A Tiled Map Excalibur Resource', () => {
 
       tiled.useSolidLayers();
       
-      expect(layers[1].getCell(2, 2).solid).toBeTrue();
-      expect(layers[1].getCell(0, 0).solid).toBeFalse();
+      expect(layers[1].getTile(2, 2).solid).toBeTrue();
+      expect(layers[1].getTile(0, 0).solid).toBeFalse();
    });
 
    it('can load layers with zindex', async () => {

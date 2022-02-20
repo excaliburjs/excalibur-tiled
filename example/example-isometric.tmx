@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="isometric" renderorder="right-down" width="20" height="20" tilewidth="111" tileheight="64" infinite="0" backgroundcolor="#176baa" nextlayerid="5" nextobjectid="1">
+<map version="1.8" tiledversion="1.8.0" orientation="isometric" renderorder="right-down" width="20" height="20" tilewidth="111" tileheight="64" infinite="0" backgroundcolor="#176baa" nextlayerid="5" nextobjectid="1">
  <tileset firstgid="1" source="cubes.tsx"/>
  <layer id="1" name="Ground" width="20" height="20">
   <data encoding="csv">
@@ -53,6 +53,9 @@
 </data>
  </layer>
  <layer id="4" name="PlayerLevelCollider" width="20" height="20">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

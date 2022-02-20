@@ -80,9 +80,8 @@ const start = (mapFile: string) => {
          ex.vec( 110.639,-0.352914 +94.9975),
          ex.vec(55.584,31.7623+94.9975)
       ].map(p => p.sub(ex.vec(111/2, 64)))));
-      const iso = new IsometricEntityComponent();
+      const iso = new IsometricEntityComponent(map.isoLayers[0]);
       iso.elevation = 1;
-      iso.map = map.isoLayers[0];
       player.addComponent(iso);
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur.length > 0) {

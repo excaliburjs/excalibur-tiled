@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.5" tiledversion="1.7.2" name="cubes" tilewidth="111" tileheight="128" tilecount="168" columns="21">
+<tileset version="1.8" tiledversion="1.8.0" name="cubes" tilewidth="111" tileheight="128" tilecount="168" columns="21">
  <image source="assets/isometric-blocks/Tilesheet/tilesheet_complete.png" width="2331" height="1025"/>
  <tile id="0" type="Grass"/>
  <tile id="36">

@@ -236,14 +236,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * cells solid.
     */
    public useSolidLayers() {
-      const tms = this.getTileMapLayers();
+      let tms: (TileMap | IsometricMap)[] = this.getTileMapLayers();
+      tms = tms.concat(this.isoLayers);
       for (const tm of tms) {
          const rawLayer = this._mapToRawLayer.get(tm);
          if (rawLayer) {
             const solidLayer = getProperty<number>(rawLayer.properties, 'solid')?.value ?? false;
             if (solidLayer) {
                for (let i = 0; i < rawLayer.data.length; i++) {
-                  tm.data[i].solid ||= !!rawLayer.data[i];
+                  tm.tiles[i].solid ||= !!rawLayer.data[i];
                }
             }
          }
@@ -466,13 +467,13 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const v = isFlippedVertically(gid);
       const d = isFlippedDiagonally(gid);
       if (d) {
-         points = points.map(p => tileset.diagonalFlipTransform.multv(p));
+         points = points.map(p => tileset.diagonalFlipTransform.multiply(p));
       }
       if (h) {
-         points = points.map(p => tileset.horizontalFlipTransform.multv(p));
+         points = points.map(p => tileset.horizontalFlipTransform.multiply(p));
       }
       if (v) {
-         points = points.map(p => tileset.verticalFlipTransform.multv(p));
+         points = points.map(p => tileset.verticalFlipTransform.multiply(p));
       }
       return points;
    }
@@ -554,7 +555,13 @@ export class TiledMapResource implements Loadable<TiledMap> {
             if (this.data.orientation === "orthogonal") {
 
                const rawLayer = layer.rawLayer;
-               const tileMapLayer = new TileMap(layer.offset.x, layer.offset.y, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
+               const tileMapLayer = new TileMap({
+                  pos: vec(layer.offset.x, layer.offset.y),
+                  tileWidth: this.data.rawMap.tilewidth,
+                  tileHeight: this.data.rawMap.tileheight,
+                  width: this.data.width,
+                  height: this.data.height
+               });
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
                
                // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
@@ -563,9 +570,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   let gid = <number>rawLayer.data[i];
                   if (gid !== 0) {
                      const sprite = this.getSpriteForGid(gid);
-                     tileMapLayer.data[i].addGraphic(sprite);
+                     tileMapLayer.tiles[i].addGraphic(sprite);
                      const colliders = this.getCollidersForGid(gid);
-                     tileMapLayer.data[i].colliders = colliders;
+                     for (let collider of colliders) {
+                        tileMapLayer.tiles[i].addCollider(collider);
+                     }
                   }
                }
                this._mapToRawLayer.set(tileMapLayer, rawLayer);
@@ -590,7 +599,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      const sprite = this.getSpriteForGid(gid);
                      iso.tiles[i].addGraphic(sprite);
                      const colliders = this.getCollidersForGid(gid);
-                     iso.tiles[i].colliders = colliders;
+                     for (let collider of colliders) {
+                        iso.tiles[i].addCollider(collider);
+                     }
                      const isoComponent = iso.tiles[i].get(IsometricEntityComponent);
                      if (isoComponent) {
                         isoComponent.elevation = layer.order;

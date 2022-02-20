@@ -1,5 +1,5 @@
 import { TiledObjectComponent, TiledObject, TiledLayerComponent, TiledLayer } from '@excalibur-tiled';
-import { Actor, TileMap } from 'excalibur';
+import { Actor, TileMap, vec } from 'excalibur';
 
 describe('A TiledLayerComponent', () => {
    it('should exist', () => {
@@ -13,7 +13,7 @@ describe('A TiledLayerComponent', () => {
    });
 
    it('can be retrieved from a TileMap', () => {
-      const tm = new TileMap({x: 0, y: 0, cellHeight: 10, cellWidth: 10, cols: 10, rows: 10});
+      const tm = new TileMap({pos: vec(0, 0), tileHeight: 10, tileWidth: 10, width: 10, height: 10});
       const sut = new TiledLayerComponent(new TiledLayer());
 
       expect(tm.get(TiledLayerComponent)).toBeUndefined();
