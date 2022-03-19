@@ -261,7 +261,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
          scene.add(tm);
       }
 
-      // TODO refactor
       for (const iso of this.isoLayers){
          scene.add(iso);
       }
@@ -611,9 +610,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
                iso.updateColliders();
                this._mapToRawLayer.set(iso, rawLayer);
                this.isoLayers?.push(iso);
-               // TODO refactor the TileMap and IsoMap to be same? or at least same interface
-               // this._mapToRawLayer.set(iso, rawLayer);
-               // this.layers?.push(iso);
             }
          }
       }
