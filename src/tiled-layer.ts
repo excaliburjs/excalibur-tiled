@@ -1,6 +1,7 @@
-import { TiledCompression, TiledEncoding, TiledProperty } from "./tiled-types";
+import { TiledCompression, TiledEncoding } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
-import { RawTiledLayer } from ".";
+import { RawTiledLayer } from "./raw-tiled-layer";
+import { vec, Vector } from "excalibur";
 
 // Most significant byte of 32 bit id contains flags for flipping
 // See https://doc.mapeditor.org/en/stable/reference/tmx-map-format/#tile-flipping
@@ -47,7 +48,7 @@ export const getCanonicalGid = (gid: number): number => {
 
 export class TiledLayer extends TiledEntity {
    /**
-    * Array of gid's (global Tiled identitifiers) that point to a unique tile
+    * Array of gid's (global Tiled identifiers) that point to a unique tile
     * 
     * Note: the most significant byte may have flipped data encoded making the gid appear like a negative
     * integer.
@@ -59,6 +60,11 @@ export class TiledLayer extends TiledEntity {
     *   * `isFlippedHorizontally(gid)`
     */
    public data!: number[];
+
+   /**
+    * Offset of the tile map
+    */
+   public offset: Vector = Vector.Zero;
 
    /**
     * Width of layer in tiles
@@ -94,6 +100,7 @@ export class TiledLayer extends TiledEntity {
       resultLayer.id = +layer.id;
       resultLayer.name = layer.name;
       resultLayer.data = (layer.data as number[]);
+      resultLayer.offset = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
       resultLayer.width = layer.width;
       resultLayer.height = layer.height;
       resultLayer.encoding = layer.encoding ?? 'csv';

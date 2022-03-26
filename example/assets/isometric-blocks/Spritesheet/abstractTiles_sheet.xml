@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="sprites.png">
+	<!--
+	Created with ShoeBox
+	http://renderhjs.net/shoebox/
+	-->
+	<SubTexture name="abstractTile_01.png"	x="224"	y="129"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_02.png"	x="448"	y="258"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_03.png"	x="448"	y="129"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_04.png"	x="448"	y="0"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_05.png"	x="336"	y="774"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_06.png"	x="336"	y="645"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_07.png"	x="336"	y="516"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_08.png"	x="336"	y="387"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_09.png"	x="336"	y="258"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_10.png"	x="336"	y="129"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_11.png"	x="336"	y="0"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_12.png"	x="224"	y="774"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_13.png"	x="224"	y="645"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_14.png"	x="224"	y="516"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_15.png"	x="224"	y="387"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_16.png"	x="224"	y="258"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_17.png"	x="448"	y="387"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_18.png"	x="224"	y="0"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_19.png"	x="112"	y="774"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_20.png"	x="112"	y="645"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_21.png"	x="112"	y="516"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_22.png"	x="112"	y="387"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_23.png"	x="112"	y="258"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_24.png"	x="112"	y="129"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_25.png"	x="112"	y="0"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_26.png"	x="0"	y="774"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_27.png"	x="0"	y="645"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_28.png"	x="0"	y="516"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_29.png"	x="0"	y="387"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_30.png"	x="0"	y="258"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_31.png"	x="0"	y="129"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+	<SubTexture name="abstractTile_32.png"	x="0"	y="0"	width="111"	height="128" frameX="-0" frameY="-0" frameWidth="111" frameHeight="128"/>
+</TextureAtlas>

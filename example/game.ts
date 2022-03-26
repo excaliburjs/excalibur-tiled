@@ -1,5 +1,6 @@
 import * as ex from 'excalibur';
 import { TiledMapResource } from '@excalibur-tiled';
+import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
 
 ex.Flags.enable(ex.Experiments.WebGL);
 const game = new ex.Engine({ 
@@ -9,19 +10,27 @@ const game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false,
 });
-//game.toggleDebug();
+game.input.keyboard.on("press", (evt) => {
+   if (evt.key === Input.Keys.D) {
+      game.toggleDebug();
+   }
+});
 
 const reset = () => {
+   game.stop();
    game.currentScene.camera.clearAllStrategies();
+   game.currentScene.camera.zoom = 1;
    game.currentScene.tileMaps.forEach(t => {
       game.currentScene.remove(t);
    });
-   game.currentScene.actors.forEach(a => {
+   game.currentScene.entities.forEach(a => {
       game.currentScene.remove(a);
    });
+   game.start();
 }
 
 const start = (mapFile: string) => {
+   const isIsometric = mapFile === 'example-isometric.tmx';
    let player = new ex.Actor({
       pos: ex.vec(100, 100),
       width: 16,
@@ -42,26 +51,51 @@ const start = (mapFile: string) => {
    
    player.onPostUpdate = () => {
       player.vel.setTo(0, 0);
-      const speed = 64;
+      const speed = isIsometric ? 64*2 : 64;
       if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
          player.vel.x = speed;
+         if (isIsometric) {
+            player.vel.y = speed;
+         }
       }
       if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
          player.vel.x = -speed;
+         if (isIsometric) {
+            player.vel.y = -speed;
+         }
       }
       if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
          player.vel.y = -speed;
+         if (isIsometric) {
+            player.vel.x = speed;
+         }
       }
       if (game.input.keyboard.isHeld(ex.Input.Keys.Down)) {
          player.vel.y = speed;
+         if (isIsometric) {
+            player.vel.x = -speed;
+         }
       }
    }
    game.add(player);
 
    const map = new TiledMapResource(mapFile, { startingLayerZIndex: -2 });
-   const loader = new ex.Loader([map]);
+   const playercube = new ImageSource('./player-cube.png', true, ImageFiltering.Blended);
+   const loader = new ex.Loader([map, playercube]);
    game.start(loader).then(() => {
       player.pos = ex.vec(100, 100);
+      if (isIsometric) {
+         player.graphics.use(playercube.toSprite());
+         player.collider.set(Shape.Polygon([
+            ex.vec(0,94.9975),
+            ex.vec(55.0546,-32.6446 + 94.9975),
+            ex.vec( 110.639,-0.352914 +94.9975),
+            ex.vec(55.584,31.7623+94.9975)
+         ].map(p => p.sub(ex.vec(111/2, 64)))));
+         const iso = new IsometricEntityComponent(map.isoLayers[0]);
+         iso.elevation = 1;
+         player.addComponent(iso);
+      }
       const excalibur = map.data.getExcaliburObjects();
       if (excalibur.length > 0) {
          const start = excalibur[0].getObjectByName('player-start');
@@ -107,6 +141,12 @@ const start = (mapFile: string) => {
       setTimeout(() => {
          game.currentScene.camera.x = player.pos.x;
          game.currentScene.camera.y = player.pos.y;
+         game.currentScene.camera.zoom = 4;
+         if (isIsometric) {
+            game.currentScene.camera.zoom = 1;
+            player.pos.x = 100;
+            player.pos.y = 200;
+         }
       });
       map.addTiledMapToScene(game.currentScene);
    });
@@ -123,4 +163,5 @@ document.getElementById('select-map')!.addEventListener('change', (e) => {
    return true;
 })
 
+// start("example-isometric.tmx");
 start("example-city.tmx");

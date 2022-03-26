@@ -19,11 +19,18 @@ import {
    Shape,
    TransformComponent,
    ImageSource,
-   Font
+   Font,
+   Collider,
+   CompositeCollider,
+   IsometricMap,
+   IsometricEntityComponent
 } from 'excalibur';
-import { ExcaliburData, RawTiledLayer, RawTiledMap, RawTiledTileset } from './tiled-types';
-import { TiledMap } from './tiled-map';
-import { parseExternalTsx } from './tiled-tileset';
+import { ExcaliburData } from './tiled-types';
+import { RawTiledTileset } from "./raw-tiled-tileset";
+import { RawTiledLayer } from "./raw-tiled-layer";
+import { RawTiledMap } from "./raw-tiled-map";
+import { TiledMap } from './tiled-map-parser';
+import { parseExternalTsx, TiledTileset } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
 import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
@@ -50,7 +57,7 @@ export interface TiledMapOptions {
    mapFormatOverride?: TiledMapFormat;
 
    /**
-    * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `zindex` property.
+    * Override the starting auto-incrementing z-index value (default: `-1`). Each layer will increment this number by 1 unless the layer specifies it's own custom `z-index` property.
     */
    startingLayerZIndex?: number;
 }
@@ -64,9 +71,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public imageMap: Record<string, ImageSource>;
    public sheetMap: Record<string, SpriteSheet>;
    public layers?: TileMap[] = [];
+   public isoLayers: IsometricMap[] = [];
    private _layerZIndexStart = -1;
 
-   private _mapToRawLayer = new Map<TileMap, RawTiledLayer>();
+   private _mapToRawLayer = new Map<TileMap|IsometricMap, RawTiledLayer>();
 
    /**
     * Given an origin file path, converts a file relative to that origin to a full path accessible from excalibur
@@ -154,8 +162,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const excaliburObjectLayers = this.data?.getExcaliburObjects();
       if (excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
-            const textobjects = objectLayer.getText();
-            for (const text of textobjects) {
+            const textObjects = objectLayer.getText();
+            for (const text of textObjects) {
                const label = new Label({
                   x: text.x,
                   y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
@@ -193,6 +201,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                }
                if (tile.gid) {
                   const sprite = this.getSpriteForGid(tile.gid);
+                  const colliders = this.getCollidersForGid(tile.gid);
                   const actor = new Actor({
                      x: tile.x,
                      y: tile.y,
@@ -203,6 +212,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      collisionType,
                      name: this._getEntityName(tile)
                   });
+                  if (colliders.length) {
+                     actor.collider.clear();
+                     actor.collider.set(new CompositeCollider(colliders));
+                  }
                   actor.addComponent(new TiledObjectComponent(tile));
                   if (Flags.isEnabled('use-legacy-drawing')) {
                      actor.addDrawing(Sprite.toLegacySprite(sprite));
@@ -223,14 +236,15 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * cells solid.
     */
    public useSolidLayers() {
-      const tms = this.getTileMapLayers();
+      let tms: (TileMap | IsometricMap)[] = this.getTileMapLayers();
+      tms = tms.concat(this.isoLayers);
       for (const tm of tms) {
          const rawLayer = this._mapToRawLayer.get(tm);
          if (rawLayer) {
             const solidLayer = getProperty<number>(rawLayer.properties, 'solid')?.value ?? false;
             if (solidLayer) {
                for (let i = 0; i < rawLayer.data.length; i++) {
-                  tm.data[i].solid ||= !!rawLayer.data[i];
+                  tm.tiles[i].solid ||= !!rawLayer.data[i];
                }
             }
          }
@@ -245,6 +259,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const tms = this.getTileMapLayers();
       for (const tm of tms) {
          scene.add(tm);
+      }
+
+      for (const iso of this.isoLayers){
+         scene.add(iso);
       }
 
       this._addTiledCamera(scene);
@@ -397,12 +415,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Given a Tiled gid (global identifier) return the Tiled tileset data
     * @param gid 
     */
-   public getTilesetForTile(gid: number): RawTiledTileset {
+   public getTilesetForTile(gid: number): TiledTileset {
       if (this.data) {
-         for (var i = this.data.rawMap.tilesets.length - 1; i >= 0; i--) {
-            var ts = this.data.rawMap.tilesets[i];
+         for (var i = this.data.tileSets.length - 1; i >= 0; i--) {
+            var ts = this.data.tileSets[i];
 
-            if (ts.firstgid <= gid) {
+            if (ts.firstGid <= gid) {
                return ts;
             }
          }
@@ -420,8 +438,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const d = isFlippedDiagonally(gid);
       const normalizedGid = getCanonicalGid(gid);
       const tileset = this.getTilesetForTile(normalizedGid);
-      const spriteIndex = normalizedGid - tileset.firstgid;
-      const spriteSheet = this.sheetMap[tileset.firstgid.toString()];
+      const spriteIndex = normalizedGid - tileset.firstGid;
+      const spriteSheet = this.sheetMap[tileset.firstGid.toString()];
       if (spriteSheet) {
          let sprite = spriteSheet.sprites[spriteIndex];
          if (d || h || v) {
@@ -443,6 +461,61 @@ export class TiledMapResource implements Loadable<TiledMap> {
       throw new Error(`Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
    }
 
+   private _transformPoints(points: Vector[], tileset: TiledTileset, gid: number) {
+      const h = isFlippedHorizontally(gid);
+      const v = isFlippedVertically(gid);
+      const d = isFlippedDiagonally(gid);
+      if (d) {
+         points = points.map(p => tileset.diagonalFlipTransform.multiply(p));
+      }
+      if (h) {
+         points = points.map(p => tileset.horizontalFlipTransform.multiply(p));
+      }
+      if (v) {
+         points = points.map(p => tileset.verticalFlipTransform.multiply(p));
+      }
+      return points;
+   }
+
+   public getCollidersForGid(gid: number): Collider[] {
+      const normalizedGid = getCanonicalGid(gid);
+      const tileset = this.getTilesetForTile(normalizedGid);
+      const tileIndex = normalizedGid - tileset.firstGid;
+      const tileWithObjects = tileset.tiles.find(t => t.id === tileIndex);
+      if (tileWithObjects && tileWithObjects.objectgroup) {
+         const result = [];
+         for (const polygon of tileWithObjects.objectgroup.getPolygons()) {
+            const offset = vec(polygon.x, polygon.y);
+            const points = polygon.polygon.points;
+            const parsed = points.split(" ")
+               .map((tp: string) => {
+                  const point = tp.split(",");
+                  return vec(Number.parseFloat(point[0]), Number.parseFloat(point[1])).add(offset)
+               });
+            const poly = Shape.Polygon(parsed);
+            poly.points = this._transformPoints(poly.points, tileset, gid);
+            result.push(poly);
+         }
+
+         for (const box of tileWithObjects.objectgroup.getBoxes()) {
+            const boxCollider = Shape.Box(box.width, box.height, Vector.Zero);
+            boxCollider.points = boxCollider.points.map(p => p.add(vec(box.x, box.y)));
+            boxCollider.points = this._transformPoints(boxCollider.points, tileset, gid);
+            result.push(boxCollider);
+         }
+
+         for (const circle of tileWithObjects.objectgroup.getEllipses()) {
+            const circleCollider = Shape.Circle(
+               Math.min(circle.width / 2, circle.height / 2),
+               vec(circle.width / 2, circle.height / 2).add(vec(circle.x, circle.y)));
+            result.push(circleCollider);
+         }
+
+         return result;
+      }
+      return [];
+   }
+
    private _calculateZIndex(entity: TiledEntity, tileLayerOrObjectGroup: TiledLayer | TiledObjectGroup): number {
       let finalZ = entity.getProperty<number>('z')?.value ?? entity.getProperty<number>('zindex')?.value;
 
@@ -459,8 +532,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
     * Creates the Excalibur tile map representation
     */
    private _createTileMap() {
-      let layerZIndexBase = this._layerZIndexStart;
-
       // register sprite sheets for each tileset in map
       for (const tileset of this.data.rawMap.tilesets) {
          const cols = Math.floor(tileset.imagewidth / tileset.tilewidth);
@@ -480,21 +551,66 @@ export class TiledMapResource implements Loadable<TiledMap> {
       // Create Excalibur sprites for each cell
       for (var layer of this.data.layers) {
          if (layer.rawLayer.type === "tilelayer") {
-            const rawLayer = layer.rawLayer;
-            const tileMapLayer = new TileMap(0, 0, this.data.rawMap.tilewidth, this.data.rawMap.tileheight, this.data.height, this.data.width);
-            tileMapLayer.addComponent(new TiledLayerComponent(layer));
+            if (this.data.orientation === "orthogonal") {
 
-            // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
-            tileMapLayer.z = this._calculateZIndex(layer, layer); 
-            for (var i = 0; i < rawLayer.data.length; i++) {
-               let gid = <number>rawLayer.data[i];
-               if (gid !== 0) {
-                  const sprite = this.getSpriteForGid(gid)
-                  tileMapLayer.data[i].addGraphic(sprite);
+               const rawLayer = layer.rawLayer;
+               const tileMapLayer = new TileMap({
+                  pos: vec(layer.offset.x, layer.offset.y),
+                  tileWidth: this.data.rawMap.tilewidth,
+                  tileHeight: this.data.rawMap.tileheight,
+                  width: this.data.width,
+                  height: this.data.height
+               });
+               tileMapLayer.addComponent(new TiledLayerComponent(layer));
+               
+               // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
+               tileMapLayer.z = this._calculateZIndex(layer, layer); 
+               for (let i = 0; i < rawLayer.data.length; i++) {
+                  let gid = <number>rawLayer.data[i];
+                  if (gid !== 0) {
+                     const sprite = this.getSpriteForGid(gid);
+                     tileMapLayer.tiles[i].addGraphic(sprite);
+                     const colliders = this.getCollidersForGid(gid);
+                     for (let collider of colliders) {
+                        tileMapLayer.tiles[i].addCollider(collider);
+                     }
+                  }
                }
+               this._mapToRawLayer.set(tileMapLayer, rawLayer);
+               this.layers?.push(tileMapLayer);
             }
-            this._mapToRawLayer.set(tileMapLayer, rawLayer);
-            this.layers?.push(tileMapLayer);
+            if (this.data.orientation === "isometric") {
+               const rawLayer = layer.rawLayer;
+               const iso = new IsometricMap({
+                  pos: vec(layer.offset.x, layer.offset.y),
+                  width: this.data.width,
+                  height: this.data.height,
+                  tileWidth: this.data.tileWidth,
+                  tileHeight: this.data.tileHeight
+               });
+               const tx = iso.get(TransformComponent);
+               if (tx) {
+                  tx.z = this._calculateZIndex(layer, layer);
+               }
+               for (let i = 0; i < rawLayer.data.length; i++) {
+                  let gid = <number>rawLayer.data[i];
+                  if (gid !== 0) {
+                     const sprite = this.getSpriteForGid(gid);
+                     iso.tiles[i].addGraphic(sprite);
+                     const colliders = this.getCollidersForGid(gid);
+                     for (let collider of colliders) {
+                        iso.tiles[i].addCollider(collider);
+                     }
+                     const isoComponent = iso.tiles[i].get(IsometricEntityComponent);
+                     if (isoComponent) {
+                        isoComponent.elevation = layer.order;
+                     }
+                  }
+               }
+               iso.updateColliders();
+               this._mapToRawLayer.set(iso, rawLayer);
+               this.isoLayers?.push(iso);
+            }
          }
       }
    }
@@ -506,6 +622,16 @@ export class TiledMapResource implements Loadable<TiledMap> {
       if (this.layers?.length) {
          return this.layers;
       }
-      throw new Error('Error loading tile map layers');
+      return [];
+   }
+
+   /**
+    * Return the IsometricMap layers for the parsed Tiled map
+    */
+   public getIsometricMapLayers(): IsometricMap[] {
+      if (this.isoLayers?.length) {
+         return this.isoLayers;
+      }
+      return [];
    }
 }
