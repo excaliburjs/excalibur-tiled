@@ -16,8 +16,8 @@ describe('A Tiled Map Excalibur Resource', () => {
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(1);
 
-      expect(layers[0].width).toBe(5);
-      expect(layers[0].height).toBe(5);
+      expect(layers[0].columns).toBe(5);
+      expect(layers[0].rows).toBe(5);
       expect(layers[0].tileWidth).toBe(16);
       expect(layers[0].tileHeight).toBe(16);
    });

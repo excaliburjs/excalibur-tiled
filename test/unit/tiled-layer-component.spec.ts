@@ -13,7 +13,7 @@ describe('A TiledLayerComponent', () => {
    });
 
    it('can be retrieved from a TileMap', () => {
-      const tm = new TileMap({pos: vec(0, 0), tileHeight: 10, tileWidth: 10, width: 10, height: 10});
+      const tm = new TileMap({pos: vec(0, 0), tileHeight: 10, tileWidth: 10, columns: 10, rows: 10});
       const sut = new TiledLayerComponent(new TiledLayer());
 
       expect(tm.get(TiledLayerComponent)).toBeUndefined();

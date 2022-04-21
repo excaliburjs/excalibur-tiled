@@ -217,12 +217,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      actor.collider.set(new CompositeCollider(colliders));
                   }
                   actor.addComponent(new TiledObjectComponent(tile));
-                  if (Flags.isEnabled('use-legacy-drawing')) {
-                     actor.addDrawing(Sprite.toLegacySprite(sprite));
-                  } else {
-                     actor.graphics.anchor = vec(0, 1);
-                     actor.graphics.use(sprite);
-                  }
+                  actor.graphics.anchor = vec(0, 1);
+                  actor.graphics.use(sprite);
                   scene.add(actor);
                   actor.z = this._calculateZIndex(tile, objectLayer);
                }
@@ -558,8 +554,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   pos: vec(layer.offset.x, layer.offset.y),
                   tileWidth: this.data.rawMap.tilewidth,
                   tileHeight: this.data.rawMap.tileheight,
-                  width: this.data.width,
-                  height: this.data.height
+                  columns: this.data.width,
+                  rows: this.data.height
                });
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
                
@@ -583,8 +579,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
                const rawLayer = layer.rawLayer;
                const iso = new IsometricMap({
                   pos: vec(layer.offset.x, layer.offset.y),
-                  width: this.data.width,
-                  height: this.data.height,
+                  columns: this.data.width,
+                  rows: this.data.height,
                   tileWidth: this.data.tileWidth,
                   tileHeight: this.data.tileHeight
                });

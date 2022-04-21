@@ -2,7 +2,7 @@ import { ExcaliburCamera, TiledPoint } from "./tiled-types";
 import { TiledEntity } from "./tiled-entity";
 import { RawTiledLayer } from "./raw-tiled-layer";
 import { RawTiledObject } from "./raw-tiled-object";
-import { Util } from "excalibur";
+import { toRadians } from "excalibur";
 
 export interface Polygon {
    x: number;
@@ -151,7 +151,7 @@ export class TiledObject extends TiledEntity {
       resultObject.type = object.type;
       resultObject.x = +object.x;
       resultObject.y = +object.y;
-      resultObject.rotation = object.rotation ? Util.toRadians(object.rotation) : 0;
+      resultObject.rotation = object.rotation ? toRadians(object.rotation) : 0;
       resultObject.width = object.width ?? 0;
       resultObject.height = object.height ?? 0;
       resultObject.point = object.point;

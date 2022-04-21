@@ -2,8 +2,7 @@ import * as ex from 'excalibur';
 import { TiledMapResource } from '@excalibur-tiled';
 import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
 
-ex.Flags.enable(ex.Experiments.WebGL);
-const game = new ex.Engine({ 
+const game = new ex.Engine({
    width: 800, 
    height: 600, 
    canvasElementId: 'game',
