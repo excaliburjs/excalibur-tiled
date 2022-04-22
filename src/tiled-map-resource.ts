@@ -30,7 +30,7 @@ import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTiledLayer } from "./raw-tiled-layer";
 import { RawTiledMap } from "./raw-tiled-map";
 import { TiledMap } from './tiled-map-parser';
-import { parseExternalTsx, TiledTileset } from './tiled-tileset';
+import { parseExternalJson, parseExternalTsx, TiledTileset } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
 import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
@@ -349,6 +349,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
                   external = parseExternalTsx(external, ts.firstgid, ts.source);
+               } else {
+                  external = parseExternalJson(external, ts.firstgid, ts.source);
                }
                Object.assign(ts, external);
                tiledMap.tileSets.push(external);

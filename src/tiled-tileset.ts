@@ -109,8 +109,16 @@ export class TiledTileset {
 
    public static parse(rawTileSet: RawTiledTileset) {
       const tileSet = new TiledTileset();
+      let tiles: TiledTilesetTile[] = []
+      if (!Array.isArray(rawTileSet.tiles)) {
+         for (let id in (rawTileSet.tiles as any)) {
+            tiles.push(TiledTilesetTile.parse({...(rawTileSet.tiles as any)[id], id: +id}));
+         }
+      } else {
+         tiles = (rawTileSet.tiles ?? []).map(t => TiledTilesetTile.parse(t));
+      }
 
-      tileSet.tiles = rawTileSet.tiles.map(t => TiledTilesetTile.parse(t));
+      tileSet.tiles = tiles;
       tileSet.firstGid = rawTileSet.firstgid;
       tileSet.tileWidth = rawTileSet.tilewidth;
       tileSet.tileHeight = rawTileSet.tileheight;
@@ -135,14 +143,18 @@ export class TiledTileset {
 
 export class TiledTilesetTile {
    id!: number;
-   objectgroup?: TiledObjectGroup
-   
+   objectgroup?: TiledObjectGroup;
+   terrain?: number[];
+
 
    public static parse(rawTilesetTile: RawTilesetTile) {
       const tile = new TiledTilesetTile();
       tile.id = +rawTilesetTile.id;
       if (rawTilesetTile.objectgroup) {
          tile.objectgroup = TiledObjectGroup.parse(rawTilesetTile.objectgroup);
+      }
+      if (rawTilesetTile.terrain) {
+         tile.terrain = rawTilesetTile.terrain;
       }
       return tile;
    }
@@ -193,11 +205,45 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
    });
    rawTileset.tiles = rawTsx.tiles;
 
-   const origin = vec(rawTileset.tilewidth/2, rawTileset.tileheight/2);
    const result: TiledTileset = {
       ...rawTileset,
       tiles: rawTileset.tiles.map(t => TiledTilesetTile.parse(t)),
       firstGid: rawTileset.firstgid,
+      tileWidth: rawTileset.tilewidth,
+      tileHeight: rawTileset.tileheight,
+      tileCount: rawTileset.tilecount,
+      tileOffset: rawTileset.tileoffset,
+      tiledVersion: rawTileset.tiledversion,
+      backgroundColor: rawTileset.backgroundcolor,
+      transparentColor: rawTileset.transparentcolor,
+      wangSets: rawTileset.wangsets,
+      imageWidth: rawTileset.imagewidth,
+      imageHeight: rawTileset.imageheight,
+      objectAlignment: rawTileset.objectalignment ?? 'unspecified',
+      image: rawTileset.image,
+      horizontalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, 0).scale(-1, 1),
+      verticalFlipTransform: Matrix.identity().translate(0, rawTileset.tileheight).scale(1, -1),
+      diagonalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, rawTileset.tileheight).rotate(-Math.PI/2).scale(-1, 1)
+   };
+
+   return result;
+}
+
+export const parseExternalJson = (rawTileset: RawTiledTileset, firstGid: number, source: string): TiledTileset => {
+
+   let tiles: TiledTilesetTile[] = []
+   for (let id in rawTileset.tiles) {
+      tiles.push(TiledTilesetTile.parse({...rawTileset.tiles[id], id: +id}));
+   }
+
+   rawTileset.tiles = rawTileset.tiles ?? [];
+
+   const origin = vec(rawTileset.tilewidth / 2, rawTileset.tileheight / 2);
+   const result: TiledTileset = {
+      ...rawTileset,
+      source,
+      tiles,
+      firstGid: firstGid,
       tileWidth: rawTileset.tilewidth,
       tileHeight: rawTileset.tileheight,
       tileCount: rawTileset.tilecount,

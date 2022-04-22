@@ -38,7 +38,7 @@
     "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/ex-tests.ts && ex-test -d ./example -t ./test/integration/ex-tests.js"
   },
   "devDependencies": {
-    "@excaliburjs/testing": "0.25.0",
+    "@excaliburjs/testing": "0.25.1",
     "@types/jasmine": "3.10.6",
     "@types/pako": "1.0.3",
     "@types/webpack-env": "1.16.4",
