@@ -1,11 +1,12 @@
 // tmx xml parsing
-import { Matrix, vec } from 'excalibur';
+import { Matrix, vec, Animation, Sprite, Frame, AnimationStrategy } from 'excalibur';
 import * as parser from 'fast-xml-parser'
 import { TiledLayer, TiledObjectGroup } from '.';
 
-import { TiledGrid, TiledMapTerrain, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
+import { TiledFrame, TiledGrid, TiledMapTerrain, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
 import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTilesetTile } from "./raw-tileset-tile";
+import { TiledMapResource } from './tiled-map-resource';
 
 export class TiledTileset {
    /**
@@ -145,7 +146,28 @@ export class TiledTilesetTile {
    id!: number;
    objectgroup?: TiledObjectGroup;
    terrain?: number[];
+   animation?: TiledFrame[];
 
+   hasAnimation() {
+      return !!this.animation;
+   }
+
+   getAnimation(map: TiledMapResource): Animation | null {
+      if (this.animation) {
+         let exFrames: Frame[] = [];
+         for (let frame of this.animation) {
+            exFrames.push({
+               graphic: map.getSpriteForGid(frame.tileid),
+               duration: frame.duration
+            });
+         }
+         return new Animation({
+            frames: exFrames,
+            strategy: AnimationStrategy.Loop
+         });
+      }
+      return null;
+   }
 
    public static parse(rawTilesetTile: RawTilesetTile) {
       const tile = new TiledTilesetTile();
@@ -155,6 +177,9 @@ export class TiledTilesetTile {
       }
       if (rawTilesetTile.terrain) {
          tile.terrain = rawTilesetTile.terrain;
+      }
+      if (rawTilesetTile.animation) {
+         tile.animation = [...(rawTilesetTile.animation as any).frame];
       }
       return tile;
    }

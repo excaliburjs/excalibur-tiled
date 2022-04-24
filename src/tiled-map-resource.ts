@@ -23,7 +23,8 @@ import {
    Collider,
    CompositeCollider,
    IsometricMap,
-   IsometricEntityComponent
+   IsometricEntityComponent,
+   Animation
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
@@ -514,6 +515,16 @@ export class TiledMapResource implements Loadable<TiledMap> {
       return [];
    }
 
+   public getAnimationForGid(gid: number): Animation | null {
+      const normalizedGid = getCanonicalGid(gid);
+      const tileset = this.getTilesetForTile(normalizedGid);
+      const tileWithAnimation = tileset.tiles.find(t => t.id === normalizedGid);
+      if (tileWithAnimation && tileWithAnimation.hasAnimation()) {
+         return tileWithAnimation.getAnimation(this);
+      }
+      return null;
+   }
+
    private _calculateZIndex(entity: TiledEntity, tileLayerOrObjectGroup: TiledLayer | TiledObjectGroup): number {
       let finalZ = entity.getProperty<number>('z')?.value ?? entity.getProperty<number>('zindex')?.value;
 
@@ -571,6 +582,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      const colliders = this.getCollidersForGid(gid);
                      for (let collider of colliders) {
                         tileMapLayer.tiles[i].addCollider(collider);
+                     }
+                     const animation = this.getAnimationForGid(gid);
+                     if (animation) {
+                        tileMapLayer.tiles[i].clearGraphics();
+                        tileMapLayer.tiles[i].addGraphic(animation);
                      }
                   }
                }
