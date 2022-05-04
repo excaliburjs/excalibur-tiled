@@ -18,7 +18,7 @@ The ES2015 `import` syntax is the recommended way to use Excalibur with Excalibu
 
 ```ts
 import * as ex from 'excalibur';
-import { TiledMapeResource } from '@excaliburjs/plugin-tiled';
+import { TiledMapResource } from '@excaliburjs/plugin-tiled';
 
 // Create tiled map resource, pointing to static asset path
 const tiledMap = new TiledMapResource("/assets/map.tmx");
