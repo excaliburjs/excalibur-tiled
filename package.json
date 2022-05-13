@@ -43,7 +43,7 @@
     "@types/pako": "1.0.4",
     "@types/webpack-env": "1.16.4",
     "cross-env": "7.0.3",
-    "excalibur": "0.26.0-alpha.457",
+    "excalibur": "0.26.0-alpha.460",
     "jasmine-core": "4.1.1",
     "karma": "6.3.20",
     "karma-chrome-launcher": "3.1.1",
@@ -63,6 +63,6 @@
     "zstddec": "0.0.2"
   },
   "peerDependencies": {
-    "excalibur": "0.26.0-alpha.457"
+    "excalibur": "0.26.0-alpha.460"
   }
 }
