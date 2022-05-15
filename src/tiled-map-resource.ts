@@ -518,7 +518,8 @@ export class TiledMapResource implements Loadable<TiledMap> {
    public getAnimationForGid(gid: number): Animation | null {
       const normalizedGid = getCanonicalGid(gid);
       const tileset = this.getTilesetForTile(normalizedGid);
-      const tileWithAnimation = tileset.tiles.find(t => t.id === normalizedGid);
+      const tileIndex = normalizedGid - tileset.firstGid;
+      const tileWithAnimation = tileset.tiles.find(t => t.id === tileIndex);
       if (tileWithAnimation && tileWithAnimation.hasAnimation()) {
          return tileWithAnimation.getAnimation(this);
       }
@@ -571,7 +572,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   rows: this.data.height
                });
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
-               
+
                // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
                tileMapLayer.z = this._calculateZIndex(layer, layer); 
                for (let i = 0; i < rawLayer.data.length; i++) {

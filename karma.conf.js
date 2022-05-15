@@ -34,6 +34,8 @@ module.exports = function(config) {
       { pattern: './example/**/*.png', included: false, served: true },
       { pattern: './test/**/*.tmx', included: false, served: true },
       { pattern: './test/**/*.tsx', included: false, served: true },
+      { pattern: './test/**/*.tmj', included: false, served: true },
+      { pattern: './test/**/*.tsj', included: false, served: true },
       { pattern: './test/**/*.png', included: false, served: true }
     ],
 

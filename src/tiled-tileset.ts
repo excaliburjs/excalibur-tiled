@@ -1,12 +1,13 @@
 // tmx xml parsing
 import { Matrix, vec, Animation, Sprite, Frame, AnimationStrategy } from 'excalibur';
 import * as parser from 'fast-xml-parser'
-import { TiledLayer, TiledObjectGroup } from '.';
+import { TiledObjectGroup } from '.';
 
 import { TiledFrame, TiledGrid, TiledMapTerrain, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
 import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTilesetTile } from "./raw-tileset-tile";
 import { TiledMapResource } from './tiled-map-resource';
+import { getProperty } from './tiled-entity';
 
 export class TiledTileset {
    /**
@@ -113,10 +114,10 @@ export class TiledTileset {
       let tiles: TiledTilesetTile[] = []
       if (!Array.isArray(rawTileSet.tiles)) {
          for (let id in (rawTileSet.tiles as any)) {
-            tiles.push(TiledTilesetTile.parse({...(rawTileSet.tiles as any)[id], id: +id}));
+            tiles.push(TiledTilesetTile.parse({...(rawTileSet.tiles as any)[id], id: +id}, tileSet));
          }
       } else {
-         tiles = (rawTileSet.tiles ?? []).map(t => TiledTilesetTile.parse(t));
+         tiles = (rawTileSet.tiles ?? []).map(t => TiledTilesetTile.parse(t, tileSet));
       }
 
       tileSet.tiles = tiles;
@@ -144,9 +145,12 @@ export class TiledTileset {
 
 export class TiledTilesetTile {
    id!: number;
+   tileset!: TiledTileset;
    objectgroup?: TiledObjectGroup;
    terrain?: number[];
    animation?: TiledFrame[];
+   animationStrategy?: AnimationStrategy;
+   properties?: TiledProperty[];
 
    hasAnimation() {
       return !!this.animation;
@@ -157,21 +161,22 @@ export class TiledTilesetTile {
          let exFrames: Frame[] = [];
          for (let frame of this.animation) {
             exFrames.push({
-               graphic: map.getSpriteForGid(frame.tileid),
+               graphic: map.getSpriteForGid(frame.tileid + this.tileset.firstGid),
                duration: frame.duration
             });
          }
          return new Animation({
             frames: exFrames,
-            strategy: AnimationStrategy.Loop
+            strategy: this.animationStrategy ?? AnimationStrategy.Loop
          });
       }
       return null;
    }
 
-   public static parse(rawTilesetTile: RawTilesetTile) {
+   public static parse(rawTilesetTile: RawTilesetTile, tileset: TiledTileset) {
       const tile = new TiledTilesetTile();
       tile.id = +rawTilesetTile.id;
+      tile.tileset = tileset;
       if (rawTilesetTile.objectgroup) {
          tile.objectgroup = TiledObjectGroup.parse(rawTilesetTile.objectgroup);
       }
@@ -179,7 +184,27 @@ export class TiledTilesetTile {
          tile.terrain = rawTilesetTile.terrain;
       }
       if (rawTilesetTile.animation) {
-         tile.animation = [...(rawTilesetTile.animation as any).frame];
+         tile.animation = Array.isArray(rawTilesetTile.animation) ? rawTilesetTile.animation : [...(rawTilesetTile.animation as any).frame];
+         tile.properties = Array.isArray(rawTilesetTile.properties) ? rawTilesetTile.properties : (rawTilesetTile.properties as any)?.property ?? [];
+         if (tile.properties) {
+            const maybeStrategy = getProperty<string>(tile.properties, "animationstrategy")?.value;
+            switch(maybeStrategy?.toLowerCase()) {
+               case AnimationStrategy.End.toLowerCase():
+                  tile.animationStrategy = AnimationStrategy.End;
+                  break;
+               case AnimationStrategy.Freeze.toLowerCase():
+                  tile.animationStrategy = AnimationStrategy.Freeze;
+                  break;
+               case AnimationStrategy.Loop.toLowerCase():
+                  tile.animationStrategy = AnimationStrategy.Loop;
+                  break;
+               case AnimationStrategy.PingPong.toLowerCase():
+                  tile.animationStrategy = AnimationStrategy.PingPong;
+                  break;
+               default:
+                  tile.animationStrategy = AnimationStrategy.Loop;
+            }
+         }
       }
       return tile;
    }
@@ -232,7 +257,7 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
 
    const result: TiledTileset = {
       ...rawTileset,
-      tiles: rawTileset.tiles.map(t => TiledTilesetTile.parse(t)),
+      tiles: [],
       firstGid: rawTileset.firstgid,
       tileWidth: rawTileset.tilewidth,
       tileHeight: rawTileset.tileheight,
@@ -251,15 +276,13 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
       diagonalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, rawTileset.tileheight).rotate(-Math.PI/2).scale(-1, 1)
    };
 
+   result.tiles = rawTileset.tiles.map(t => TiledTilesetTile.parse(t, result));
+
    return result;
 }
 
 export const parseExternalJson = (rawTileset: RawTiledTileset, firstGid: number, source: string): TiledTileset => {
-
-   let tiles: TiledTilesetTile[] = []
-   for (let id in rawTileset.tiles) {
-      tiles.push(TiledTilesetTile.parse({...rawTileset.tiles[id], id: +id}));
-   }
+   let tiles: TiledTilesetTile[] = [];
 
    rawTileset.tiles = rawTileset.tiles ?? [];
 
@@ -285,6 +308,10 @@ export const parseExternalJson = (rawTileset: RawTiledTileset, firstGid: number,
       verticalFlipTransform: Matrix.identity().translate(0, rawTileset.tileheight).scale(1, -1),
       diagonalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, rawTileset.tileheight).rotate(-Math.PI/2).scale(-1, 1)
    };
+
+   for (let id in rawTileset.tiles) {
+      tiles.push(TiledTilesetTile.parse({...rawTileset.tiles[id], id: +id}, result));
+   }
 
    return result;
 }
