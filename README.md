@@ -71,7 +71,7 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 
   ![](./readme/excalibur-object.png)
 
-* **Camera Position & Zoom** - You may set the starting camera position and zoom
+* **Camera Object Position & Zoom** - You may set the starting camera position and zoom
 
   ![](./readme/camera.png)
   - In an object layer with a custom property "excalibur"=true
@@ -83,9 +83,9 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 
   ![](./readme/solid.png)  
   - In the Tiled layer properties, add a custom property named "Solid" with a boolean value `true`
-  - The presence of a tile in this layer indicates that space is solid, the abscence of a tile means it is not solid
+  - The presence of a tile in this layer indicates that space is solid, the absence of a tile means it is not solid
 
-* **Colliders** - You may position Excalibur colliders within Tiled
+* **Colliders Objects** - You may position Excalibur colliders within Tiled
   ![](./readme/collider.png)
   - In an object layer with a custom property "excalibur"=true
   - Create a "Circle" (ellipses are not supported) or "Rectangle"
@@ -96,15 +96,20 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
         - "Active" - participates in collision and can be pushed around
         - "PreventCollision" - all collisions are ignored
 
+* **Tile Custom Colliders** - You can leverage custom colliders in Tiled and they will be pulled into excalibur
+  ![Add a tile collider](./readme/tile-collider.png)
+  - Must be in a layer marked with a custom property named "solid" with a value `true`
+  - Colliders are "Fixed"
+
 * **Text** - You may insert excalibur labels within Tiled
-   ![](./readme/text.png)
+   ![Example of Tiled text](./readme/text.png)
    - In an object layer with a custom property "excalibur"=true
    - Create a Tiled Text object
    - Optionally, you can set the "ZIndex" as a float custom tiled property 
    - **⚠ A word of caution around fonts ⚠** - fonts are different on every operating system (some may not be available to your user unless you explicitly load them into the page with a font loader). See [here for some detail](https://erikonarheim.com/posts/dont-test-fonts/)
 
 * **Inserted Tile Objects** - You may insert tiles on or off grid in Tiled with inserted tiles
-   ![](./readme/insertedtile.png)
+   ![Example of an inserted Tile](./readme/insertedtile.png)
    - In an object layer with a custom property "excalibur"=true
    - Create a Tiled inserted Tile
    - Optionally, you can set the "ZIndex" as a float custom tiled property 
@@ -114,9 +119,15 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
         - "Active" - participates in collision and can be pushed around
         - "PreventCollision" - all collisions are ignored
 
+
+* **Tile Animations** - You can leverage tile animations in Tiled and they will be pulled into excalibur
+   ![Tiled Tile Animation Editor](/./readme/animations.png)
+
+* **Isometric Tile Maps** - Tiled isometric maps now work without any additional configuration!
+
 ## Not Yet Supported Out of the Box
 
-* Currently Isometric and Hexagonal maps are not directly supported by Excalibur TileMaps, however the data is still parsed by this plugin and can be used manually by accessing the `RawTiledMap` in `TiledMapResource.data.rawMap` after loading.
+* Currently Hexagonal maps are not directly supported by Excalibur TileMaps, however the data is still parsed by this plugin and can be used manually by accessing the `RawTiledMap` in `TiledMapResource.data.rawMap` after loading.
 
 * Excalibur Text is limited at the moment and doesn't support Tiled word wrapping or Tiled text alignment other than the default "Left" horizontal, "Top" vertical alignments.
 
