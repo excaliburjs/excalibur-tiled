@@ -1,5 +1,5 @@
 import { TiledObjectComponent, TiledMapResource, TiledLayerComponent } from "@excalibur-tiled";
-import { AnimationStrategy, Animation, Scene, TileMap } from "excalibur";
+import { AnimationStrategy, Animation, Scene, TileMap, ParallaxComponent } from "excalibur";
 
 
 describe('A Tiled Map Excalibur Resource', () => {
@@ -180,5 +180,16 @@ describe('A Tiled Map Excalibur Resource', () => {
 
       const tile = (tiled.layers as TileMap[])[1].getTile(2, 2);
       expect(tile.getGraphics()[0]).toBeInstanceOf(Animation);
+   });
+
+   it('will parse parallax layers', async () => {
+      const tiled = new TiledMapResource('test/unit/parallax.tmx');
+      await tiled.load();
+      expect(tiled.isLoaded());
+      const layer = (tiled.layers as TileMap[])[1];
+      const parallax = layer.get(ParallaxComponent);
+      expect(layer.name).toBe("Parallax");
+      expect(parallax?.parallaxFactor.x).toBe(1.5);
+      expect(parallax?.parallaxFactor.y).toBe(1.6);
    })
 });

@@ -575,9 +575,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                });
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
                if (layer.rawLayer.parallaxx || layer.rawLayer.parallaxy) {
-                  console.log(layer.rawLayer.parallaxx, layer.rawLayer.parallaxy);
                   const factor = vec(layer.rawLayer.parallaxx ?? 1.0, layer.rawLayer.parallaxy ?? 1.0);
-                  console.log(factor);
                   tileMapLayer.addComponent(new ParallaxComponent(factor));
                }
 
