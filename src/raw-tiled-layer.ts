@@ -75,6 +75,17 @@ export interface RawTiledLayer {
     * Vertical layer offset in pixels (default: 0)
     */
    offsety: number;
+
+   /**
+    * Parallax X factor
+    */
+   parallaxx: number | undefined;
+
+   /**
+    * Parallax Y factor
+    */
+   parallaxy: number | undefined;
+
    /**
     * X coordinate where layer content starts (for infinite maps)
     */

@@ -67,6 +67,11 @@ export class TiledLayer extends TiledEntity {
    public offset: Vector = Vector.Zero;
 
    /**
+    * Parallax Factor
+    */
+   public parallaxFactor: Vector | null = null;
+
+   /**
     * Width of layer in tiles
     */
    public width!: number;
@@ -101,6 +106,7 @@ export class TiledLayer extends TiledEntity {
       resultLayer.name = layer.name;
       resultLayer.data = (layer.data as number[]);
       resultLayer.offset = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
+      resultLayer.parallaxFactor = (layer.parallaxx || layer.parallaxy) ? vec(layer.parallaxx ?? 1, layer.parallaxy ?? 1) : null;
       resultLayer.width = layer.width;
       resultLayer.height = layer.height;
       resultLayer.encoding = layer.encoding ?? 'csv';
