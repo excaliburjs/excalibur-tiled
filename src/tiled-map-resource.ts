@@ -24,7 +24,8 @@ import {
    CompositeCollider,
    IsometricMap,
    IsometricEntityComponent,
-   Animation
+   Animation,
+   ParallaxComponent
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
@@ -565,6 +566,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
                const rawLayer = layer.rawLayer;
                const tileMapLayer = new TileMap({
+                  name: layer.rawLayer.name,
                   pos: vec(layer.offset.x, layer.offset.y),
                   tileWidth: this.data.rawMap.tilewidth,
                   tileHeight: this.data.rawMap.tileheight,
@@ -572,6 +574,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   rows: this.data.height
                });
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
+               if (layer.rawLayer.parallaxx || layer.rawLayer.parallaxy) {
+                  const factor = vec(layer.rawLayer.parallaxx ?? 1.0, layer.rawLayer.parallaxy ?? 1.0);
+                  tileMapLayer.addComponent(new ParallaxComponent(factor));
+               }
 
                // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
                tileMapLayer.z = this._calculateZIndex(layer, layer); 
@@ -597,6 +603,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
             if (this.data.orientation === "isometric") {
                const rawLayer = layer.rawLayer;
                const iso = new IsometricMap({
+                  name: layer.rawLayer.name,
                   pos: vec(layer.offset.x, layer.offset.y),
                   columns: this.data.width,
                   rows: this.data.height,

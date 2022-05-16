@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="5" height="5" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="8">
+ <editorsettings>
+  <export format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
+  <image source="assets/kenny-rpg-urban-pack/tilemap_packed.png" width="432" height="288"/>
+  <tile id="278">
+   <animation>
+    <frame tileid="456" duration="300"/>
+    <frame tileid="483" duration="300"/>
+    <frame tileid="429" duration="300"/>
+   </animation>
+  </tile>
+ </tileset>
+ <layer id="1" name="Ground" width="5" height="5">
+  <data encoding="csv">
+1,2,2,2,3,
+28,29,29,29,30,
+28,29,29,29,30,
+28,29,29,29,30,
+55,56,56,56,57
+</data>
+ </layer>
+ <layer id="3" name="Parallax" width="5" height="5" parallaxx="1.5" parallaxy="1.6">
+  <data encoding="csv">
+0,0,0,0,0,
+0,0,0,0,0,
+0,0,279,0,0,
+0,0,0,0,0,
+0,0,0,0,0
+</data>
+ </layer>
+</map>

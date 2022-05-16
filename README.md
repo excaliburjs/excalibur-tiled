@@ -121,9 +121,16 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 
 
 * **Tile Animations** - You can leverage tile animations in Tiled and they will be pulled into excalibur
-   ![Tiled Tile Animation Editor](/./readme/animations.png)
+   ![Tiled Tile Animation Editor](./readme/animations.png)
 
 * **Isometric Tile Maps** - Tiled isometric maps now work without any additional configuration!
+   ![Tiled Isometric](./readme/isometric.png)
+
+* **Parallax Layers** - Tiled parallax layers are now supported
+   ![Tiled Layer Parallax Factor](./readme/parallax.png)
+
+* **Layer offsets** -
+   ![Tiled Layer Offset](./readme/offset.png)
 
 ## Not Yet Supported Out of the Box
 
@@ -131,11 +138,7 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 
 * Excalibur Text is limited at the moment and doesn't support Tiled word wrapping or Tiled text alignment other than the default "Left" horizontal, "Top" vertical alignments.
 
-* Layer offsets are yet not supported.
-
 * [Layer tinting](https://doc.mapeditor.org/en/latest/manual/layers/#tinting-layers) is not yet supported
-
-* [Parallax factor](https://doc.mapeditor.org/en/latest/manual/layers/#parallax-factor) is not yet supported.
 
 * Image Layers - Tiled image layers are not yet fully supported, but do show up in the `RawTiledMap` so can be used that way. Using inserted [Tile Objects](https://doc.mapeditor.org/fr/latest/manual/layers/#image-layers) is a way to achieve the same effect in a fully supported way.
 

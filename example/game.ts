@@ -81,6 +81,8 @@ const start = (mapFile: string) => {
    const map = new TiledMapResource(mapFile, { startingLayerZIndex: -2 });
    const playercube = new ImageSource('./player-cube.png', true, ImageFiltering.Blended);
    const loader = new ex.Loader([map, playercube]);
+
+   (window as any).map = map;
    game.start(loader).then(() => {
       player.pos = ex.vec(100, 100);
       if (isIsometric) {
