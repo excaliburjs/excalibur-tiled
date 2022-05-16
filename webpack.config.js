@@ -14,7 +14,7 @@ module.exports = {
        exclude: /node_modules/
      },
      {
-        test: [/\.tmx$/, /\.tsx$/],
+        test: [/\.tm(x|j)$/, /\.ts(x|j)$/],
         use: 'raw-loader'
      }
    ]

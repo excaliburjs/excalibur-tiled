@@ -1,0 +1,105 @@
+{
+   "columns": 27,
+   "image": "sourceImage.png",
+   "imageheight": 288,
+   "imagewidth": 432,
+   "margin": 0,
+   "name": "Some Tile Set Name",
+   "spacing": 0,
+   "tilecount": 4,
+   "tiledversion": "1.8.4",
+   "tileheight": 16,
+   "tiles": [
+      {
+         "animation": [
+            {
+               "duration": 300,
+               "tileid": 455
+            },
+            {
+               "duration": 400,
+               "tileid": 482
+            }
+         ],
+         "id": 455,
+         "properties": [
+            {
+               "name": "AnimationStrategy",
+               "type": "string",
+               "value": "end"
+            },
+            {
+               "name": "OtherProp",
+               "type": "string",
+               "value": "someval"
+            }
+         ]
+      },
+      {
+         "animation": [
+            {
+               "duration": 300,
+               "tileid": 456
+            },
+            {
+               "duration": 300,
+               "tileid": 483
+            }
+         ],
+         "id": 456,
+         "properties": [
+            {
+               "name": "AnimationStrategy",
+               "type": "string",
+               "value": "loop"
+            },
+            {
+               "name": "OtherProp",
+               "type": "string",
+               "value": "someval"
+            }
+         ]
+      },
+      {
+         "animation": [
+            {
+               "duration": 300,
+               "tileid": 457
+            },
+            {
+               "duration": 300,
+               "tileid": 484
+            }
+         ],
+         "id": 457,
+         "properties": [
+            {
+               "name": "AnimationStrategy",
+               "type": "string",
+               "value": "freeze"
+            },
+            {
+               "name": "OtherProp",
+               "type": "string",
+               "value": "someval"
+            }
+         ]
+      },
+      {
+         "animation": [
+            {
+               "duration": 300,
+               "tileid": 458
+            },
+            {
+               "duration": 300,
+               "tileid": 485
+            }
+         ],
+         "id": 458
+      }
+   ],
+   "tilewidth": 16,
+   "type": "tileset",
+   "version": "1.8"
+}

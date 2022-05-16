@@ -9,7 +9,7 @@ export interface RawTilesetTile {
    imageheight: number;
    imagewidth: number;
    animation: TiledFrame[];
-   properites: TiledProperty[];
+   properties?: TiledProperty[];
    terrain: number[];
    objectgroup: RawTiledLayer;
    probability: number;

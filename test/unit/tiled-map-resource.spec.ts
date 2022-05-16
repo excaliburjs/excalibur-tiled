@@ -1,5 +1,5 @@
 import { TiledObjectComponent, TiledMapResource, TiledLayerComponent } from "@excalibur-tiled";
-import { Scene } from "excalibur";
+import { AnimationStrategy, Animation, Scene, TileMap } from "excalibur";
 
 
 describe('A Tiled Map Excalibur Resource', () => {
@@ -161,4 +161,24 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(component?.layer.encoding).toBe('csv');
       expect(component?.layer.rawLayer).toBeDefined();
    });
+
+   it('will parse animation tiles and produce animation graphics', async () => {
+      const tiled = new TiledMapResource('test/unit/animation.tmx');
+      await tiled.load();
+      expect(tiled.isLoaded());
+
+      const tileset = tiled.getTilesetForTile(279);
+      expect(tileset.tiles[0].animation?.length).toBe(3);
+      expect(tileset.tiles[0].animationStrategy).toBe(AnimationStrategy.Loop);
+
+      const anim = tiled.getAnimationForGid(279);
+      expect(anim).not.toBeNull();
+      expect(anim?.frames.length).toBe(3);
+      expect(anim?.frames[0].duration).toBe(300);
+      expect(anim?.frames[1].duration).toBe(300);
+      expect(anim?.frames[2].duration).toBe(300);
+
+      const tile = (tiled.layers as TileMap[])[1].getTile(2, 2);
+      expect(tile.getGraphics()[0]).toBeInstanceOf(Animation);
+   })
 });
