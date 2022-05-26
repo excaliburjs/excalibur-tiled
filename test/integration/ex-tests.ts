@@ -21,6 +21,7 @@ test('Tiled Tests', async (page) => {
       'tmx zlib',
       'tmx zstd',
       'json',
+      'test spacing',
    ]
    for (let map of mapTypes) {
       await selectMap(page, map);
