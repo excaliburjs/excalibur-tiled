@@ -545,8 +545,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
    private _createTileMap() {
       // register sprite sheets for each tileset in map
       for (const tileset of this.data.rawMap.tilesets) {
-         const cols = Math.floor((tileset.imagewidth + tileset.spacing) / (tileset.tilewidth + tileset.spacing));
-         const rows = Math.floor((tileset.imageheight + tileset.spacing) / (tileset.tileheight + tileset.spacing));
+         const spacing = tileset.spacing ?? 0;
+         const cols = Math.floor((tileset.imagewidth + spacing) / (tileset.tilewidth + spacing));
+         const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
          const ss = SpriteSheet.fromImageSource({
             image: this.imageMap[tileset.firstgid],
             grid: {

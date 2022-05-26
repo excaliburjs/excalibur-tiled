@@ -134,7 +134,7 @@ export class TiledTileset {
       tileSet.imageHeight = rawTileSet.imageheight;
       tileSet.objectAlignment = rawTileSet.objectalignment ?? 'unspecified';
       tileSet.image = rawTileSet.image;
-      tileSet.spacing = rawTileSet.spacing;
+      tileSet.spacing = isNaN(rawTileSet.spacing) ? 0 : rawTileSet.spacing;
 
       tileSet.horizontalFlipTransform = Matrix.identity().translate(tileSet.tileWidth, 0).scale(-1, 1);
       tileSet.verticalFlipTransform = Matrix.identity().translate(0, tileSet.tileHeight).scale(1, -1);
@@ -247,7 +247,7 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
    rawTileset.imageheight = rawTsx.image.height;
    rawTileset.objectalignment = rawTsx.objectalignment ?? 'unspecified';
    rawTileset.image = rawTsx.image.source;
-   rawTileset.spacing = rawTsx.spacing ?? 0;
+   rawTileset.spacing = isNaN(rawTsx.spacing) ? 0 : rawTsx.spacing;
    _convertToArray(rawTsx, "tile", true);
    rawTsx.tiles.forEach((t: any) => { 
       if (t.objectgroup){
@@ -273,7 +273,7 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
       imageHeight: rawTileset.imageheight,
       objectAlignment: rawTileset.objectalignment ?? 'unspecified',
       image: rawTileset.image,      
-      spacing: rawTileset.spacing ?? 0,
+      spacing: isNaN(rawTileset.spacing) ? 0 : rawTileset.spacing,
       horizontalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, 0).scale(-1, 1),
       verticalFlipTransform: Matrix.identity().translate(0, rawTileset.tileheight).scale(1, -1),
       diagonalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, rawTileset.tileheight).rotate(-Math.PI/2).scale(-1, 1)
@@ -305,7 +305,7 @@ export const parseExternalJson = (rawTileset: RawTiledTileset, firstGid: number,
       wangSets: rawTileset.wangsets,
       imageWidth: rawTileset.imagewidth,
       imageHeight: rawTileset.imageheight,
-      spacing: rawTileset.spacing,
+      spacing: isNaN(rawTileset.spacing) ? 0 : rawTileset.spacing,
       objectAlignment: rawTileset.objectalignment ?? 'unspecified',
       image: rawTileset.image,
       horizontalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, 0).scale(-1, 1),
