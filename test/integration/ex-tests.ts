@@ -21,7 +21,6 @@ test('Tiled Tests', async (page) => {
       'tmx zlib',
       'tmx zstd',
       'json',
-      'test spacing',
    ]
    for (let map of mapTypes) {
       await selectMap(page, map);
@@ -33,7 +32,8 @@ test('Tiled Tests', async (page) => {
       'v1',
       'v1 external tileset',
       'v0 gzip',
-      'v0 zlib'
+      'v0 zlib',
+      'test spacing',
    ];
 
    for (let legacyMap of legacyMapTypes) {
