@@ -1,18 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-   <title>Tiled Map Test</title>
-   <style>
+  <head>
+    <title>Tiled Map Test</title>
+    <style>
       body {
-         margin: 0;
+        margin: 0;
       }
-   </style>
-</head>
-<body>
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
 
-   <canvas id="game"></canvas>
-
-   <select id="select-map" name="select-map">
+    <select id="select-map" name="select-map">
       <option value="example-city.tmx">tmx</option>
       <option value="example-isometric.tmx">isometric</option>
       <option value="example-city-external-tsx.tmx">tmx external tsx</option>
@@ -21,12 +20,13 @@
       <option value="example-city-zlib.tmx">tmx zlib</option>
       <option value="example-city-zstd.tmx">tmx zstd</option>
       <option value="example-city.json">json</option>
+      <option value="test-spacing.json">test spacing</option>
       <option value="test-v1.json">v1</option>
       <option value="test-v1-external.json">v1 external tileset</option>
       <option value="test-gzip.json">v0 gzip</option>
       <option value="test-zlib.json">v0 zlib</option>
-   </select>
+    </select>
 
-   <script src="game.js"></script>
-</body>
+    <script src="game.js"></script>
+  </body>
 </html>

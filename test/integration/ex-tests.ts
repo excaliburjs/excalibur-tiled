@@ -32,7 +32,8 @@ test('Tiled Tests', async (page) => {
       'v1',
       'v1 external tileset',
       'v0 gzip',
-      'v0 zlib'
+      'v0 zlib',
+      'test spacing',
    ];
 
    for (let legacyMap of legacyMapTypes) {
