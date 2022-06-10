@@ -44,7 +44,7 @@
     "@types/webpack-env": "1.17.0",
     "cross-env": "7.0.3",
     "excalibur": "0.26.0",
-    "jasmine-core": "4.1.1",
+    "jasmine-core": "4.2.0",
     "karma": "6.3.20",
     "karma-chrome-launcher": "3.1.1",
     "karma-jasmine": "4.0.2",
