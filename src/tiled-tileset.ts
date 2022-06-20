@@ -178,6 +178,7 @@ export class TiledTilesetTile {
       const tile = new TiledTilesetTile();
       tile.id = +rawTilesetTile.id;
       tile.tileset = tileset;
+      tile.properties = Array.isArray(rawTilesetTile.properties) ? rawTilesetTile.properties : (rawTilesetTile.properties as any)?.property ?? [];
       if (rawTilesetTile.objectgroup) {
          tile.objectgroup = TiledObjectGroup.parse(rawTilesetTile.objectgroup);
       }
@@ -186,7 +187,6 @@ export class TiledTilesetTile {
       }
       if (rawTilesetTile.animation) {
          tile.animation = Array.isArray(rawTilesetTile.animation) ? rawTilesetTile.animation : [...(rawTilesetTile.animation as any).frame];
-         tile.properties = Array.isArray(rawTilesetTile.properties) ? rawTilesetTile.properties : (rawTilesetTile.properties as any)?.property ?? [];
          if (tile.properties) {
             const maybeStrategy = getProperty<string>(tile.properties, "animationstrategy")?.value;
             switch(maybeStrategy?.toLowerCase()) {
