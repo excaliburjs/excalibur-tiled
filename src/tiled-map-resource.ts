@@ -420,7 +420,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          for (var i = this.data.tileSets.length - 1; i >= 0; i--) {
             var ts = this.data.tileSets[i];
 
-            if (ts.firstGid + ts.tileCount >= gid && ts.firstGid <= gid) {
+            if (gid >= ts.firstGid && gid <= ts.firstGid + ts.tileCount - 1) {
                return ts;
             }
          }
