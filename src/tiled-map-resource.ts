@@ -37,7 +37,7 @@ import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedV
 import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
 import { TiledLayerComponent } from './tiled-layer-component';
-import { TiledLayer, TiledObjectGroup } from '.';
+import { RawTilesetTile, TiledLayer, TiledObjectGroup } from '.';
 
 export enum TiledMapFormat {
 
@@ -71,6 +71,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
    readonly mapFormat: TiledMapFormat;
    public ex: ExcaliburData;
    public imageMap: Record<string, ImageSource>;
+   public tileImageMap: Record<string, [tile: RawTilesetTile, image: ImageSource][]>;
    public sheetMap: Record<string, SpriteSheet>;
    public layers?: TileMap[] = [];
    public isoLayers: IsometricMap[] = [];
@@ -106,6 +107,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       this.ex = {};
       this.imageMap = {};
       this.sheetMap = {};
+      this.tileImageMap = {};
       this.convertPath = (originPath: string, relativePath: string) => {
          // Use absolute path if specified
          if (relativePath.indexOf('/') === 0) {
@@ -370,19 +372,52 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
          // retrieve images from tilesets and create textures
          tiledMap.rawMap.tilesets.forEach(ts => {
-            let tileSetImage = ts.image;
-            if (ts.source) {
-               // if external tileset "source" is specified and images are relative to external tileset
-               tileSetImage = this.convertPath(ts.source, ts.image)
+            let tileSetImages: string[] = [];
+            // if image is specified it's a single image tileset
+            if (ts.image) {
+               if (ts.source) {
+                  // if external tileset "source" is specified and images are relative to external tileset
+                  tileSetImages = [this.convertPath(ts.source, ts.image)];
+               } else {
+                  // otherwise for embedded tilesets, images are relative to the tmx (this.path)
+                  tileSetImages = [this.convertPath(this.path, ts.image)];
+               }
+               for (let image of tileSetImages) {
+                  const tx = new ImageSource(image);
+                  this.imageMap[ts.firstgid] = tx;
+                  externalImages.push(tx.load());
+                  Logger.getInstance().debug("[Tiled] Loading associated tileset image: " + ts.image);
+               }
             } else {
-               // otherwise for embedded tilesets, images are relative to the tmx (this.path)
-               tileSetImage = this.convertPath(this.path, ts.image)
+               // otherwise it's a collection of images tileset
+               for (let tile of ts.tiles) {
+                  let tileImage: string;
+                  if (ts.source) {
+                     tileImage = this.convertPath(ts.source, tile.image.source);
+                  } else {
+                     tileImage = this.convertPath(this.path, tile.image.source);
+                  }
+                  const tx = new ImageSource(tileImage);
+                  externalImages.push(tx.load());
+                  if (!this.tileImageMap[ts.firstgid]) {
+                     this.tileImageMap[ts.firstgid] = [];
+                  }
+                  this.tileImageMap[ts.firstgid].push([tile, tx]);
+                  Logger.getInstance().debug("[Tiled] Loading associated tileset image: " + tileImage);
+               }
             }
-            const tx = new ImageSource(tileSetImage);
-            this.imageMap[ts.firstgid] = tx;
-            externalImages.push(tx.load());
 
-            Logger.getInstance().debug("[Tiled] Loading associated tileset: " + ts.image);
+            // for (let image of tileSetImages) {
+            //    const tx = new ImageSource(image);
+            //    if (ts.image) {
+            //       this.imageMap[ts.firstgid] = tx;
+            //    } else {
+
+            //       // this.tileImageMap[ts.tiles]
+            //    }
+            //    externalImages.push(tx.load());
+            //    Logger.getInstance().debug("[Tiled] Loading associated tileset image: " + ts.image);
+            // }
          });
 
          return Promise.all(externalImages).then(() => {
@@ -548,22 +583,34 @@ export class TiledMapResource implements Loadable<TiledMap> {
          const spacing = tileset.spacing ?? 0;
          const cols = Math.floor((tileset.imagewidth + spacing) / (tileset.tilewidth + spacing));
          const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
-         const ss = SpriteSheet.fromImageSource({
-            image: this.imageMap[tileset.firstgid],
-            grid: {
-               columns: cols,
-               rows: rows,
-               spriteWidth: tileset.tilewidth,
-               spriteHeight: tileset.tileheight
-            },
-            spacing: {
-               margin: {
-                  x: tileset.spacing ?? 0,
-                  y: tileset.spacing ?? 0,
+         // Single image tilesets
+         if (this.imageMap[tileset.firstgid]) {
+            const ss = SpriteSheet.fromImageSource({
+               image: this.imageMap[tileset.firstgid],
+               grid: {
+                  columns: cols,
+                  rows: rows,
+                  spriteWidth: tileset.tilewidth,
+                  spriteHeight: tileset.tileheight
+               },
+               spacing: {
+                  margin: {
+                     x: tileset.spacing ?? 0,
+                     y: tileset.spacing ?? 0,
+                  }
                }
-            }
-         });
-         this.sheetMap[tileset.firstgid.toString()] = ss;
+            });
+            this.sheetMap[tileset.firstgid.toString()] = ss;
+         // Image collection tilesets
+         } else {
+            const tiles = this.tileImageMap[tileset.firstgid];
+            const sprites = tiles.map(([tile, imageSource]) => {
+               const sprite = imageSource.toSprite();
+               return sprite;
+            })
+            const ss = new SpriteSheet({sprites});
+            this.sheetMap[tileset.firstgid.toString()] = ss;
+         }
       }
 
       // Create Excalibur sprites for each cell

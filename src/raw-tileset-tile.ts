@@ -5,7 +5,7 @@ import { TiledFrame, TiledProperty } from './tiled-types';
 export interface RawTilesetTile {
    id: number;
    type: string;
-   image: string;
+   image: {source: string};
    imageheight: number;
    imagewidth: number;
    animation: TiledFrame[];

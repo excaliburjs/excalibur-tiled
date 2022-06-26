@@ -174,10 +174,12 @@ export class TiledMap {
      for(let tileset of rawMap.tilesets) {
         // Map non-embedded tilesets
         if (!tileset.source) {
-           tileset.imagewidth = tileset.image.width;
-           tileset.imageheight = tileset.image.height;
+           if (tileset.image) {
+              tileset.imagewidth = tileset.image.width;
+              tileset.imageheight = tileset.image.height;
+              tileset.image = tileset.image.source;
+            }
            tileset.objectalignment = tileset.objectalignment ?? 'unspecified';
-           tileset.image = tileset.image.source;
            _convertToArray(tileset, 'tile', true);
            tileset.tiles.forEach((t: any) => { 
               if (t.objectgroup){
