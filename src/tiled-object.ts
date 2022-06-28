@@ -45,12 +45,22 @@ export class TiledObjectGroup extends TiledEntity {
       }
    }
 
+   /**
+    *  @deprecated Removed in Tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
+    */
    public getObjectByType(type: string): TiledObject | undefined {
       return this.getObjectsByType(type)[0];
    }
 
+   /**
+    *  @deprecated Removed in Tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
+    */
    public getObjectsByType(type: string): TiledObject[] {
       return this.objects.filter(o => o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
+   }
+
+   public getObjectsByClass(type: string): TiledObject[] {
+      return this.objects.filter(o => o.class?.toLocaleLowerCase() === type.toLocaleLowerCase());
    }
 
    public getObjectByName(name: string): TiledObject | undefined {
@@ -105,7 +115,11 @@ export class TiledObjectGroup extends TiledEntity {
 }
 
 export class TiledObject extends TiledEntity {
+   /**
+    * @deprecated Removed in tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
+    */
    public type?: string;
+   public class?: string;
    public x!: number;
    public y!: number;
    public visible!: boolean;
@@ -149,6 +163,7 @@ export class TiledObject extends TiledEntity {
       resultObject.visible = object.visible ?? true;
       resultObject.name = object.name;
       resultObject.type = object.type;
+      resultObject.class = object.class;
       resultObject.x = +object.x;
       resultObject.y = +object.y;
       resultObject.rotation = object.rotation ? toRadians(object.rotation) : 0;

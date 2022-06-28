@@ -20,7 +20,11 @@ export interface RawTiledObject {
     * Angle in degrees clockwise
     */
    rotation: number;
+   /**
+    * @deprecated Removed in Tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
+    */
    type: string;
+   class: string;
    visible: boolean;
    width: number;
    /**
