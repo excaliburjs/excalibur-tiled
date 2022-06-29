@@ -18,7 +18,7 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="1" type="Camera" x="16" y="16">
+  <object id="1" class="Camera" x="16" y="16">
    <point/>
   </object>
   <object id="2" x="9.125" y="31.625">
