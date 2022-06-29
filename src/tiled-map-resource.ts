@@ -278,12 +278,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const ex: ExcaliburData = {};
       if (excaliburObjectLayers.length > 0) {
          // Parse cameras find the first
-         ex.camera = excaliburObjectLayers.find(objectlayer => objectlayer.getObjectByType('camera'))?.getCamera();
+         ex.camera = excaliburObjectLayers.find(objectlayer => objectlayer.getObjectByClass('camera'))?.getCamera();
          // Parse colliders
          ex.colliders = [];
          for (let objectLayer of excaliburObjectLayers) {
 
-            const boxColliders = objectLayer.getObjectsByType('boxcollider');
+            const boxColliders = objectLayer.getObjectsByClass('boxcollider');
 
             for (let box of boxColliders) {
                const collisionType = box.getProperty<CollisionType>('collisiontype');
@@ -303,7 +303,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                });
             }
 
-            const circleColliders = objectLayer.getObjectsByType('circlecollider');
+            const circleColliders = objectLayer.getObjectsByClass('circlecollider');
             for (let circle of circleColliders) {
                const collisionType = circle.getProperty<CollisionType>('collisiontype');
                const color = circle.getProperty<string>('color');

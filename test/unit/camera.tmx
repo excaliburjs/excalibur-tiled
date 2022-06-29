@@ -13,7 +13,7 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="6" name="player-start" type="player-start" x="0" y="0">
+  <object id="6" name="player-start" class="player-start" x="0" y="0">
    <point/>
   </object>
  </objectgroup>
@@ -21,7 +21,7 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="7" name="Camera" type="Camera" x="50" y="50">
+  <object id="7" name="Camera" class="Camera" x="50" y="50">
    <properties>
     <property name="Zoom" type="float" value="4"/>
    </properties>
