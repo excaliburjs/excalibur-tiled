@@ -34,7 +34,7 @@ export class TiledObjectGroup extends TiledEntity {
    public order!: number;
 
    public getCamera(): ExcaliburCamera | undefined {
-      const camera = this.getObjectByType('camera');
+      const camera = this.getObjectByClass('camera');
       if (camera) {
          const zoom = camera.getProperty<number>('zoom');
          return ({
@@ -50,6 +50,10 @@ export class TiledObjectGroup extends TiledEntity {
     */
    public getObjectByType(type: string): TiledObject | undefined {
       return this.getObjectsByType(type)[0];
+   }
+
+   public getObjectByClass(type: string): TiledObject | undefined {
+      return this.getObjectsByClass(type)[0];
    }
 
    /**
