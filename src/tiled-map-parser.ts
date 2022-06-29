@@ -7,7 +7,7 @@ import { ZSTDDecoder } from 'zstddec';
 
 import { RawTiledMap } from "./raw-tiled-map";
 import { TiledLayer } from "./tiled-layer";
-import { TiledObject, TiledObjectGroup } from "./tiled-object";
+import { TiledObjectGroup } from "./tiled-object";
 import { TiledTileset } from './tiled-tileset';
 
 /**
@@ -182,6 +182,9 @@ export class TiledMap {
            tileset.objectalignment = tileset.objectalignment ?? 'unspecified';
            _convertToArray(tileset, 'tile', true);
            tileset.tiles.forEach((t: any) => { 
+              if (t.image?.source) {
+                t.image = t.image.source;
+              }
               if (t.objectgroup){
                  t.objectgroup.type = 'objectgroup';
                  _convertToArray(t.objectgroup, 'object', true);

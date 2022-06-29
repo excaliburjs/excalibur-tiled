@@ -149,7 +149,7 @@ export class TiledTileset {
 export class TiledTilesetTile {
    id!: number;
    tileset!: TiledTileset;
-   image?: { source: string };
+   image?: string;
    objectgroup?: TiledObjectGroup;
    terrain?: number[];
    animation?: TiledFrame[];
@@ -254,6 +254,9 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
    rawTileset.spacing = isNaN(rawTsx.spacing) ? 0 : rawTsx.spacing;
    _convertToArray(rawTsx, "tile", true);
    rawTsx.tiles.forEach((t: any) => { 
+      if (t.image?.source) {
+        t.image = t.image.source;
+      }
       if (t.objectgroup){
          t.objectgroup.type = 'objectgroup';
          _convertToArray(t.objectgroup, 'object', true);

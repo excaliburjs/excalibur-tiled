@@ -393,9 +393,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
                for (let tile of ts.tiles) {
                   let tileImage: string;
                   if (ts.source) {
-                     tileImage = this.convertPath(ts.source, tile.image.source);
+                     tileImage = this.convertPath(ts.source, tile.image);
                   } else {
-                     tileImage = this.convertPath(this.path, tile.image.source);
+                     tileImage = this.convertPath(this.path, tile.image);
                   }
                   const tx = new ImageSource(tileImage);
                   externalImages.push(tx.load());

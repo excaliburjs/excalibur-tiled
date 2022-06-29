@@ -9,7 +9,7 @@ export interface RawTilesetTile {
     */
    type: string;
    class: string;
-   image: {source: string};
+   image: string;
    imageheight: number;
    imagewidth: number;
    animation: TiledFrame[];
