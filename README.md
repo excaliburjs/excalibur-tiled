@@ -76,7 +76,7 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
   ![](./readme/camera.png)
   - In an object layer with a custom property "excalibur"=true
   - **Note** Only the first Camera in the first "excalibur"=true layer will be used 
-  - Create a Tiled "Point" with the Tiled Type "Camera"
+  - Create a Tiled "Point" with the Tiled Class "Camera"
   - Optionally, to set zoom other than the default of 1.0, create a custom property named "Zoom" with a numeric value
 
 * **Solid layers** - You can mark a particular layers tiles as solid in Tiled
@@ -89,7 +89,7 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
   ![](./readme/collider.png)
   - In an object layer with a custom property "excalibur"=true
   - Create a "Circle" (ellipses are not supported) or "Rectangle"
-     - Set the Tiled type to "BoxCollider" or "CircleCollider" 
+     - Set the Tiled Class to "BoxCollider" or "CircleCollider" 
      - Optionally, to set an Excalibur collision type specify a custom property named "CollisionType" with the value
         - "Fixed" (default for colliders) - non-movable object
         - "Passive" - triggers events, does not participate in collision

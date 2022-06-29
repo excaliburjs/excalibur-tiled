@@ -32,7 +32,7 @@
                  "name":"",
                  "point":true,
                  "rotation":0,
-                 "type":"Camera",
+                 "class":"Camera",
                  "visible":true,
                  "width":0,
                  "x":16,
