@@ -406,18 +406,6 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   Logger.getInstance().debug("[Tiled] Loading associated tileset image: " + tileImage);
                }
             }
-
-            // for (let image of tileSetImages) {
-            //    const tx = new ImageSource(image);
-            //    if (ts.image) {
-            //       this.imageMap[ts.firstgid] = tx;
-            //    } else {
-
-            //       // this.tileImageMap[ts.tiles]
-            //    }
-            //    externalImages.push(tx.load());
-            //    Logger.getInstance().debug("[Tiled] Loading associated tileset image: " + ts.image);
-            // }
          });
 
          return Promise.all(externalImages).then(() => {

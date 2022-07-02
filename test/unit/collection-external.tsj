@@ -1,0 +1,26 @@
+{ "columns":0,
+ "grid":
+    {
+     "height":1,
+     "orientation":"orthogonal",
+     "width":1
+    },
+ "margin":0,
+ "name":"collection-external",
+ "spacing":0,
+ "tilecount":2,
+ "tiledversion":"1.9.0",
+ "tileheight":128,
+ "tiles":[
+        {
+         "id":0,
+         "image":"test\/unit\/assets\/platformerTile_40.png"
+        }, 
+        {
+         "id":1,
+         "image":"test\/unit\/assets\/platformerTile_48.png"
+        }],
+ "tilewidth":111,
+ "type":"tileset",
+ "version":"1.8"
+}
