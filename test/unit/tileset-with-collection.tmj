@@ -1,0 +1,65 @@
+{ "compressionlevel":-1,
+ "height":5,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[1, 0, 0, 0, 0,
+            4, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0],
+         "height":5,
+         "id":1,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":5,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":2,
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.9.0",
+ "tileheight":16,
+ "tilesets":[
+        {
+         "columns":0,
+         "firstgid":1,
+         "grid":
+            {
+             "height":1,
+             "orientation":"orthogonal",
+             "width":1
+            },
+         "margin":0,
+         "name":"collection",
+         "spacing":0,
+         "tilecount":2,
+         "tileheight":128,
+         "tiles":[
+                {
+                 "id":0,
+                 "image":"assets\/platformerTile_40.png",
+                 "imageheight":128,
+                 "imagewidth":111
+                }, 
+                {
+                 "id":1,
+                 "image":"assets\/platformerTile_48.png",
+                 "imageheight":128,
+                 "imagewidth":111
+                }],
+         "tilewidth":111
+        }, 
+        {
+         "firstgid":3,
+         "source":"collection-external.tsj"
+        }],
+ "tilewidth":16,
+ "type":"map",
+ "version":"1.9",
+ "width":5
+}

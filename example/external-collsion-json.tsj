@@ -1,0 +1,36 @@
+{ "columns":0,
+ "grid":
+    {
+     "height":1,
+     "orientation":"orthogonal",
+     "width":1
+    },
+ "margin":0,
+ "name":"external-collection-json",
+ "spacing":0,
+ "tilecount":3,
+ "tiledversion":"1.9.0",
+ "tileheight":128,
+ "tiles":[
+        {
+         "id":0,
+         "image":"assets\/isometric-blocks\/PNG\/Abstract tiles\/abstractTile_13.png",
+         "imageheight":128,
+         "imagewidth":111
+        }, 
+        {
+         "id":1,
+         "image":"assets\/isometric-blocks\/PNG\/Abstract tiles\/abstractTile_14.png",
+         "imageheight":128,
+         "imagewidth":111
+        }, 
+        {
+         "id":2,
+         "image":"assets\/isometric-blocks\/PNG\/Abstract tiles\/abstractTile_15.png",
+         "imageheight":128,
+         "imagewidth":111
+        }],
+ "tilewidth":111,
+ "type":"tileset",
+ "version":"1.8"
+}

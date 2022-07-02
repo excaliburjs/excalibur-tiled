@@ -192,4 +192,42 @@ describe('A Tiled Map Excalibur Resource', () => {
       expect(parallax?.parallaxFactor.x).toBe(1.5);
       expect(parallax?.parallaxFactor.y).toBe(1.6);
    })
+
+   it('can load collection tilesets (tmx)', async () => {
+      const tiled = new TiledMapResource('test/unit/tileset-with-collection.tmx');
+      try {
+         await tiled.load();
+
+         expect(tiled.isLoaded()).toBe(true);
+
+         expect(tiled.data.tileSets.length).toBe(2);
+         expect(tiled.data.tileSets[0].tiles.length).toBe(2);
+         expect(tiled.data.tileSets[0].tiles[0].image).toBe('assets/platformerTile_40.png');
+         expect(tiled.data.tileSets[0].tiles[1].image).toBe('assets/platformerTile_48.png');
+         expect(tiled.data.tileSets[1].tiles.length).toBe(2);
+         expect(tiled.data.tileSets[1].tiles[0].image).toBe('test/unit/assets/platformerTile_40.png');
+         expect(tiled.data.tileSets[1].tiles[1].image).toBe('test/unit/assets/platformerTile_48.png');
+      } catch {
+         fail();
+      }
+   });
+
+   it('can load collection tilesets (tmj)', async () => {
+      const tiled = new TiledMapResource('test/unit/tileset-with-collection.tmj');
+      try {
+         await tiled.load();
+
+         expect(tiled.isLoaded()).toBe(true);
+
+         expect(tiled.data.tileSets.length).toBe(2);
+         expect(tiled.data.tileSets[0].tiles.length).toBe(2);
+         expect(tiled.data.tileSets[0].tiles[0].image).toBe('assets/platformerTile_40.png');
+         expect(tiled.data.tileSets[0].tiles[1].image).toBe('assets/platformerTile_48.png');
+         expect(tiled.data.tileSets[1].tiles.length).toBe(2);
+         expect(tiled.data.tileSets[1].tiles[0].image).toBe('test/unit/assets/platformerTile_40.png');
+         expect(tiled.data.tileSets[1].tiles[1].image).toBe('test/unit/assets/platformerTile_48.png');
+      } catch {
+         fail();
+      }
+   });
 });

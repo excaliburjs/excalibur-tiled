@@ -22,8 +22,10 @@ export class TiledTileset {
 
    /**
     * Path to the image used for tiles in this set
+    *
+    * If no image is specified this is a collection of images tileset and individual tiles have images
     */
-   image!: string;
+   image?: string;
 
    /**
     * Height of source image in pixels
@@ -147,6 +149,7 @@ export class TiledTileset {
 export class TiledTilesetTile {
    id!: number;
    tileset!: TiledTileset;
+   image?: string;
    objectgroup?: TiledObjectGroup;
    terrain?: number[];
    animation?: TiledFrame[];
@@ -174,9 +177,10 @@ export class TiledTilesetTile {
       return null;
    }
 
-   public static parse(rawTilesetTile: RawTilesetTile, tileset: TiledTileset) {
+   public static parse(rawTilesetTile: RawTilesetTile, tileset: TiledTileset): TiledTilesetTile {
       const tile = new TiledTilesetTile();
       tile.id = +rawTilesetTile.id;
+      tile.image = rawTilesetTile.image;
       tile.tileset = tileset;
       tile.properties = Array.isArray(rawTilesetTile.properties) ? rawTilesetTile.properties : (rawTilesetTile.properties as any)?.property ?? [];
       if (rawTilesetTile.objectgroup) {
@@ -243,13 +247,16 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
 
    rawTileset.firstgid = firstGid;
    rawTileset.source = source;
-   rawTileset.imagewidth = rawTsx.image.width;
-   rawTileset.imageheight = rawTsx.image.height;
+   rawTileset.imagewidth = rawTsx.image?.width;
+   rawTileset.imageheight = rawTsx.image?.height;
    rawTileset.objectalignment = rawTsx.objectalignment ?? 'unspecified';
-   rawTileset.image = rawTsx.image.source;
+   rawTileset.image = rawTsx.image?.source;
    rawTileset.spacing = isNaN(rawTsx.spacing) ? 0 : rawTsx.spacing;
    _convertToArray(rawTsx, "tile", true);
    rawTsx.tiles.forEach((t: any) => { 
+      if (t.image?.source) {
+        t.image = t.image.source;
+      }
       if (t.objectgroup){
          t.objectgroup.type = 'objectgroup';
          _convertToArray(t.objectgroup, 'object', true);
@@ -272,7 +279,7 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
       imageWidth: rawTileset.imagewidth,
       imageHeight: rawTileset.imageheight,
       objectAlignment: rawTileset.objectalignment ?? 'unspecified',
-      image: rawTileset.image,      
+      image: rawTileset.image,
       spacing: isNaN(rawTileset.spacing) ? 0 : rawTileset.spacing,
       horizontalFlipTransform: Matrix.identity().translate(rawTileset.tilewidth, 0).scale(-1, 1),
       verticalFlipTransform: Matrix.identity().translate(0, rawTileset.tileheight).scale(1, -1),
