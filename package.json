@@ -1,6 +1,6 @@
 {
   "name": "@excaliburjs/plugin-tiled",
-  "version": "0.26.2",
+  "version": "0.27.0",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
   "main": "dist/excalibur-tiled.min.js",
   "typings": "dist/src/index.d.ts",
@@ -43,7 +43,7 @@
     "@types/pako": "1.0.4",
     "@types/webpack-env": "1.17.0",
     "cross-env": "7.0.3",
-    "excalibur": "0.26.0",
+    "excalibur": "0.27.0",
     "jasmine-core": "4.2.0",
     "karma": "6.4.0",
     "karma-chrome-launcher": "3.1.1",
@@ -63,6 +63,6 @@
     "zstddec": "0.0.2"
   },
   "peerDependencies": {
-    "excalibur": "0.26.0"
+    "excalibur": "0.27.0"
   }
 }
