@@ -27,7 +27,7 @@ import {
    Animation,
    ParallaxComponent
 } from 'excalibur';
-import { ExcaliburData } from './tiled-types';
+import { ExcaliburData, TiledPoint } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTiledLayer } from "./raw-tiled-layer";
 import { RawTiledMap } from "./raw-tiled-map";
@@ -508,16 +508,13 @@ export class TiledMapResource implements Loadable<TiledMap> {
       if (tileWithObjects && tileWithObjects.objectgroup) {
          const result = [];
          for (const polygon of tileWithObjects.objectgroup.getPolygons()) {
-            const offset = vec(polygon.x, polygon.y);
-            const points = polygon.polygon.points;
-            const parsed = points.split(" ")
-               .map((tp: string) => {
-                  const point = tp.split(",");
-                  return vec(Number.parseFloat(point[0]), Number.parseFloat(point[1])).add(offset)
-               });
-            const poly = Shape.Polygon(parsed);
-            poly.points = this._transformPoints(poly.points, tileset, gid);
-            result.push(poly);
+            if (polygon.polygon) {
+               const offset = vec(polygon.x, polygon.y);
+               let parsed: Vector[] = polygon.polygon.map(p => vec(p.x, p.y).add(offset));
+               const poly = Shape.Polygon(parsed);
+               poly.points = this._transformPoints(poly.points, tileset, gid);
+               result.push(poly);
+            }
          }
 
          for (const box of tileWithObjects.objectgroup.getBoxes()) {
