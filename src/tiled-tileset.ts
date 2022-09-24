@@ -50,7 +50,7 @@ export class TiledTileset {
    /**
     * Refers to external tileset file
     */
-   source!: string;
+   source: string | undefined;
    /**
     * Spacing between adjacent tiles in image (pixels)
     */
@@ -228,21 +228,21 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
       }
    }
 
-   const options: parser.X2jOptionsOptional = {
-      attributeNamePrefix : "",
-      textNodeName : "#text",
-      ignoreAttributes : false,
-      ignoreNameSpace : false,
-      allowBooleanAttributes : true,
-      parseNodeValue : true,
-      parseAttributeValue : true,
-      trimValues: true,
-      parseTrueNumberOnly: false,
-      arrayMode: false,
-      stopNodes: ["parse-me-as-string"]
-  };
+//    const options: parser.X2jOptionsOptional = {
+//       attributeNamePrefix : "",
+//       textNodeName : "#text",
+//       ignoreAttributes : false,
+//       ignoreNameSpace : false,
+//       allowBooleanAttributes : true,
+//       parseNodeValue : true,
+//       parseAttributeValue : true,
+//       trimValues: true,
+//       parseTrueNumberOnly: false,
+//       arrayMode: false,
+//       stopNodes: ["parse-me-as-string"]
+//   };
 
-   const rawTsx = parser.parse(tsxData, options).tileset;
+   const rawTsx = {} as any; //parser.parse(tsxData, options).tileset;
    const rawTileset: RawTiledTileset = rawTsx;
 
    rawTileset.firstgid = firstGid;

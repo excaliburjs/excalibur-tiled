@@ -9,3 +9,4 @@ diff-*.png
 coverage/
 !files.d.ts
 !karma.conf.js
+!wallaby.js

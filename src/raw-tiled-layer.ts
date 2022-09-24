@@ -100,6 +100,10 @@ export interface RawTiledLayer {
     */
    tintcolor: string;
    /**
+    * Hex-formatted color (#RRGGBB or #AARRGGBB) to present objects in Tiled objectgroup only (optional).
+    */
+   color: string;
+   /**
     * Hex-formatted color (#RRGGBB) (optional). imagelayer only.
     */
    transparentcolor: string;
@@ -112,4 +116,14 @@ export interface RawTiledLayer {
     * Array of objects. objectgroup only.
     */
    objects: RawTiledObject[];
+
+   /**
+    * Repeat image layer in x direction (imagelayer only)
+    */
+   repeatx: boolean | undefined;
+
+   /**
+    * Repeat image layer in y direction (imagelayer only)
+    */
+   repeaty: boolean | undefined;
 }

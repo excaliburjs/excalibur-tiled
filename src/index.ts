@@ -9,6 +9,9 @@ export * from './tiled-tileset';
 export * from './tiled-object-component';
 export * from './tiled-layer-component';
 
+export * from './tmx-parser';
+export * from './tsx-parser';
+
 // raw data structures
 export * from './raw-tiled-layer';
 export * from './raw-tiled-map';

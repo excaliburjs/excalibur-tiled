@@ -81,21 +81,21 @@ export class TiledMap {
          }
       }
 
-      const options: parser.X2jOptionsOptional = {
-         attributeNamePrefix : "",
-         textNodeName : "#text",
-         ignoreAttributes : false,
-         ignoreNameSpace : false,
-         allowBooleanAttributes : true,
-         parseNodeValue : true,
-         parseAttributeValue : true,
-         trimValues: true,
-         parseTrueNumberOnly: false,
-         arrayMode: false,
-         stopNodes: ["parse-me-as-string"]
-     };
+   //    const options: parser.X2jOptionsOptional = {
+   //       attributeNamePrefix : "",
+   //       textNodeName : "#text",
+   //       ignoreAttributes : false,
+   //       ignoreNameSpace : false,
+   //       allowBooleanAttributes : true,
+   //       parseNodeValue : true,
+   //       parseAttributeValue : true,
+   //       trimValues: true,
+   //       parseTrueNumberOnly: false,
+   //       arrayMode: false,
+   //       stopNodes: ["parse-me-as-string"],
+   //   };
 
-     const rawMap = parser.parse(tmxData, options).map;
+     const rawMap = {} as any; //parser.parse(tmxData, options).map;
 
      _convertToArray(rawMap, 'layer', true);
      for (let layer of rawMap.layers) {

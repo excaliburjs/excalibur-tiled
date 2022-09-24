@@ -346,15 +346,16 @@ export class TiledMapResource implements Loadable<TiledMap> {
          // If we find a source property, then
          // load the tileset data, merge it with
          // existing data, and load the image and sprite
-         if (ts.source) {
-            const type = ts.source.includes('.tsx') ? 'text' : 'json';
-            var tileset = new Resource<RawTiledTileset>(this.convertPath(this.path, ts.source), type);
+         const source = ts.source;
+         if (source) {
+            const type = source.includes('.tsx') ? 'text' : 'json';
+            var tileset = new Resource<RawTiledTileset>(this.convertPath(this.path, source), type);
 
             externalTilesets.push(tileset.load().then((external: any) => {
                if (type === 'text') {
-                  external = parseExternalTsx(external, ts.firstgid, ts.source);
+                  external = parseExternalTsx(external, ts.firstgid, source);
                } else {
-                  external = parseExternalJson(external, ts.firstgid, ts.source);
+                  external = parseExternalJson(external, ts.firstgid, source);
                }
                Object.assign(ts, external);
                tiledMap.tileSets.push(external);

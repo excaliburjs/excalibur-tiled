@@ -40,7 +40,7 @@ export interface RawTiledTileset {
    /**
     * Refers to external tileset file (should be JSON)
     */
-   source: string;
+   source: string | undefined;
    /**
     * Spacing between adjacent tiles in image (pixels)
     */
