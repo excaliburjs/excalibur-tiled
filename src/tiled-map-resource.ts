@@ -573,6 +573,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
          const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
          // Single image tilesets
          if (this.imageMap[tileset.firstgid]) {
+            // Tiled and Excalibur use the same words for different things :facepalm:
+            // Tiled margin is the same as Excalibur originOffset
+            // Tiled spacing is the same as Excalibur margin
             const ss = SpriteSheet.fromImageSource({
                image: this.imageMap[tileset.firstgid],
                grid: {
@@ -582,6 +585,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   spriteHeight: tileset.tileheight
                },
                spacing: {
+                  originOffset: {
+                     x: tileset.margin ?? 0,
+                     y: tileset.margin ?? 0
+                  },
                   margin: {
                      x: tileset.spacing ?? 0,
                      y: tileset.spacing ?? 0,
