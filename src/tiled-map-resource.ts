@@ -715,6 +715,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
       const tiledLayer = this.data.getTileLayerByName(layerName);
       const tileGid = getCanonicalGid(tiledLayer.data[tileIndex]);
 
+      // No tile case
+      if (tileGid === 0) {
+         return null;
+      }
+
       // Tiled tileset properties
       const tiledTileset = this.getTilesetForTile(tileGid);
       // odd quirk of Tiled's data the gid's here are off by 1 from the data array :/
