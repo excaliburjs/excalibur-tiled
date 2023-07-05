@@ -63,8 +63,13 @@ export class TiledObjectGroup extends TiledEntity {
       return this.objects.filter(o => o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
    }
 
+   /**
+    * Since Tiled 1.10 the property is called `type` again.
+    * We treat both properties here to be on the safe side.
+    * See https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-10
+    */
    public getObjectsByClass(type: string): TiledObject[] {
-      return this.objects.filter(o => o.class?.toLocaleLowerCase() === type.toLocaleLowerCase());
+      return this.objects.filter(o => o.class?.toLocaleLowerCase() === type.toLocaleLowerCase() || o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
    }
 
    public getObjectByName(name: string): TiledObject | undefined {
