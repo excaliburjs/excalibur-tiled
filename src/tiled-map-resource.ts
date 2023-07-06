@@ -25,14 +25,15 @@ import {
    IsometricMap,
    IsometricEntityComponent,
    Animation,
-   ParallaxComponent
+   ParallaxComponent,
+   Tile
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTiledLayer } from "./raw-tiled-layer";
 import { RawTiledMap } from "./raw-tiled-map";
 import { TiledMap } from './tiled-map-parser';
-import { parseExternalJson, parseExternalTsx, TiledTileset } from './tiled-tileset';
+import { parseExternalJson, parseExternalTsx, TiledTileset, TiledTilesetTile } from './tiled-tileset';
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from './tiled-layer';
 import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
@@ -704,5 +705,49 @@ export class TiledMapResource implements Loadable<TiledMap> {
          return this.isoLayers;
       }
       return [];
+   }
+
+   private _lookupTile(tilemap: TileMap, tile: Tile, layerName: string) {
+      const tileIndex = tilemap.tiles.indexOf(tile); // both ex and tiled share the same index
+
+      // Tiled data
+      // gid can be found by looking up the original data, locate layer by name
+      const tiledLayer = this.data.getTileLayerByName(layerName);
+      const tileGid = getCanonicalGid(tiledLayer.data[tileIndex]);
+
+      // Tiled tileset properties
+      const tiledTileset = this.getTilesetForTile(tileGid);
+      // odd quirk of Tiled's data the gid's here are off by 1 from the data array :/
+      const tiledTile = tiledTileset.tiles.find(t => t.id === (tileGid - 1));
+      if (!tiledTile) {
+         return {
+            id: tileGid - 1,
+            tileset: tiledTileset,
+            properties: {}
+         } as TiledTilesetTile
+      }
+      return tiledTile;
+   }
+
+   public getTileByPoint(layerName: string, worldPos: Vector): TiledTilesetTile | null {
+      // ex TileMap data structure by name
+      const tilemap = this.getTileMapLayers().find(tm => tm.name === layerName);
+      if (tilemap) {
+
+         const tile = tilemap.getTileByPoint(worldPos);
+         return this._lookupTile(tilemap, tile, layerName);
+      }
+      return null;
+   }
+
+   public getTileByCoordinate(layerName: string, x: number, y: number): TiledTilesetTile | null {
+      // ex TileMap data structure by name
+      const tilemap = this.getTileMapLayers().find(tm => tm.name === layerName);
+      if (tilemap) {
+
+         const tile = tilemap.getTile(x, y);
+         return this._lookupTile(tilemap, tile, layerName);
+      }
+      return null;
    }
 }

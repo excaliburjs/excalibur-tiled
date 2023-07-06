@@ -86,22 +86,10 @@ const start = (mapFile: string) => {
    game.start(loader).then(() => {
 
       game.input.pointers.primary.on('down', evt => {
-         // ex TileMap data structure by name
-         const tilemap = map.getTileMapLayers().filter(tm => tm.name === 'Ground')[0];
-         const tile = tilemap.getTileByPoint(evt.worldPos);
-         const tileIndex = tilemap.tiles.indexOf(tile);
-
-         // Tiled data
-         // gid can be found by looking up the original data, locate layer by name
-         const tiledLayer = map.data.getTileLayerByName('Ground');
-         const tileGid = tiledLayer.data[tileIndex];
-
-         // tileset properties
-         const tiledTileset = map.getTilesetForTile(tileGid);
-         // odd quirk of Tiled's data the gid's here are off by 1 from the data array :/
-         const tiledTile = tiledTileset.tiles.find(t => t.id === (tileGid - 1));
-         console.log('gid', tileGid);
-         console.log('tile props', tiledTile?.properties);
+         const tile = map.getTileByPoint('Ground', evt.worldPos);
+         console.log('tile', tile);
+         console.log('id', tile?.id);
+         console.log('tile props', tile?.properties);
       });
 
       player.pos = ex.vec(100, 100);
