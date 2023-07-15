@@ -45,9 +45,6 @@ export class TiledObjectGroup extends TiledEntity {
       }
    }
 
-   /**
-    *  @deprecated Removed in Tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
-    */
    public getObjectByType(type: string): TiledObject | undefined {
       return this.getObjectsByType(type)[0];
    }
@@ -56,9 +53,6 @@ export class TiledObjectGroup extends TiledEntity {
       return this.getObjectsByClass(type)[0];
    }
 
-   /**
-    *  @deprecated Removed in Tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
-    */
    public getObjectsByType(type: string): TiledObject[] {
       return this.objects.filter(o => o.type?.toLocaleLowerCase() === type.toLocaleLowerCase());
    }
@@ -124,9 +118,6 @@ export class TiledObjectGroup extends TiledEntity {
 }
 
 export class TiledObject extends TiledEntity {
-   /**
-    * @deprecated Removed in tiled 1.9 https://doc.mapeditor.org/en/stable/reference/tmx-changelog/#tiled-1-9
-    */
    public type?: string;
    public class?: string;
    public x!: number;
