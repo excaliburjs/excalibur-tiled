@@ -27,7 +27,8 @@ import {
    Animation,
    ParallaxComponent,
    Tile,
-   Text
+   Text,
+   BoundingBox
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
@@ -129,8 +130,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
    private _addTiledCamera(scene: Scene) {
       const camera = this.ex.camera;
       if (camera) {
-         scene.camera.x = camera.x;
-         scene.camera.y = camera.y;
+         let cameraPos = vec(camera.x, camera.y);
+         if (this.isIsometric()) {
+            cameraPos = this._isoTileToScreenCoords(camera.x, camera.y);
+         }
+         scene.camera.x = cameraPos.x;
+         scene.camera.y = cameraPos.y;
          scene.camera.zoom = camera.zoom;
       }
    }
@@ -150,9 +155,22 @@ export class TiledMapResource implements Loadable<TiledMap> {
             }
 
             if (collider.type === 'box') {
-               actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
+               if (this.isIsometric()) {
+                  actor.pos = this._isoTileToScreenCoords(collider.x, collider.y);
+                  const bb = new BoundingBox({
+                     left: 0,
+                     top: 0,
+                     right: collider.width,
+                     bottom: collider.height
+                  });
+                  const points = bb.getPoints().map(p => this._isoTileToScreenCoords(p.x, p.y));
+                  actor.collider.usePolygonCollider(points, Vector.Zero);
+               } else {
+                  actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
+               }
             }
             if (collider.type === 'circle') {
+               // FIXME no ellipse support yet for colliders in isometric
                actor.collider.useCircleCollider(collider.radius);
             }
             actor.addComponent(new TiledObjectComponent(collider.tiled));
@@ -236,26 +254,44 @@ export class TiledMapResource implements Loadable<TiledMap> {
                if (collisionTypeProp) {
                   collisionType = collisionTypeProp.value;
                }
+               let worldPos = vec(tile.x, tile.y);
+               if (this.isIsometric()) {
+                  worldPos = this._isoTileToScreenCoords(tile.x, tile.y);
+               }
+
                if (tile.gid) {
                   const sprite = this.getSpriteForGid(tile.gid);
                   const colliders = this.getCollidersForGid(tile.gid);
                   const actor = new Actor({
-                     x: tile.x,
-                     y: tile.y,
+                     x: worldPos.x,
+                     y: worldPos.y,
                      width: tile.width,
                      height: tile.height,
-                     anchor: vec(0, 1),
+                     anchor: this.isIsometric() ? vec(.5, 1) : vec(0, 1),
                      rotation: tile.rotation,
                      collisionType,
                      name: this._getEntityName(tile)
                   });
+                  if (this.isIsometric()) {
+                     const map = this.isoLayers[0];
+                     for (let c of colliders) {
+                        c.offset = vec(-map.tileWidth / 2, -map.tileHeight * 2)
+                     }
+                  }
                   if (colliders.length) {
                      actor.collider.clear();
                      actor.collider.set(new CompositeCollider(colliders));
                   }
                   actor.addComponent(new TiledObjectComponent(tile));
-                  actor.graphics.anchor = vec(0, 1);
+                  actor.graphics.anchor = this.isIsometric() ? vec(.5, 1) : vec(0, 1);
                   actor.graphics.use(sprite);
+                  if (this.isIsometric()) {
+                     // The component just needs the tile width/height and row/cols
+                     // all the layers are the same so we can just use the first
+                     const iso = new IsometricEntityComponent(this.isoLayers[0]);
+                     actor.addComponent(iso);
+                     iso.elevation = objectLayer.order;
+                  }
                   scene.add(actor);
                   actor.z = this._calculateZIndex(tile, objectLayer);
                }
@@ -294,7 +330,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          scene.add(tm);
       }
 
-      for (const iso of this.isoLayers){
+      for (const iso of this.isoLayers) {
          scene.add(iso);
       }
 
