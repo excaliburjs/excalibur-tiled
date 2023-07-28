@@ -165,15 +165,20 @@ export class TiledMapResource implements Loadable<TiledMap> {
    }
 
    private _isoTileToScreenCoords(x: number, y: number) {
+      // Transformation sourced from:
       // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
-      // TODO yank the real values from the map
-      const tileWidth = 111;
-      const tileHeight = 64;
-      const originX = 0;//20 * tileWidth / 2;
-      const tileY = y / tileHeight;
-      const tileX = x / tileHeight;
-      return vec((tileX - tileY) * tileWidth / 2 + originX,
-                 (tileX + tileY) * tileHeight / 2);
+      if (this.isIsometric()) {
+         const map = this.isoLayers[0];
+         const tileWidth = map.tileWidth;
+         const tileHeight = map.tileHeight;
+         const originX = 0;
+         const tileY = y / tileHeight;
+         const tileX = x / tileHeight;
+         return vec(
+            (tileX - tileY) * tileWidth / 2 + originX,
+            (tileX + tileY) * tileHeight / 2);
+      }
+      return vec(x, y);
    }
 
    private _addTiledText(scene: Scene) {
