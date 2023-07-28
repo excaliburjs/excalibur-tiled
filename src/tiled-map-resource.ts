@@ -26,7 +26,8 @@ import {
    IsometricEntityComponent,
    Animation,
    ParallaxComponent,
-   Tile
+   Tile,
+   Text
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
@@ -163,15 +164,32 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
    }
 
+   private _isoTileToScreenCoords(x: number, y: number) {
+      // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
+      // TODO yank the real values from the map
+      const tileWidth = 111;
+      const tileHeight = 64;
+      const originX = 0;//20 * tileWidth / 2;
+      const tileY = y / tileHeight;
+      const tileX = x / tileHeight;
+      return vec((tileX - tileY) * tileWidth / 2 + originX,
+                 (tileX + tileY) * tileHeight / 2);
+   }
+
    private _addTiledText(scene: Scene) {
       const excaliburObjectLayers = this.data?.getExcaliburObjects();
       if (excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
             const textObjects = objectLayer.getText();
             for (const text of textObjects) {
+               let worldPos = vec(text.x, text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)));
+               if (this.isIsometric()) {
+                  worldPos = this._isoTileToScreenCoords(text.x, text.y);
+               }
                const label = new Label({
-                  x: text.x,
-                  y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
+                  anchor: Vector.Zero,
+                  x: worldPos.x,
+                  y: worldPos.y,
                   text: text.text?.text ?? '',
                   name: this._getEntityName(text),
                   font: new Font({
@@ -185,9 +203,18 @@ export class TiledMapResource implements Loadable<TiledMap> {
                label.rotation = text.rotation;
                label.color = Color.fromHex(text.text?.color ?? '#000000');
                label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
+               label.body.collisionType = CollisionType.PreventCollision;
                label.addComponent(new TiledObjectComponent(text));
-               scene.add(label);
+
                label.z = this._calculateZIndex(text, objectLayer);
+               if (this.isIsometric()) {
+                  // The component just needs the tile width/height and row/cols
+                  // all the layers are the same so we can just use the first
+                  const iso = new IsometricEntityComponent(this.isoLayers[0]);
+                  label.addComponent(iso);
+                  iso.elevation = objectLayer.order;
+               }
+               scene.add(label);
             }
          }
       }
@@ -266,6 +293,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
          scene.add(iso);
       }
 
+      // TODO tiled uses different coordinates for iso and iso staggered
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
       this._addTiledText(scene);
@@ -332,6 +360,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    public isLoaded() {
       return !!this.data;
+   }
+
+   public isIsometric() {
+      return !!this.isoLayers.length;
    }
 
    public async load(): Promise<TiledMap> {

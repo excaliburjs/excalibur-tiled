@@ -71,7 +71,7 @@ export class TiledObjectGroup extends TiledEntity {
    }
 
    public getObjectsByName(name: string): TiledObject[] {
-      return this.objects.filter(o => o.name?.toLocaleLowerCase() === name.toLocaleLowerCase());
+      return this.objects.filter(o => o.name?.toString().toLocaleLowerCase() === name.toString().toLocaleLowerCase());
    }
 
    public getPoints(): TiledObject[] {
