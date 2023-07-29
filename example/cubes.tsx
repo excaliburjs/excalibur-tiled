@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.0" name="cubes" tilewidth="111" tileheight="128" tilecount="168" columns="21">
+<tileset version="1.10" tiledversion="1.10.1" name="cubes" tilewidth="111" tileheight="128" tilecount="168" columns="21">
  <image source="assets/isometric-blocks/Tilesheet/tilesheet_complete.png" width="2331" height="1025"/>
  <tile id="0" type="Grass"/>
+ <tile id="1">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.666667" y="95">
+    <polygon points="0,0 54.6667,-29.3333 109.667,0.666667 55.3333,32.3333"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="36">
   <objectgroup draworder="index" id="2">
    <object id="1" x="1.52937" y="95.4681">
