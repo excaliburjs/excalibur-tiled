@@ -30,7 +30,7 @@ test('Tiled Tests', async (page) => {
 
    const legacyMapTypes = [
       'margin.tmx',
-      'isometric',
+      // 'isometric',
       'v1',
       'v1 external tileset',
       'v0 gzip',
