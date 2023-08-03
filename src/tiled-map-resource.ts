@@ -223,6 +223,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   }
                   actor.addComponent(new TiledObjectComponent(tile));
                   actor.graphics.anchor = vec(0, 1);
+                  // respect tile size on sprite
+                  sprite.destSize.width = tile.width ?? sprite.destSize.width;
+                  sprite.destSize.height = tile.height ?? sprite.destSize.height;
                   actor.graphics.use(sprite);
                   scene.add(actor);
                   actor.z = this._calculateZIndex(tile, objectLayer);
