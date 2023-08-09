@@ -63,13 +63,11 @@ You may opt-in to the Excalibur wiring by calling `addTiledMapToScene(someScene)
 tiledMapResource.addTiledMapToScene(game.currentScene);
 ```
 
-* **Only object layers with `"excalibur"=true` are parsed for objects**. These object layers can be retrieved with
+* **To exclude object layers `"excalibur-exclude"=true`**. - Objects are included by default and can be retrieved with the following
 
    ```typescript
-   const objects: TiledObjectGroup[] = tiledMapResource.getExcaliburObjects();
+   const objects: TiledObjectGroup[] = tiledMapResource.getObjects();
    ```
-
-  ![](./readme/excalibur-object.png)
 
 * **Camera Object Position & Zoom** - You may set the starting camera position and zoom
 
@@ -151,7 +149,7 @@ tiledMapResource.addTiledMapToScene(game.currentScene);
 ```typescript
 
 import * as ex from 'excalibur';
-import { TiledMapeResource } from '@excaliburjs/plugin-tiled';
+import { TiledMapResource } from '@excaliburjs/plugin-tiled';
 
 // Create tiled map resource, pointing to static asset path
 const tiledMap = new TiledMapResource("/assets/map.tmx");
