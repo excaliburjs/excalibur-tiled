@@ -25,6 +25,7 @@ const reset = () => {
    game.currentScene.entities.forEach(a => {
       game.currentScene.remove(a);
    });
+   game.currentScene.clear();
    game.start();
 }
 
@@ -87,9 +88,7 @@ const start = (mapFile: string) => {
 
       game.input.pointers.primary.on('down', evt => {
          const tile = map.getTileByPoint('Ground', evt.worldPos);
-         console.log('tile', tile);
-         console.log('id', tile?.id);
-         console.log('tile props', tile?.properties);
+         console.log('id', tile?.id, 'tile props:', tile?.properties);
       });
 
       player.pos = ex.vec(100, 100);
@@ -163,16 +162,33 @@ const start = (mapFile: string) => {
    });
 }
 
-document.getElementById('select-map')!.addEventListener('change', (e) => {
+const selectMapEl = document.getElementById('select-map') as HTMLSelectElement;
+selectMapEl.addEventListener('change', (e) => {
    var map = (e.target as HTMLSelectElement).value;
 
    if (map) {
       reset();
+      window.location.hash = map;
       start(map);
    }
 
    return true;
 })
 
-// start("example-isometric.tmx");
-start("example-city.tmx");
+window.onload = function () {
+   var map = window.location.hash.slice(1) ?? '';
+   if (map) {
+      console.log(map);
+      var options = Array.from(selectMapEl.options);
+      var index = options.findIndex(o => o.value === map);
+      if (index > -1) {
+         selectMapEl.selectedIndex = index;
+         start(map);
+      }
+   } else {
+      window.location.hash = "example-city.tmx";
+      selectMapEl.selectedIndex = 0;
+      start("example-city.tmx");
+   }
+}
+

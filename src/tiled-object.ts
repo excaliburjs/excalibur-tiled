@@ -26,6 +26,9 @@ export interface Ellipse {
    height: number;
 }
 
+/**
+ * Tiled Object Layer
+ */
 export class TiledObjectGroup extends TiledEntity {
    public objects: TiledObject[] = [];
 
