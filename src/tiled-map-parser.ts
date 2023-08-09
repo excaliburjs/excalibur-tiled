@@ -48,8 +48,15 @@ export class TiledMap {
     */
    objectGroups: TiledObjectGroup[] = [];
 
+   /**
+    * @deprecated Will be removed in v0.29.0
+    */
    public getExcaliburObjects(): TiledObjectGroup[] {
       return this.getObjectLayerByProperty('excalibur', true);
+   }
+
+   public getObjects(): TiledObjectGroup[] {
+      return this.objectGroups.filter(l => !l.getProperty('excalibur-exclude')?.value);
    }
 
    public getObjectLayerByName(name: string): TiledObjectGroup {
