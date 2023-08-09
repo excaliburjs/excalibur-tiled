@@ -8,6 +8,7 @@ const game = new ex.Engine({
    canvasElementId: 'game',
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false,
+   suppressPlayButton: true
 });
 game.input.keyboard.on("press", (evt) => {
    if (evt.key === Input.Keys.D) {
