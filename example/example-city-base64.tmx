@@ -52,5 +52,6 @@
   </object>
   <object id="4" gid="1073741992" x="640" y="176" width="16" height="16"/>
   <object id="5" gid="2147484058" x="592" y="176" width="16" height="16"/>
+  <object id="9" gid="252" x="383.636" y="128.182" width="32" height="32"/>
  </objectgroup>
 </map>

@@ -284,6 +284,9 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   }
                   actor.addComponent(new TiledObjectComponent(tile));
                   actor.graphics.anchor = this.isIsometric() ? vec(.5, 1) : vec(0, 1);
+                  // respect tile size on sprite
+                  sprite.destSize.width = tile.width ?? sprite.destSize.width;
+                  sprite.destSize.height = tile.height ?? sprite.destSize.height;
                   actor.graphics.use(sprite);
                   if (this.isIsometric()) {
                      // The component just needs the tile width/height and row/cols

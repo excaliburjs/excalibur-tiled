@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="9">
+<map version="1.10" tiledversion="1.10.1" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="10">
  <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
   <image source="assets/kenny-rpg-urban-pack/tilemap_packed.png" width="432" height="288"/>
   <tile id="190">
@@ -1120,10 +1120,10 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="6" name="player-start" class="player-start" x="375" y="104">
+  <object id="6" name="player-start" type="player-start" x="375" y="104">
    <point/>
   </object>
-  <object id="7" name="Camera" class="Camera" x="444.5" y="404.5">
+  <object id="7" name="Camera" type="Camera" x="444.5" y="404.5">
    <properties>
     <property name="Zoom" type="float" value="4"/>
    </properties>
@@ -1137,5 +1137,6 @@
   <object id="1" name="StopLight" gid="409" x="304" y="112" width="16" height="16"/>
   <object id="4" name="SignPost" gid="168" x="640" y="176" width="16" height="16"/>
   <object id="5" name="StopLight" gid="2147484058" x="592" y="176" width="16" height="16"/>
+  <object id="9" gid="252" x="383.636" y="128.182" width="32" height="32"/>
  </objectgroup>
 </map>
