@@ -26,7 +26,9 @@ import {
    IsometricEntityComponent,
    Animation,
    ParallaxComponent,
-   Tile
+   Tile,
+   Text,
+   BoundingBox
 } from 'excalibur';
 import { ExcaliburData } from './tiled-types';
 import { RawTiledTileset } from "./raw-tiled-tileset";
@@ -128,8 +130,12 @@ export class TiledMapResource implements Loadable<TiledMap> {
    private _addTiledCamera(scene: Scene) {
       const camera = this.ex.camera;
       if (camera) {
-         scene.camera.x = camera.x;
-         scene.camera.y = camera.y;
+         let cameraPos = vec(camera.x, camera.y);
+         if (this.isIsometric()) {
+            cameraPos = this._isoTileToScreenCoords(camera.x, camera.y);
+         }
+         scene.camera.x = cameraPos.x;
+         scene.camera.y = cameraPos.y;
          scene.camera.zoom = camera.zoom;
       }
    }
@@ -149,9 +155,22 @@ export class TiledMapResource implements Loadable<TiledMap> {
             }
 
             if (collider.type === 'box') {
-               actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
+               if (this.isIsometric()) {
+                  actor.pos = this._isoTileToScreenCoords(collider.x, collider.y);
+                  const bb = new BoundingBox({
+                     left: 0,
+                     top: 0,
+                     right: collider.width,
+                     bottom: collider.height
+                  });
+                  const points = bb.getPoints().map(p => this._isoTileToScreenCoords(p.x, p.y));
+                  actor.collider.usePolygonCollider(points, Vector.Zero);
+               } else {
+                  actor.collider.useBoxCollider(collider.width, collider.height, Vector.Zero);
+               }
             }
             if (collider.type === 'circle') {
+               // FIXME no ellipse support yet for colliders in isometric
                actor.collider.useCircleCollider(collider.radius);
             }
             actor.addComponent(new TiledObjectComponent(collider.tiled));
@@ -163,15 +182,37 @@ export class TiledMapResource implements Loadable<TiledMap> {
       }
    }
 
+   private _isoTileToScreenCoords(x: number, y: number) {
+      // Transformation sourced from:
+      // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
+      if (this.isIsometric()) {
+         const map = this.isoLayers[0];
+         const tileWidth = map.tileWidth;
+         const tileHeight = map.tileHeight;
+         const originX = 0;
+         const tileY = y / tileHeight;
+         const tileX = x / tileHeight;
+         return vec(
+            (tileX - tileY) * tileWidth / 2 + originX,
+            (tileX + tileY) * tileHeight / 2);
+      }
+      return vec(x, y);
+   }
+
    private _addTiledText(scene: Scene) {
       const excaliburObjectLayers = this.data?.getExcaliburObjects();
       if (excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
             const textObjects = objectLayer.getText();
             for (const text of textObjects) {
+               let worldPos = vec(text.x, text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)));
+               if (this.isIsometric()) {
+                  worldPos = this._isoTileToScreenCoords(text.x, text.y);
+               }
                const label = new Label({
-                  x: text.x,
-                  y: text.y + ((text.height ?? 0) - (text.text?.pixelSize ?? 0)),
+                  anchor: Vector.Zero,
+                  x: worldPos.x,
+                  y: worldPos.y,
                   text: text.text?.text ?? '',
                   name: this._getEntityName(text),
                   font: new Font({
@@ -185,9 +226,18 @@ export class TiledMapResource implements Loadable<TiledMap> {
                label.rotation = text.rotation;
                label.color = Color.fromHex(text.text?.color ?? '#000000');
                label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
+               label.body.collisionType = CollisionType.PreventCollision;
                label.addComponent(new TiledObjectComponent(text));
-               scene.add(label);
+
                label.z = this._calculateZIndex(text, objectLayer);
+               if (this.isIsometric()) {
+                  // The component just needs the tile width/height and row/cols
+                  // all the layers are the same so we can just use the first
+                  const iso = new IsometricEntityComponent(this.isoLayers[0]);
+                  label.addComponent(iso);
+                  iso.elevation = objectLayer.order;
+               }
+               scene.add(label);
             }
          }
       }
@@ -204,29 +254,47 @@ export class TiledMapResource implements Loadable<TiledMap> {
                if (collisionTypeProp) {
                   collisionType = collisionTypeProp.value;
                }
+               let worldPos = vec(tile.x, tile.y);
+               if (this.isIsometric()) {
+                  worldPos = this._isoTileToScreenCoords(tile.x, tile.y);
+               }
+
                if (tile.gid) {
                   const sprite = this.getSpriteForGid(tile.gid);
                   const colliders = this.getCollidersForGid(tile.gid);
                   const actor = new Actor({
-                     x: tile.x,
-                     y: tile.y,
+                     x: worldPos.x,
+                     y: worldPos.y,
                      width: tile.width,
                      height: tile.height,
-                     anchor: vec(0, 1),
+                     anchor: this.isIsometric() ? vec(.5, 1) : vec(0, 1),
                      rotation: tile.rotation,
                      collisionType,
                      name: this._getEntityName(tile)
                   });
+                  if (this.isIsometric()) {
+                     const map = this.isoLayers[0];
+                     for (let c of colliders) {
+                        c.offset = vec(-map.tileWidth / 2, -map.tileHeight * 2)
+                     }
+                  }
                   if (colliders.length) {
                      actor.collider.clear();
                      actor.collider.set(new CompositeCollider(colliders));
                   }
                   actor.addComponent(new TiledObjectComponent(tile));
-                  actor.graphics.anchor = vec(0, 1);
+                  actor.graphics.anchor = this.isIsometric() ? vec(.5, 1) : vec(0, 1);
                   // respect tile size on sprite
                   sprite.destSize.width = tile.width ?? sprite.destSize.width;
                   sprite.destSize.height = tile.height ?? sprite.destSize.height;
                   actor.graphics.use(sprite);
+                  if (this.isIsometric()) {
+                     // The component just needs the tile width/height and row/cols
+                     // all the layers are the same so we can just use the first
+                     const iso = new IsometricEntityComponent(this.isoLayers[0]);
+                     actor.addComponent(iso);
+                     iso.elevation = objectLayer.order;
+                  }
                   scene.add(actor);
                   actor.z = this._calculateZIndex(tile, objectLayer);
                }
@@ -265,10 +333,11 @@ export class TiledMapResource implements Loadable<TiledMap> {
          scene.add(tm);
       }
 
-      for (const iso of this.isoLayers){
+      for (const iso of this.isoLayers) {
          scene.add(iso);
       }
 
+      // TODO tiled uses different coordinates for iso and iso staggered
       this._addTiledCamera(scene);
       this._addTiledColliders(scene);
       this._addTiledText(scene);
@@ -335,6 +404,10 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    public isLoaded() {
       return !!this.data;
+   }
+
+   public isIsometric() {
+      return !!this.isoLayers.length;
    }
 
    public async load(): Promise<TiledMap> {
