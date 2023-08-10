@@ -201,7 +201,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    private _addTiledText(scene: Scene) {
       const excaliburObjectLayers = this.data?.getObjects();
-      if (excaliburObjectLayers.length > 0) {
+      if (excaliburObjectLayers && excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
             const textObjects = objectLayer.getText();
             for (const text of textObjects) {
@@ -245,7 +245,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
 
    private _addTiledInsertedTiles(scene: Scene) {
       const excaliburObjectLayers = this.data?.getObjects();
-      if (excaliburObjectLayers.length > 0) {
+      if (excaliburObjectLayers && excaliburObjectLayers.length > 0) {
          for (const objectLayer of excaliburObjectLayers) {
             const inserted = objectLayer.getInsertedTiles();
             for (const tile of inserted) {
