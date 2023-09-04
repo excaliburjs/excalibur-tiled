@@ -41,7 +41,7 @@
     "@excaliburjs/testing": "0.25.1",
     "@types/jasmine": "3.10.12",
     "@types/pako": "1.0.4",
-    "@types/webpack-env": "1.18.0",
+    "@types/webpack-env": "1.18.1",
     "cross-env": "7.0.3",
     "excalibur": "~0.28.1",
     "jasmine-core": "4.6.0",
