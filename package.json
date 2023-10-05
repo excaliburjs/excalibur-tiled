@@ -60,7 +60,7 @@
   "dependencies": {
     "fast-xml-parser": "3.21.1",
     "pako": "1.0.11",
-    "zstddec": "0.0.2"
+    "zstddec": "0.1.0"
   },
   "peerDependencies": {
     "excalibur": "~0.28.1"
