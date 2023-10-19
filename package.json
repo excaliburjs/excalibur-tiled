@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@excaliburjs/testing": "0.25.1",
-    "@types/jasmine": "3.10.14",
+    "@types/jasmine": "3.10.15",
     "@types/pako": "1.0.5",
     "@types/webpack-env": "1.18.2",
     "cross-env": "7.0.3",
