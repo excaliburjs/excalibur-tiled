@@ -3,7 +3,7 @@ import { Matrix, vec, Animation, Sprite, Frame, AnimationStrategy } from 'excali
 import * as parser from 'fast-xml-parser'
 import { TiledObjectGroup } from '.';
 
-import { TiledFrame, TiledGrid, TiledMapTerrain, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
+import { TiledFrame, TiledGrid, TiledMapTerrain, TiledPoint, TiledProperty, TiledTileOffset, TiledWangSet } from "./tiled-types";
 import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTilesetTile } from "./raw-tileset-tile";
 import { TiledMapResource } from './tiled-map-resource';
@@ -189,6 +189,29 @@ export class TiledTilesetTile {
       if (rawTilesetTile.terrain) {
          tile.terrain = rawTilesetTile.terrain;
       }
+
+      // Parse xml object groups if necessary
+      // <tile id="36">
+      //    <objectgroup draworder="index" id="2">
+      //       <object id="1" x="1.52937" y="95.4681">
+      //       <polygon points="0,0 54.7017,-32.2916 110.109,0.176457 55.0546,32.6446"/>
+      //       </object>
+      //    </objectgroup>
+      // </tile>
+      if (tile.objectgroup) {
+         for (const polygon of tile.objectgroup.getPolygons()) {
+            if ((polygon.polygon as any).points) {
+               const points = (polygon.polygon as any).points as string;
+               const parsed = points.split(" ")
+               .map((tp: string) => {
+                  const point = tp.split(",");
+                  return {x: Number.parseFloat(point[0]), y: Number.parseFloat(point[1]) } as TiledPoint
+               });
+               polygon.polygon = parsed;
+            }
+         }
+      }
+
       if (rawTilesetTile.animation) {
          tile.animation = Array.isArray(rawTilesetTile.animation) ? rawTilesetTile.animation : [...(rawTilesetTile.animation as any).frame];
          if (tile.properties) {

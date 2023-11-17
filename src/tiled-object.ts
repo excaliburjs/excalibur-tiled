@@ -7,9 +7,6 @@ import { toRadians } from "excalibur";
 export interface Polygon {
    x: number;
    y: number;
-   polygon: {
-      points: string;
-   }
 }
 
 export interface Box {
