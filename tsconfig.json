@@ -3,7 +3,7 @@
       "moduleResolution": "node",
       "strict": true,
       "target": "es2015",
-      "lib": ["DOM", "ES2019.Array"],
+      "lib": ["DOM", "DOM.Iterable", "ES2019.Array"],
       "declaration": true,
       "outDir": "./dist",
       "sourceMap": true,

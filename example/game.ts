@@ -1,6 +1,7 @@
 import * as ex from 'excalibur';
 import { TiledMapResource } from '@excalibur-tiled';
 import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
+import { TiledResource } from '../src/resource/tiled-resource';
 
 const game = new ex.Engine({
    width: 800, 
@@ -9,6 +10,10 @@ const game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Canvas,
    antialiasing: false
 });
+
+const newResource = new TiledResource('./example-city.tmx');
+
+
 game.input.keyboard.on("press", (evt) => {
    if (evt.key === Input.Keys.D) {
       game.toggleDebug();
@@ -81,7 +86,7 @@ const start = (mapFile: string) => {
 
    const map = new TiledMapResource(mapFile, { startingLayerZIndex: -2 });
    const playercube = new ImageSource('./player-cube.png', true, ImageFiltering.Blended);
-   const loader = new ex.Loader([map, playercube]);
+   const loader = new ex.Loader([map, playercube, newResource]);
 
    (window as any).map = map;
    game.start(loader).then(() => {
@@ -159,6 +164,28 @@ const start = (mapFile: string) => {
          }
       });
       map.addTiledMapToScene(game.currentScene);
+
+      // screenElement.onPostUpdate = () => {
+      //    screenElement.pos.distance()
+      // }
+      const screenElement = new ex.ScreenElement({
+         pos: ex.vec(10, 10),
+         width: 600,
+         height: 20,
+         color: ex.Color.Green,
+         z: 100
+      });
+      game.currentScene.add(screenElement);
+
+
+      const raycastGroup = ex.CollisionGroupManager.create('raycastGroup');
+      const raycastables = game.currentScene.world.entityManager.getByName("raycastable");
+      for (let entity of raycastables) {
+         const body = entity.get(ex.BodyComponent);
+         if (body) {
+            body.group = raycastGroup
+         }
+      }
    });
 }
 
