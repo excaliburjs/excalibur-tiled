@@ -63,12 +63,25 @@ export class TileLayer extends Layer {
          this.tilemap.addComponent(new ParallaxComponent(factor));
       }
 
+      // Read tiled data into Excalibur's tilemap type
       for (let i = 0; i < this.data.length; i++) {
          let gid = this.data[i];
          if (gid !== 0) {
             const tileset = this.resource.getTilesetForTile(gid);
             const sprite = tileset.getSpriteForGid(gid);
-            this.tilemap.tiles[i].addGraphic(sprite);
+            const tile = this.tilemap.tiles[i];
+            tile.addGraphic(sprite);
+
+            const colliders = tileset.getCollidersForGid(gid);
+            for (let collider of colliders) {
+               tile.addCollider(collider);
+            }
+
+            const animation = tileset.getAnimationForGid(gid);
+            if (animation) {
+               tile.clearGraphics();
+               tile.addGraphic(animation);
+            }
          }
       }
 
