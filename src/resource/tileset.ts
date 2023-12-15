@@ -1,15 +1,17 @@
-import { AffineMatrix, Circle, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy } from "excalibur";
+import { AffineMatrix, Circle, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
-import { TiledTile, TiledTileset, isTiledTilesetSingleImage } from "../parser/tiled-parser";
-import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text } from "./objects";
+import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
+import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
 import { Properties, mapProps } from "./properties";
 import { Object } from "./objects";
+import { pathRelativeToBase } from "./path-util";
 
 
 export interface TileOptions {
    id: number;
    tileset: Tileset;
    tiledTile: TiledTile;
+   image?: ImageSource;
 }
 
 export class Tile implements Properties {
@@ -31,27 +33,7 @@ export class Tile implements Properties {
       mapProps(this, tiledTile.properties);
 
       if (tiledTile.objectgroup && tiledTile.objectgroup.objects) {
-         for (const object of tiledTile.objectgroup.objects) {
-            let newObject: Object;
-            if (object.point) {
-               // Template objects don't have an id for some reason
-               newObject = new Point(object.id ?? -1, object.x, object.y);
-            } else if (object.ellipse) {
-               newObject = new Ellipse(object.id ?? -1, object.x, object.y, object.width ?? 0, object.height ?? 0);
-            } else if (object.polygon) {
-               newObject =  new Polygon(object.id ?? -1, object.x, object.y, object.polygon);
-            } else if (object.polyline) {
-               newObject = new Polyline(object.id ?? -1, object.x, object.y, object.polyline);
-            } else if(object.text) {
-               newObject = new Text(object.id ?? -1, object.x, object.y, object.text, object.width ?? 0);
-            } else if (object.gid) {
-               newObject = new InsertedTile(object.id ?? -1, object.x, object.y, object.gid,  object.width ?? 0, object.height ?? 0);
-            } else { // rectangle
-               newObject = new Rectangle(object.id ?? -1, object.x, object.y, object.width ?? 0, object.height ?? 0);
-            }
-            mapProps(newObject, object.properties);
-            this.objects.push(newObject);
-         }
+         this.objects =  parseObjects(tiledTile.objectgroup);
       }
 
       if (tiledTile.animation) {
@@ -65,7 +47,7 @@ export interface TilesetOptions {
    name: string;
    tiledTileset: TiledTileset;
    spritesheet?: SpriteSheet;
-   sprites?: Sprite[];
+   tileToImage?: Map<TiledTile, ImageSource>;
 }
 
 export class Tileset implements Properties {
@@ -82,11 +64,10 @@ export class Tileset implements Properties {
    diagonalFlipTransform!: AffineMatrix;
 
    constructor(options: TilesetOptions) {
-      const { name, tiledTileset, spritesheet, sprites } = options;
+      const { name, tiledTileset, spritesheet, tileToImage } = options;
       this.name = name;
       this.tiledTileset = tiledTileset;
 
-      
       if (isTiledTilesetSingleImage(tiledTileset) && tiledTileset.firstgid !== undefined && spritesheet) {
          mapProps(this, tiledTileset.properties);
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
@@ -94,7 +75,7 @@ export class Tileset implements Properties {
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI/2).scale(-1, 1);
          this.spritesheet = spritesheet;
          this.firstGid = tiledTileset.firstgid;
-         this.tileCount = tiledTileset.tileheight;
+         this.tileCount = tiledTileset.tilecount;
          // TODO produce tiles
          for (const tile of tiledTileset.tiles) {
             this.tiles.push(new Tile({
@@ -103,9 +84,27 @@ export class Tileset implements Properties {
                tiledTile: tile
             }))
          }
-      } else {
-         // TODO collection of images
-         // They SHOULD have a firstGid
+      } 
+      if (isTiledTilesetCollectionOfImages(tiledTileset) && tiledTileset.firstgid !== undefined && tileToImage) {
+         this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
+         this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
+         this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI/2).scale(-1, 1);
+         this.firstGid = tiledTileset.firstgid!;
+         this.tileCount = tiledTileset.tilecount;
+         let sprites: Sprite[] = []
+         for (const tile of tiledTileset.tiles) {
+            const image = tileToImage.get(tile);
+            if (image) {
+               this.tiles.push(new Tile({
+                  id: tile.id,
+                  tileset: this,
+                  tiledTile: tile,
+                  image
+               }))
+               sprites.push(image.toSprite())
+            }
+         }
+         this.spritesheet = new SpriteSheet({sprites});
       }
    }
 
@@ -207,7 +206,7 @@ export class Tileset implements Properties {
 
    public getAnimationForGid(gid: number): Animation | null {
       const tile = this.getTileByGid(gid);
-      if (tile && tile.animation) {
+      if (tile && tile.animation?.length) {
          let exFrames: Frame[] = [];
          for (let frame of tile.animation) {
             exFrames.push({
@@ -220,7 +219,6 @@ export class Tileset implements Properties {
             // TODO excalibur smarts animation strategy
             strategy: AnimationStrategy.Loop
          });
-         return null;
       }
       return null;
    }

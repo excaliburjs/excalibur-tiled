@@ -1,9 +1,11 @@
-import { Entity, ImageSource, Loadable, Resource, SpriteSheet, Vector } from "excalibur";
+import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, Vector } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tileset } from "./tileset";
 import { Layer, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
+import { getCanonicalGid } from "./gid-util";
+import { pathRelativeToBase } from "./path-util";
 
 export interface TiledResourceOptions {
    /**
@@ -51,8 +53,8 @@ export class TiledResource implements Loadable<any> {
     */
    map!: TiledMap;
    tilesets: Tileset[] = [];
-   templates!: Template[];
-   layers!: Layer[];
+   templates: Template[] = [];
+   layers: Layer[] = [];
 
    public readonly mapFormat: 'TMX' | 'TMJ' = 'TMX';
    private _factories = new Map<string, (props: FactoryProps) => Entity>();
@@ -94,21 +96,22 @@ export class TiledResource implements Loadable<any> {
    }
 
    getTilesetForTile(gid: number): Tileset {
+      const normalizedGid = getCanonicalGid(gid)
       if (this.tilesets) {
          for (let tileset of this.tilesets) {
-               if (gid >= tileset.firstGid && gid <= tileset.firstGid + tileset.tileCount - 1) {
+               if (normalizedGid >= tileset.firstGid && normalizedGid <= tileset.firstGid + tileset.tileCount - 1) {
                   return tileset;
                }
          }
       }
-      throw Error(`No tileset exists for tiled gid [${gid}]!`);
+      throw Error(`No tileset exists for tiled gid [${gid}] normalized [${normalizedGid}]!`);
    }
 
 
    async load(): Promise<any> {
       const data = await this._resource.load();
 
-      // Parse inital Tiled map structure
+      // Parse initial Tiled map structure
       let map: TiledMap;
       try {
 
@@ -132,13 +135,18 @@ export class TiledResource implements Loadable<any> {
       // Resolve initial tilesets either embedded or external
       let embeddedTilesets: TiledTilesetEmbedded[] = [];
       let externalTilesets: Resource<string>[] = [];
+      let externalToFirstGid = new Map<Resource<string>, number>();
       for (const tileset of this.map.tilesets) {
          if (isTiledTilesetEmbedded(tileset)) {
             embeddedTilesets.push(tileset);
          }
          if (isTiledTilesetExternal(tileset)) {
             const type = tileset.source.includes('.tsx') ? 'text' : 'json';
-            const externalTileset = new Resource<string>(tileset.source, type);
+            // TODO make this into a tileset resource!
+            // GH issue about this https://github.com/excaliburjs/excalibur-tiled/issues/455
+            const tilesetPath = pathRelativeToBase(this.path, tileset.source);
+            const externalTileset = new Resource<string>(tilesetPath, type);
+            externalToFirstGid.set(externalTileset, tileset.firstgid);
             externalTilesets.push(externalTileset);
          }
       }
@@ -147,13 +155,20 @@ export class TiledResource implements Loadable<any> {
       const externalTilesetsLoading = externalTilesets.map(ts => ts.load());
       await Promise.all(externalTilesetsLoading);
       for (const externalTileset of externalTilesets) {
+         const firstgid = externalToFirstGid.get(externalTileset);
+         if (firstgid === undefined || firstgid === -1) {
+            throw Error(`Could not load external tileset correctly ${externalTileset.path} not firstGid, is your tilemap corrupted`);
+         }
          // TMJ tileset
          if (externalTileset.responseType === 'json') {
-            loadedTilesets.push(TiledTilesetFile.parse(externalTileset.data));
+            const ts = TiledTilesetFile.parse(externalTileset.data);
+            ts.firstgid = firstgid;
+            loadedTilesets.push(ts);
          }
          // TMX tileset
          if (externalTileset.responseType === 'text') {
             const ts = this._parser.parseExternalTileset(externalTileset.data);
+            ts.firstgid = firstgid;
             loadedTilesets.push(ts);
          }
       }
@@ -172,7 +187,8 @@ export class TiledResource implements Loadable<any> {
          if (isTiledTilesetCollectionOfImages(tileset)) {
             for (let tile of tileset.tiles) {
                if (tile.image) {
-                  const image = new ImageSource(tile.image);
+                  const imagePath = pathRelativeToBase(this.path, tile.image);
+                  const image = new ImageSource(imagePath);
                   this.tileToImage.set(tile, image);
                   images.push(image);
                }
@@ -190,6 +206,7 @@ export class TiledResource implements Loadable<any> {
       // friendly plugin data structures
 
       // Tilesets
+      
       for (const tileset of loadedTilesets) {
          if (isTiledTilesetSingleImage(tileset) && tileset.firstgid) {
             const spacing = tileset.spacing;
@@ -200,8 +217,8 @@ export class TiledResource implements Loadable<any> {
                const spritesheet = SpriteSheet.fromImageSource({
                   image,
                   grid: {
-                     columns,
                      rows,
+                     columns,
                      spriteWidth: tileset.tilewidth,
                      spriteHeight: tileset.tileheight
                   },
@@ -225,16 +242,18 @@ export class TiledResource implements Loadable<any> {
             }
          }
 
-         if (isTiledTilesetCollectionOfImages(tileset)) {
-            for (let tile of tileset.tiles) {
-               const image = this.tileToImage.get(tile);
-               if (image) {
-                  const sprite = image?.toSprite();
-                  // TODO tileset collection of images
-               }
-            }
+         // TODO external tileset collection of images
+         if (isTiledTilesetCollectionOfImages(tileset)) { 
+            const friendlyTileset = new Tileset({
+               name: tileset.name,
+               tiledTileset: tileset,
+               tileToImage: this.tileToImage
+            });
+            this.tilesets.push(friendlyTileset);
          }
       }
+
+      console.log('friendlyTilesets', this.tilesets);
 
       // Templates
       // TODO Friendly templates
@@ -243,8 +262,8 @@ export class TiledResource implements Loadable<any> {
       let friendlyLayers: Layer[] = [];
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
+            // TODO get tileset/tile props out of excalibur Types
             const tilelayer = new TileLayer(layer, this);
-            await tilelayer.decodeAndBuild();
             friendlyLayers.push(tilelayer);
          }
          if (layer.type === 'objectgroup') {
@@ -254,14 +273,22 @@ export class TiledResource implements Loadable<any> {
 
          }
       }
-      console.log(friendlyLayers);
-
-      
-
+      await Promise.all(friendlyLayers.map(layer => layer instanceof TileLayer ? layer.decodeAndBuild() : Promise.resolve()));
+      console.log('friendlyLayers', friendlyLayers);
+      this.layers = friendlyLayers;
 
       console.log(this);
-
    }
+
+   addToScene(scene: Scene) {
+      // TODO pick a position?
+      for (const layer of this.layers) {
+         if (layer instanceof TileLayer) {
+            scene.add(layer.tilemap);
+         }
+      }
+   }
+
    isLoaded(): boolean {
       throw new Error("Method not implemented.");
    }

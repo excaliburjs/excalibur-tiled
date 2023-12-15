@@ -1,14 +1,52 @@
-import { ParallaxComponent, TileMap, vec } from "excalibur";
+import { Actor, Color, ParallaxComponent, TileMap, Vector, vec } from "excalibur";
 import { Properties, mapProps } from "./properties";
-import { TiledMap, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledMap, TiledObjectGroup, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
+import { Rectangle, Text, parseObjects } from "./objects";
 
 export class Layer implements Properties {
    properties = new Map<string, string | number | boolean>();
    constructor(public readonly name: string) {}
+   async decodeAndBuild() {}
 }
 
+export class ObjectLayer extends Layer {
+
+   objects: Actor[] = [];
+   objectToActor = new Map<Object, Actor>();
+   constructor(public tiledObjectLayer: TiledObjectGroup, public resource: TiledResource) {
+      super(tiledObjectLayer.name);
+
+      mapProps(this, tiledObjectLayer.properties);
+   }
+
+   async decodeAndBuild() {
+      // TODO layer offsets!
+      // TODO layer opacity
+
+      const objects = parseObjects(this.tiledObjectLayer);
+      for (let object of objects) {
+         // TODO excalibur smarts for solid/collision type/factory map
+         const newActor = new Actor({
+            name: object.tiledObject.name,
+            x: object.x ?? 0,
+            y: object.y ?? 0,
+            anchor: Vector.Zero,
+            rotation: object.tiledObject.rotation,
+            ...(object instanceof Rectangle ? {
+               width: object.tiledObject.width,
+               height: object.tiledObject.height,
+            } : {})
+         })
+         this.objectToActor.set(object, newActor);
+
+         if (object instanceof Text) {
+            newActor.graphics.use(object.text);
+         }
+      }
+   }
+}
 
 export class TileLayer extends Layer {
    /**
@@ -35,10 +73,12 @@ export class TileLayer extends Layer {
 
       mapProps(this, tiledTileLayer.properties);
       this.width = tiledTileLayer.width;
-      this.height = tiledTileLayer.width;
+      this.height = tiledTileLayer.height;
    }
 
    async decodeAndBuild() {
+      // TODO layer tints
+      // TODO layer opacity
       if (needsDecoding(this.tiledTileLayer)) {
          this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
       } else if (isCSV(this.tiledTileLayer)) {

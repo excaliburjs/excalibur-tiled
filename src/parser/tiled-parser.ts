@@ -233,7 +233,8 @@ const TiledObjectGroup = z.object({
    opacity: z.number(),
    type: z.literal("objectgroup"),
    visible: z.boolean(),
-   objects: z.array(TiledObject)
+   objects: z.array(TiledObject),
+   properties: z.array(TiledProperty).optional()
 })
 
 export const TiledTile = z.object({
