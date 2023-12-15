@@ -3,7 +3,7 @@ import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedV
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
 import { Properties, mapProps } from "./properties";
-import { Object } from "./objects";
+import { PluginObject } from "./objects";
 import { pathRelativeToBase } from "./path-util";
 
 
@@ -20,7 +20,7 @@ export class Tile implements Properties {
    tiledTile: TiledTile;
    // image?: ImageSource;
    graphic?: Graphic;
-   objects: Object[] = [];
+   objects: PluginObject[] = [];
    colliders: Collider[] = [];
    animation: {tileid: number, duration: number}[] = [];
    properties = new Map<string, string | number | boolean>()

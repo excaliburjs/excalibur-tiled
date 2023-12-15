@@ -6,7 +6,7 @@ import { Properties, mapProps } from "./properties";
 export interface ObjectProps {
    tiledObject: TiledObject;
 }
-export class Object implements Properties {
+export class PluginObject implements Properties {
    id: number;
    x: number;
    y: number;
@@ -19,13 +19,13 @@ export class Object implements Properties {
       this.y = this.tiledObject.y;
    }
 }
-export class InsertedTile extends Object {
+export class InsertedTile extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly gid: number, public readonly width: number, public readonly height: number) {
       super({tiledObject});
    }
 }
-export class Point extends Object {}
-export class Text extends Object {
+export class Point extends PluginObject {}
+export class Text extends PluginObject {
    text: ExText;
    font: Font;
    
@@ -38,7 +38,8 @@ export class Text extends Object {
          size: text.pixelsize ?? 16,
          unit: FontUnit.Px,
          textAlign: this._textAlignFromTiled(text.halign),
-         baseAlign: this._textBaselineFromTiled(text.valign)
+         baseAlign: this._textBaselineFromTiled(text.valign),
+         quality: 4 // TODO smarts to interpret quality
       })
 
       const textWrap = text.wrap ?? false;
@@ -47,7 +48,7 @@ export class Text extends Object {
          text: text.text,
          font: this.font,
          ...(textWrap ? {
-            maxWidth: width
+            maxWidth: width + 10 // FIXME: need to bump by a few pixels for some reason
          }: {})
       });
    }
@@ -64,8 +65,7 @@ export class Text extends Object {
             return BaseAlign.Top;
          }
          default: {
-            // TODO what is the Tiled default
-            return BaseAlign.Middle;
+            return BaseAlign.Top;
          }
       }
    }
@@ -92,24 +92,24 @@ export class Text extends Object {
    }
 
 }
-export class Ellipse extends Object {
+export class Ellipse extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number) {
       super({tiledObject});
    }
 }
-export class Rectangle extends Object {
+export class Rectangle extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number) {
       super({tiledObject});
    }
 }
-export class Polygon extends Object {
+export class Polygon extends PluginObject {
    public readonly points: Vector[] = []
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
       super({tiledObject});
       this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
    }
 }
-export class Polyline extends Object {
+export class Polyline extends PluginObject {
    public readonly points: Vector[] = []
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
       super({tiledObject});
@@ -118,9 +118,9 @@ export class Polyline extends Object {
 }
 
 export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
-   const objects: Object[] = [];
+   const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {
-      let newObject: Object;
+      let newObject: PluginObject;
       if (object.point) {
          // Template objects don't have an id for some reason
          newObject = new Point({tiledObject: object});

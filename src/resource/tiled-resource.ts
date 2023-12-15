@@ -1,7 +1,7 @@
 import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, Vector } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tileset } from "./tileset";
-import { Layer, TileLayer } from "./layer";
+import { Layer, ObjectLayer, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
@@ -267,13 +267,14 @@ export class TiledResource implements Loadable<any> {
             friendlyLayers.push(tilelayer);
          }
          if (layer.type === 'objectgroup') {
-
+            const objectlayer = new ObjectLayer(layer, this);
+            friendlyLayers.push(objectlayer);
          }
          if (layer.type === 'imagelayer') {
 
          }
       }
-      await Promise.all(friendlyLayers.map(layer => layer instanceof TileLayer ? layer.decodeAndBuild() : Promise.resolve()));
+      await Promise.all(friendlyLayers.map(layer => layer.decodeAndBuild()));
       console.log('friendlyLayers', friendlyLayers);
       this.layers = friendlyLayers;
 
@@ -285,6 +286,11 @@ export class TiledResource implements Loadable<any> {
       for (const layer of this.layers) {
          if (layer instanceof TileLayer) {
             scene.add(layer.tilemap);
+         }
+         if (layer instanceof ObjectLayer) {
+            for (const actor of layer.actors) {
+               scene.add(actor);
+            }
          }
       }
    }

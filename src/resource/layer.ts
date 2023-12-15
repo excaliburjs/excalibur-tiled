@@ -13,7 +13,8 @@ export class Layer implements Properties {
 
 export class ObjectLayer extends Layer {
 
-   objects: Actor[] = [];
+   objects: Object[] = [];
+   actors: Actor[] = [];
    objectToActor = new Map<Object, Actor>();
    constructor(public tiledObjectLayer: TiledObjectGroup, public resource: TiledResource) {
       super(tiledObjectLayer.name);
@@ -44,6 +45,10 @@ export class ObjectLayer extends Layer {
          if (object instanceof Text) {
             newActor.graphics.use(object.text);
          }
+         this.objects.push(object);
+         this.actors.push(newActor);
+         // TODO do we need this?
+         this.objectToActor.set(object, newActor);
       }
    }
 }
