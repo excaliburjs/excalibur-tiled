@@ -29,6 +29,13 @@ export interface TiledResourceOptions {
     * to parse the Tiled source map file.
     */
    strictParsing?: boolean;
+
+   /**
+    * Configure the text quality in the Tiled resource
+    *
+    * By default it's 2 for 2x scaled bitmap
+    */
+   textQuality?: number;
 }
 
 export interface FactoryProps {

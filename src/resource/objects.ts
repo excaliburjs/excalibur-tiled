@@ -106,7 +106,9 @@ export class Polygon extends PluginObject {
    public readonly points: Vector[] = []
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
       super({tiledObject});
-      this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
+      // TODO why did we need to cook the offset before?
+      // Maybe it was for tiles with colliders to work properly
+      this.points = points.map(p => vec(p.x, p.y));//.add(vec(this.x, this.y)));
    }
 }
 export class Polyline extends PluginObject {
@@ -117,6 +119,8 @@ export class Polyline extends PluginObject {
    }
 }
 
+export type ObjectTypes = Polygon | Polyline | Rectangle | Ellipse | Text | Point | InsertedTile | PluginObject;
+
 export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
    const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {
@@ -125,9 +129,17 @@ export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
          // Template objects don't have an id for some reason
          newObject = new Point({tiledObject: object});
       } else if (object.ellipse) {
-         newObject = new Ellipse(object, object.width ?? 0, object.height ?? 0);
+         if (object.width && object.height) {
+            // if defaulted the circle center is accurate, otherwise need to be offset by radius
+            newObject = new Ellipse(object, object.width, object.height);
+            newObject.x += object.width / 2;
+            newObject.y += object.height / 2;
+         } else {
+            // Tiled undocumented default is 20x20
+            newObject = new Ellipse(object, 20, 20);
+         }
       } else if (object.polygon) {
-         newObject =  new Polygon(object, object.polygon);
+         newObject = new Polygon(object, object.polygon);
       } else if (object.polyline) {
          newObject = new Polyline(object, object.polyline);
       } else if(object.text) {
@@ -135,7 +147,15 @@ export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
       } else if (object.gid) {
          newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
       } else { // rectangle
-         newObject = new Rectangle(object, object.width ?? 0, object.height ?? 0);
+         if (object.width && object.height) {
+            // if defaulted the rectangle center is accurate, otherwise need to be offset by radius
+            newObject = new Rectangle(object, object.width, object.height);
+            newObject.x += object.width / 2;
+            newObject.y += object.height / 2;
+         } else {
+            // Tiled undocumented default is 20x20
+            newObject = new Rectangle(object, 20, 20);
+         }
       }
       mapProps(newObject, object.properties);
       objects.push(newObject);

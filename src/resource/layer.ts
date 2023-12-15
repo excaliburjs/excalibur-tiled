@@ -1,9 +1,9 @@
-import { Actor, Color, ParallaxComponent, TileMap, Vector, vec } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Vector, toRadians, vec } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledMap, TiledObjectGroup, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
-import { Rectangle, Text, parseObjects } from "./objects";
+import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
 
 export class Layer implements Properties {
    properties = new Map<string, string | number | boolean>();
@@ -22,9 +22,17 @@ export class ObjectLayer extends Layer {
       mapProps(this, tiledObjectLayer.properties);
    }
 
+   _hasWidthHeight(object: PluginObject) {
+      return object instanceof Rectangle || object instanceof InsertedTile
+   }
+
    async decodeAndBuild() {
       // TODO layer offsets!
       // TODO layer opacity
+      // TODO factory instantiation!
+      // TDOO colliders don't match up with sprites in new anchors
+
+      const debug = true;
 
       const objects = parseObjects(this.tiledObjectLayer);
       for (let object of objects) {
@@ -34,17 +42,83 @@ export class ObjectLayer extends Layer {
             x: object.x ?? 0,
             y: object.y ?? 0,
             anchor: Vector.Zero,
-            rotation: object.tiledObject.rotation,
-            ...(object instanceof Rectangle ? {
+            rotation: toRadians(object.tiledObject.rotation ?? 0), // convert to radians
+            ...(this._hasWidthHeight(object) ? {
                width: object.tiledObject.width,
                height: object.tiledObject.height,
             } : {})
          })
-         this.objectToActor.set(object, newActor);
+         
 
          if (object instanceof Text) {
             newActor.graphics.use(object.text);
          }
+
+         if (object instanceof InsertedTile) {
+             // Inserted tiles pivot from the bottom left in Tiled
+            newActor.anchor = vec(0, 1);
+            const tileset = this.resource.getTilesetForTile(object.gid);
+            // need to clone because we are modify sprite properties, sprites are shared by default
+            const sprite = tileset.getSpriteForGid(object.gid).clone();
+            sprite.destSize.width = object.tiledObject.width ?? sprite.width;
+            sprite.destSize.height = object.tiledObject.height ?? sprite.height;
+            newActor.graphics.use(sprite);
+
+            const animation = tileset.getAnimationForGid(object.gid);
+            if (animation) {
+               const animationScaled = animation.clone();
+               const scaleX = (object.tiledObject.width ?? animation.width) / animation.width;
+               const scaleY = (object.tiledObject.height ?? animation.height) / animation.height;
+               animationScaled.scale = vec(scaleX, scaleY);
+               newActor.graphics.use(animationScaled)
+
+            }
+         }
+
+         if (object instanceof Polygon) {
+            newActor.anchor = vec(0, 1);
+            newActor.pos = vec(object.x, object.y);
+            const polygon = Shape.Polygon(object.points)
+            newActor.collider.set(polygon);
+
+            if (debug) {
+               // the origin is the first point
+               // console.log(object.points);
+               // const polygonGfx = new ExPolygon({
+               //    points: object.points,
+               //    color: Color.Green,
+               //    quality: 4
+               // })
+               // newActor.graphics.anchor = vec(0, 0);
+               // newActor.graphics.offset = vec(polygonGfx.width / 4, polygonGfx.height / 4);
+               // newActor.graphics.use(polygonGfx);
+            }
+            // console.log('star', newActor, object);
+         }
+
+         if (object instanceof Polyline) {
+            console.log('polyline', object);
+         }
+
+         if (object instanceof Point) {
+            
+         }
+
+         if (object instanceof Rectangle) {
+            newActor.anchor = vec(0, 1);
+            newActor.collider.useBoxCollider(object.width, object.height);
+         }
+
+         if (object instanceof Ellipse) {
+            // FIXME: Excalibur doesn't support ellipses :( fallback to circle
+            // pick the smallest dimension and that's our radius
+            newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
+            console.log(object);
+         }
+
+         // TODO tile animations
+         // TODO Tile colliders
+
          this.objects.push(object);
          this.actors.push(newActor);
          // TODO do we need this?

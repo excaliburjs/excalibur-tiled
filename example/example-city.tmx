@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="16">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="14" nextobjectid="38">
  <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
   <properties>
    <property name="tilesetprop" value="someprop"/>
@@ -1296,13 +1296,29 @@
   </properties>
   <object id="1" name="StopLight" gid="409" x="304" y="112" width="16" height="16"/>
   <object id="4" name="SignPost" gid="168" x="640" y="176" width="16" height="16"/>
-  <object id="5" name="StopLight" gid="2147484058" x="592" y="176" width="16" height="16"/>
-  <object id="9" gid="252" x="383.636" y="128.182" width="32" height="32"/>
+  <object id="5" name="StopLight" gid="2147484058" x="592" y="176" width="16" height="16" rotation="-90"/>
+  <object id="9" name="Barrel" gid="252" x="383.636" y="128.182" width="32" height="32"/>
   <object id="11" name="HUD" gid="472" x="344.375" y="122.375" width="16" height="16"/>
   <object id="13" x="274" y="144.167" width="80" height="17" rotation="-38">
    <text wrap="1">Hello World</text>
   </object>
-  <object id="14" x="269.667" y="184.667" width="25.3333" height="31.3333" rotation="-50"/>
-  <object id="15" x="257.333" y="169.333"/>
+  <object id="14" name="box2" x="269.667" y="184.667" width="25.3333" height="31.3333" rotation="-57"/>
+  <object id="16" gid="456" x="342.909" y="144.182" width="32" height="32" rotation="90"/>
+  <object id="17" name="star" x="260" y="135.091" rotation="-93">
+   <polygon points="0,0 -9.90909,-14.6364 4.18182,-12.6364 15.5455,-25.2727 17.0909,-12.2727 29,-8.36364 16.7273,-0.727273 14.8182,19.9091 7,4.45455 -5.36364,13.3636"/>
+  </object>
+  <object id="18" x="251.727" y="163.364" height="0.0909091"/>
+  <object id="19" x="237.636" y="159.182" width="24.3636" height="20"/>
+  <object id="20" x="262.273" y="87.5455">
+   <polygon points="0,0 -15.6364,4.09091 0.727273,7.18182"/>
+  </object>
+  <object id="31" name="circle" x="218.818" y="154.455">
+   <ellipse/>
+  </object>
+  <object id="32" x="208.091" y="144.455" width="20.2727" height="20.2727">
+   <ellipse/>
+  </object>
+  <object id="33" x="210" y="99.8182"/>
+  <object id="37" x="200" y="89.9091" width="20.1818" height="19.9091"/>
  </objectgroup>
 </map>

@@ -14,7 +14,25 @@ const game = new ex.Engine({
 const newResource = new TiledResource('./example-city.tmx');
 const loader = new ex.Loader([newResource]);
 
+let currentPointer!: ex.Vector;
+game.input.pointers.primary.on('down', (moveEvent) => {
+      currentPointer = moveEvent.worldPos;
+      game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+      // game.currentScene.camera.pos = currentPointer;
+});
+
+game.input.pointers.primary.on('wheel', (wheelEvent) => {
+   // wheel up
+   game.currentScene.camera.pos = currentPointer;
+   if (wheelEvent.deltaY < 0) {
+       game.currentScene.camera.zoom *= 1.2;
+   } else {
+       game.currentScene.camera.zoom /= 1.2;
+   }
+});
+
 game.start(loader).then(() => {
+   currentPointer = game.currentScene.camera.pos;
    newResource.addToScene(game.currentScene);
 });
 
