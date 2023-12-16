@@ -1,6 +1,6 @@
 import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent } from "excalibur";
 import { Properties, mapProps } from "./properties";
-import { TiledMap, TiledObjectGroup, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
 import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
@@ -22,7 +22,7 @@ export class ObjectLayer implements Layer {
    objects: Object[] = [];
    actors: Actor[] = [];
    objectToActor = new Map<Object, Actor>();
-   constructor(public tiledObjectLayer: TiledObjectGroup, public resource: TiledResource) {
+   constructor(public tiledObjectLayer: TiledObjectLayer, public resource: TiledResource) {
       this.name = tiledObjectLayer.name;
 
       mapProps(this, tiledObjectLayer.properties);
@@ -64,8 +64,8 @@ export class ObjectLayer implements Layer {
       const opacity = this.tiledObjectLayer.opacity;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
+      const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
       // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
-      // TODO layer offsets!
       // TODO factory instantiation!
       // TODO colliders don't match up with sprites in new anchors
 
@@ -74,8 +74,8 @@ export class ObjectLayer implements Layer {
          // TODO excalibur smarts for solid/collision type/factory map
          const newActor = new Actor({
             name: object.tiledObject.name,
-            x: object.x ?? 0,
-            y: object.y ?? 0,
+            x: (object.x ?? 0) + offset.x,
+            y: (object.y ?? 0) + offset.y,
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0), // convert to radians
             ...(this._hasWidthHeight(object) ? {
@@ -96,6 +96,8 @@ export class ObjectLayer implements Layer {
          if (object instanceof InsertedTile) {
              // Inserted tiles pivot from the bottom left in Tiled
             newActor.anchor = vec(0, 1);
+            // TODO inserted tile collider?
+            newActor.collider.useBoxCollider(object.width, object.height, newActor.anchor);
             const tileset = this.resource.getTilesetForTile(object.gid);
             // need to clone because we are modify sprite properties, sprites are shared by default
             const sprite = tileset.getSpriteForGid(object.gid).clone();

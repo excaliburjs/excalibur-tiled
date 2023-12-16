@@ -352,6 +352,7 @@ export function isTiledTilesetExternal(ts: TiledTileset): ts is TiledTilesetExte
 export type TiledTemplateFile = z.infer<typeof TiledTemplateFile>;
 export type TiledMap = z.infer<typeof TiledMap>;
 export type TiledTileLayer = z.infer<typeof TiledTileLayer>;
+export type TiledObjectLayer = z.infer<typeof TiledObjectLayer>;
 export type TiledLayer = z.infer<typeof TiledLayer>;
 export type TiledProperty = z.infer<typeof TiledProperty>;
 export type TiledPropertyTypes = Pick<TiledProperty, 'type'>['type'];
