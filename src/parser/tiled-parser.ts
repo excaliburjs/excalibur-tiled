@@ -231,6 +231,7 @@ const TiledObjectGroup = z.object({
    x: z.number(),
    y: z.number(),
    opacity: z.number(),
+   tintcolor: z.string().optional(),
    type: z.literal("objectgroup"),
    visible: z.boolean(),
    objects: z.array(TiledObject),
@@ -252,6 +253,7 @@ export const TiledTile = z.object({
 const TiledTilesetEmbedded = z.object({
    name: z.string(),
    firstgid: z.number().optional(),
+   class: z.string().optional(),
    // optional image/width/height if collection of images
    image: z.string().optional(),
    imagewidth: z.number().optional(),
