@@ -428,6 +428,7 @@ export class TiledParser {
          'tilecount',
          'tilewidth',
          'tileheight',
+         'opacity',
          'compressionlevel',
          'nextlayerid',
          'nextobjectid',
