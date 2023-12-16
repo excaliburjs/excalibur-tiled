@@ -1,23 +1,29 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Vector, toRadians, vec } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledMap, TiledObjectGroup, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
 import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
+import { getCanonicalGid } from "./gid-util";
+import { Tile } from "./tileset";
 
-export class Layer implements Properties {
-   properties = new Map<string, string | number | boolean>();
-   constructor(public readonly name: string) {}
-   async decodeAndBuild() {}
+export type LayerTypes = ObjectLayer | TileLayer;
+
+export interface Layer extends Properties {
+   name: string;
+   load(): Promise<void>;
 }
 
-export class ObjectLayer extends Layer {
+// TODO Image layer!
 
+export class ObjectLayer implements Layer {
+   public readonly name: string;
+   properties = new Map<string, string | number | boolean>();
    objects: Object[] = [];
    actors: Actor[] = [];
    objectToActor = new Map<Object, Actor>();
    constructor(public tiledObjectLayer: TiledObjectGroup, public resource: TiledResource) {
-      super(tiledObjectLayer.name);
+      this.name = tiledObjectLayer.name;
 
       mapProps(this, tiledObjectLayer.properties);
    }
@@ -26,13 +32,42 @@ export class ObjectLayer extends Layer {
       return object instanceof Rectangle || object instanceof InsertedTile
    }
 
-   async decodeAndBuild() {
-      // TODO layer offsets!
-      // TODO layer opacity
-      // TODO factory instantiation!
-      // TDOO colliders don't match up with sprites in new anchors
+   getObjectByName(): PluginObject[] {
+      // TODO
+      return [];
+   }
 
-      const debug = true;
+   getActorByName(): PluginObject[] {
+      // TODO
+      return [];
+   }
+
+   getObjectByProperty(): PluginObject[] {
+      // TODO
+      return [];
+   
+   }
+   getActorByProperty(): PluginObject[] {
+      // TODO
+      return [];
+   }
+
+   getObjectByClassName(): PluginObject[] {
+      return [];
+   }
+
+   getActorByClassName(): PluginObject[] {
+      return [];
+   }
+
+   async load() {
+      const opacity = this.tiledObjectLayer.opacity;
+      const hasTint = !!this.tiledObjectLayer.tintcolor;
+      const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
+      // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
+      // TODO layer offsets!
+      // TODO factory instantiation!
+      // TODO colliders don't match up with sprites in new anchors
 
       const objects = parseObjects(this.tiledObjectLayer);
       for (let object of objects) {
@@ -47,7 +82,11 @@ export class ObjectLayer extends Layer {
                width: object.tiledObject.width,
                height: object.tiledObject.height,
             } : {})
-         })
+         });
+         const graphics = newActor.get(GraphicsComponent);
+         if (graphics) {
+            graphics.opacity = opacity;
+         }
          
 
          if (object instanceof Text) {
@@ -62,6 +101,10 @@ export class ObjectLayer extends Layer {
             const sprite = tileset.getSpriteForGid(object.gid).clone();
             sprite.destSize.width = object.tiledObject.width ?? sprite.width;
             sprite.destSize.height = object.tiledObject.height ?? sprite.height;
+            if (hasTint) {
+               sprite.tint = tint;
+            }
+
             newActor.graphics.use(sprite);
 
             const animation = tileset.getAnimationForGid(object.gid);
@@ -70,7 +113,10 @@ export class ObjectLayer extends Layer {
                const scaleX = (object.tiledObject.width ?? animation.width) / animation.width;
                const scaleY = (object.tiledObject.height ?? animation.height) / animation.height;
                animationScaled.scale = vec(scaleX, scaleY);
-               newActor.graphics.use(animationScaled)
+               if (hasTint) {
+                  animationScaled.tint = tint;
+               }
+               newActor.graphics.use(animationScaled);
 
             }
          }
@@ -80,28 +126,15 @@ export class ObjectLayer extends Layer {
             newActor.pos = vec(object.x, object.y);
             const polygon = Shape.Polygon(object.points)
             newActor.collider.set(polygon);
-
-            if (debug) {
-               // the origin is the first point
-               // console.log(object.points);
-               // const polygonGfx = new ExPolygon({
-               //    points: object.points,
-               //    color: Color.Green,
-               //    quality: 4
-               // })
-               // newActor.graphics.anchor = vec(0, 0);
-               // newActor.graphics.offset = vec(polygonGfx.width / 4, polygonGfx.height / 4);
-               // newActor.graphics.use(polygonGfx);
-            }
-            // console.log('star', newActor, object);
          }
 
          if (object instanceof Polyline) {
             console.log('polyline', object);
+            // TODO should we do any actor stuff here
          }
 
          if (object instanceof Point) {
-            
+            // TODO should we do any actor stuff here
          }
 
          if (object instanceof Rectangle) {
@@ -127,7 +160,23 @@ export class ObjectLayer extends Layer {
    }
 }
 
-export class TileLayer extends Layer {
+/**
+ * Tile information for both excalibur and tiled tile represenations
+ */
+export interface TileInfo {
+   /**
+    * Tiled based information for the tile
+    */
+   tiledTile?: Tile;
+   /**
+    * Excalibur tile abstraction
+    */
+   exTile: ExTile;
+}
+
+export class TileLayer implements Layer {
+   public readonly name: string;
+   properties = new Map<string, string | number | boolean>();
    /**
     * Number of tiles wide
     */
@@ -147,24 +196,72 @@ export class TileLayer extends Layer {
     */
    tilemap!: TileMap;
 
-   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
-      super(tiledTileLayer.name);
+   getTileByPoint(worldPos: Vector): TileInfo | null {
+      // TODO IF the resource is not loaded & decoded THIS WONT WORK
+      // log a warning
+      if (this.tilemap) {
+         const exTile = this.tilemap.getTileByPoint(worldPos);
+         const tileIndex = this.tilemap.tiles.indexOf(exTile);
+         const gid = getCanonicalGid(this.data[tileIndex])
 
+         if (gid <= 0) {
+            return null;
+         }
+
+         const tileset = this.resource.getTilesetForTile(gid);
+         const tiledTile = tileset.getTileByGid(gid);
+
+         return { tiledTile, exTile };
+      }
+      return null;
+   }
+
+   getTileByCoordinate(x: number, y: number): TileInfo | null {
+      // TODO IF the resource is not loaded & decoded THIS WONT WORK
+      // log a warning
+      if (this.tilemap) {
+         const exTile = this.tilemap.getTile(x, y);
+         const tileIndex = this.tilemap.tiles.indexOf(exTile);
+         const gid = getCanonicalGid(this.data[tileIndex])
+
+         if (gid <= 0) {
+            return null;
+         }
+
+         const tileset = this.resource.getTilesetForTile(gid);
+         const tiledTile = tileset.getTileByGid(gid);
+
+         return { tiledTile, exTile };
+      }
+      return null;
+   }
+
+   getTileByClass() {
+      // TODO implement getTileByClass
+   }
+
+   getTileByProperty() {
+      // TODO implement getTileByProperty
+   }
+
+   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
+      this.name = tiledTileLayer.name;
       mapProps(this, tiledTileLayer.properties);
       this.width = tiledTileLayer.width;
       this.height = tiledTileLayer.height;
    }
 
-   async decodeAndBuild() {
-      // TODO layer tints
-      // TODO layer opacity
+   async load() {
+      const opacity = this.tiledTileLayer.opacity;
+      const hasTint = !!this.tiledTileLayer.tintcolor;
+      const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
       if (needsDecoding(this.tiledTileLayer)) {
          this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
       } else if (isCSV(this.tiledTileLayer)) {
          this.data = this.tiledTileLayer.data;
       }
 
-      // TODO support different tile maps besides orthogonal
+      // TODO isometric support different tile maps besides orthogonal
       // this.data.orientation === "orthogonal"
       const layer = this.tiledTileLayer;
       this.tilemap = new TileMap({
@@ -175,6 +272,10 @@ export class TileLayer extends Layer {
          columns: layer.width,
          rows: layer.height
       });
+      const graphics = this.tilemap.get(GraphicsComponent);
+      if (graphics) {
+         graphics.opacity = opacity;
+      }
       // TODO attach the "this" to the tilemap
       // this.tilemap.addComponent(new TiledLayerComponent(layer));
       if (layer.parallaxx || layer.parallaxy) {
@@ -187,17 +288,28 @@ export class TileLayer extends Layer {
          let gid = this.data[i];
          if (gid !== 0) {
             const tileset = this.resource.getTilesetForTile(gid);
-            const sprite = tileset.getSpriteForGid(gid);
+            let sprite = tileset.getSpriteForGid(gid);
+            if (hasTint) {
+               sprite = sprite.clone();
+               sprite.tint = tint;
+            }
             const tile = this.tilemap.tiles[i];
             tile.addGraphic(sprite);
 
-            const colliders = tileset.getCollidersForGid(gid);
+            // Tile colliders need to have offset included because
+            // the whole tilemap uses a giant composite collider relative to the Tilemap
+            // not individual tiles
+            const colliders = tileset.getCollidersForGid(gid, true);
             for (let collider of colliders) {
                tile.addCollider(collider);
             }
 
-            const animation = tileset.getAnimationForGid(gid);
+            let animation = tileset.getAnimationForGid(gid);
             if (animation) {
+               if (hasTint) {
+                  animation = animation.clone();
+                  animation.tint = tint;
+               }
                tile.clearGraphics();
                tile.addGraphic(animation);
             }

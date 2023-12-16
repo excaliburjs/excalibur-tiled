@@ -14,11 +14,15 @@ export interface TileOptions {
    image?: ImageSource;
 }
 
+/**
+ * Friendly plugin representation of tiled Tile
+ */
 export class Tile implements Properties {
+   // TODO class
    id: number;
    tileset: Tileset;
    tiledTile: TiledTile;
-   // image?: ImageSource;
+   class?: string;
    graphic?: Graphic;
    objects: PluginObject[] = [];
    colliders: Collider[] = [];
@@ -29,6 +33,7 @@ export class Tile implements Properties {
       this.id = id;
       this.tileset = tileset;
       this.tiledTile = tiledTile;
+      this.class = tiledTile.type;
 
       mapProps(this, tiledTile.properties);
 
@@ -50,8 +55,17 @@ export interface TilesetOptions {
    tileToImage?: Map<TiledTile, ImageSource>;
 }
 
+/**
+ * Friendly plugin representation of Tiled tilesets
+ */
 export class Tileset implements Properties {
+   // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
+   // TODO fill mode
+   // TODO orientation
+   // TODO grid width/height
+   // TODO tileset class
    name: string;
+   class?: string;
    firstGid = -1;
    tileCount: number = 0;
    tiledTileset: TiledTileset;
@@ -67,9 +81,10 @@ export class Tileset implements Properties {
       const { name, tiledTileset, spritesheet, tileToImage } = options;
       this.name = name;
       this.tiledTileset = tiledTileset;
-
+      
       if (isTiledTilesetSingleImage(tiledTileset) && tiledTileset.firstgid !== undefined && spritesheet) {
          mapProps(this, tiledTileset.properties);
+         this.class = tiledTileset.class;
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI/2).scale(-1, 1);
@@ -151,31 +166,40 @@ export class Tileset implements Properties {
 
    /**
     * Returns any excalibur colliders setup for a Tile by gid
+    * 
+    * By default it returns the collider in local coordinates, but sometimes you might need the collider in world coordinates
     *
     * Currently only supports Polygons, Boxes, and Ellipses*
     *
     * - Note: Ellipses can only be circles, the minimum dimension will be used to make a circle.
     * @param gid
     */
-   getCollidersForGid(gid: number): Collider[] {
+   getCollidersForGid(gid: number, useWorldCoordinates = false): Collider[] {
       const tile = this.getTileByGid(gid);
       const result: Collider[] = [];
       if (tile && tile.objects) {
          for (let object of tile.objects) {
             if (object instanceof Polygon) {
-               const poly = Shape.Polygon(this._transformPoints(object.points, gid));
+               let points = this._applyFlipsToPoints(object.points, gid);
+               if (useWorldCoordinates) {
+                  points = points.map(p => p.add(vec(object.x, object.y)));
+               }
+               const poly = Shape.Polygon(points);
                result.push(poly);
             }
             if (object instanceof Rectangle) {
                const box = Shape.Box(object.width, object.height, Vector.Zero);
-               box.points = box.points.map(p => p.add(vec(object.x, object.y)));
-               box.points = this._transformPoints(box.points, gid);
+               box.points = this._applyFlipsToPoints(box.points, gid);
+               if (useWorldCoordinates) {
+                  box.points = box.points.map(p => p.add(vec(object.x, object.y)));
+               }
                result.push(box);
             }
             if (object instanceof Circle) {
+               const offset = useWorldCoordinates ? vec(object.x, object.y) : Vector.Zero;
                const circle = Shape.Circle(
                      Math.min(object.width / 2, object.height / 2),
-                          vec(object.width / 2, object.height / 2).add(vec(object.x, object.y)));
+                          vec(object.width / 2, object.height / 2).add(offset));
                result.push(circle);
             }
          }
@@ -188,7 +212,7 @@ export class Tileset implements Properties {
     * @param points
     * @param gid
     */
-   private _transformPoints(points: Vector[], gid: number): Vector[] {
+   private _applyFlipsToPoints(points: Vector[], gid: number): Vector[] {
       const h = isFlippedHorizontally(gid);
       const v = isFlippedVertically(gid);
       const d = isFlippedDiagonally(gid);

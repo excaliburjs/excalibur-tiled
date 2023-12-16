@@ -6,14 +6,20 @@ import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { pathRelativeToBase } from "./path-util";
+import { PluginObject } from "./objects";
 
 export interface TiledResourceOptions {
    /**
-    * Default true.
+    * Default true. If false, only tilemap will be parsed and displayed, it's up to you to wire up any excalibur behavior.
     * Automatically wires excalibur to the following
-    * * camera
+    * * Wire up current scene camera
+    * * Make Actors/Tiles with colliders on Tiled tiles & Tild objects
+    * * Support solid layers
     */
-   useExcaliburWiring?: boolean,
+   useExcaliburWiring?: boolean, // TODO implement
+   /**
+    * Plugin detects the map type based on extension, if you know better you can force an override.
+    */
    mapFormatOverride?: 'TMX' | 'TMJ',
    /**
     * The pathMap helps work around odd things bundlers do with static files.
@@ -24,24 +30,44 @@ export interface TiledResourceOptions {
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.
-    * 
+    *
     * If you have something that the Tiled plugin does not expect, you can set this to false and it will do it's best
     * to parse the Tiled source map file.
     */
-   strictParsing?: boolean;
+   strictTiledParsing?: boolean; // TODO implement
 
    /**
     * Configure the text quality in the Tiled resource
     *
-    * By default it's 2 for 2x scaled bitmap
+    * By default it's 4 for 4x scaled bitmap
     */
-   textQuality?: number;
+   textQuality?: number; // TODO implement
 }
 
 export interface FactoryProps {
+   /**
+    * Excalibur world position
+    */
    worldPos: Vector;
+   /**
+    * Tiled name in UI
+    */
    name: string;
-   type: string;
+   /**
+    * Tiled class in UI (internally in Tiled is represented as the string 'type')
+    */
+   class: string;
+   /**
+    * Layer (either TileLayer or ObjectLayer) that this object is part of
+    */
+   layer: Layer;
+   /**
+    * If using an object layer or a tile object property, the object will be passed.
+    */
+   object?: PluginObject;
+   /**
+    * Tiled properties
+    */
    properties: Record<string, any>;
 }
 
@@ -88,18 +114,18 @@ export class TiledResource implements Loadable<any> {
       }
    }
 
-   registerEntityFactory(type: string, factory: (props: FactoryProps) => Entity): void {
-      if (this._factories.has(type)) {
-         console.warn(`Another factory has already been registered for type "${type}", this is probably a bug.`);
+   registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity): void {
+      if (this._factories.has(className)) {
+         console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
       }
-      this._factories.set(type, factory);
+      this._factories.set(className, factory);
    }
 
-   unregisterEntityFactory(type: string) {
-      if (!this._factories.has(type)) {
-         console.warn(`No factory has been registered for type "${type}", cannot unregister!`);
+   unregisterEntityFactory(className: string) {
+      if (!this._factories.has(className)) {
+         console.warn(`No factory has been registered for tiled class/type "${className}", cannot unregister!`);
       }
-      this._factories.delete(type);
+      this._factories.delete(className);
    }
 
    getTilesetForTile(gid: number): Tileset {
@@ -112,6 +138,18 @@ export class TiledResource implements Loadable<any> {
          }
       }
       throw Error(`No tileset exists for tiled gid [${gid}] normalized [${normalizedGid}]!`);
+   }
+
+   getLayersByName() {
+
+   }
+   
+   getLayersByClass() {
+
+   }
+
+   getLayersByProperty() {
+
    }
 
 
@@ -281,7 +319,7 @@ export class TiledResource implements Loadable<any> {
 
          }
       }
-      await Promise.all(friendlyLayers.map(layer => layer.decodeAndBuild()));
+      await Promise.all(friendlyLayers.map(layer => layer.load()));
       console.log('friendlyLayers', friendlyLayers);
       this.layers = friendlyLayers;
 

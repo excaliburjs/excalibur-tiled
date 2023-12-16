@@ -3,7 +3,7 @@ import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
 import { Properties, mapProps } from "./properties";
 
-export interface ObjectProps {
+export interface PluginObjectProps {
    tiledObject: TiledObject;
 }
 export class PluginObject implements Properties {
@@ -12,7 +12,7 @@ export class PluginObject implements Properties {
    y: number;
    tiledObject: TiledObject;
    properties = new Map<string, string | number | boolean>();
-   constructor(props: ObjectProps) {
+   constructor(props: PluginObjectProps) {
       this.tiledObject = props.tiledObject;
       this.id = this.tiledObject.id ?? -1;
       this.x = this.tiledObject.x;
