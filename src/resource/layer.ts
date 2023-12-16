@@ -1,4 +1,4 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -67,7 +67,6 @@ export class ObjectLayer implements Layer {
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
       // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
       // TODO factory instantiation!
-      // TODO colliders don't match up with sprites in new anchors
 
       const objects = parseObjects(this.tiledObjectLayer);
       for (let object of objects) {
@@ -78,10 +77,10 @@ export class ObjectLayer implements Layer {
             y: (object.y ?? 0) + offset.y,
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0), // convert to radians
-            ...(this._hasWidthHeight(object) ? {
-               width: object.tiledObject.width,
-               height: object.tiledObject.height,
-            } : {})
+            // ...(this._hasWidthHeight(object) ? {
+            //    width: object.tiledObject.width,
+            //    height: object.tiledObject.height,
+            // } : {})
          });
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
@@ -94,10 +93,13 @@ export class ObjectLayer implements Layer {
          }
 
          if (object instanceof InsertedTile) {
+            const anchor = vec(0, 1);
              // Inserted tiles pivot from the bottom left in Tiled
-            newActor.anchor = vec(0, 1);
-            // TODO inserted tile collider?
-            newActor.collider.useBoxCollider(object.width, object.height, newActor.anchor);
+            newActor.anchor = anchor;
+            const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
+            const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
+            const scale = vec(scaleX, scaleY);
+            
             const tileset = this.resource.getTilesetForTile(object.gid);
             // need to clone because we are modify sprite properties, sprites are shared by default
             const sprite = tileset.getSpriteForGid(object.gid).clone();
@@ -112,14 +114,27 @@ export class ObjectLayer implements Layer {
             const animation = tileset.getAnimationForGid(object.gid);
             if (animation) {
                const animationScaled = animation.clone();
-               const scaleX = (object.tiledObject.width ?? animation.width) / animation.width;
-               const scaleY = (object.tiledObject.height ?? animation.height) / animation.height;
-               animationScaled.scale = vec(scaleX, scaleY);
+               animationScaled.scale = scale;
                if (hasTint) {
                   animationScaled.tint = tint;
                }
                newActor.graphics.use(animationScaled);
+            }
 
+            const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale});
+            if (colliders) {
+               // insertable tiles have an x, y, width, height, gid
+               // by default they pivot from the bottom left (0, 1)
+               const width = (object.tiledObject.width ?? 0);
+               const height = (object.tiledObject.height ?? 0);
+               const offsetx = -width * anchor.x;
+               const offsety = -height * anchor.y;
+               const offset = vec(offsetx, offsety);
+               console.log('tiled collider', newActor.name, offset, object, colliders[0]);
+               for (let collider of colliders) {
+                  collider.offset = offset;
+               }
+               newActor.collider.useCompositeCollider(colliders);
             }
          }
 
@@ -140,8 +155,8 @@ export class ObjectLayer implements Layer {
          }
 
          if (object instanceof Rectangle) {
-            newActor.anchor = vec(0, 1);
-            newActor.collider.useBoxCollider(object.width, object.height);
+            newActor.anchor = object.anchor;
+            newActor.collider.useBoxCollider(object.width, object.height, object.anchor);
          }
 
          if (object instanceof Ellipse) {
@@ -298,10 +313,10 @@ export class TileLayer implements Layer {
             const tile = this.tilemap.tiles[i];
             tile.addGraphic(sprite);
 
-            // Tile colliders need to have offset included because
+            // TODO DO Tile colliders need to have offset included because
             // the whole tilemap uses a giant composite collider relative to the Tilemap
             // not individual tiles
-            const colliders = tileset.getCollidersForGid(gid, true);
+            const colliders = tileset.getCollidersForGid(gid);
             for (let collider of colliders) {
                tile.addCollider(collider);
             }

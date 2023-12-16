@@ -1,4 +1,4 @@
-import { AffineMatrix, Circle, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource } from "excalibur";
+import { AffineMatrix, Circle, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
@@ -174,32 +174,38 @@ export class Tileset implements Properties {
     * - Note: Ellipses can only be circles, the minimum dimension will be used to make a circle.
     * @param gid
     */
-   getCollidersForGid(gid: number, useWorldCoordinates = false): Collider[] {
+   getCollidersForGid(gid: number, options?: { anchor: Vector, scale: Vector}): Collider[] {
+      let { anchor, scale } = {
+         anchor: Vector.Zero,
+         scale: Vector.One,
+         ...options
+      } ;
       const tile = this.getTileByGid(gid);
       const result: Collider[] = [];
       if (tile && tile.objects) {
          for (let object of tile.objects) {
             if (object instanceof Polygon) {
-               let points = this._applyFlipsToPoints(object.points, gid);
-               if (useWorldCoordinates) {
-                  points = points.map(p => p.add(vec(object.x, object.y)));
-               }
+               // This is the offset into the first point (local space)
+               let points = object.points.map(p => p.add(vec(object.x, object.y)).scale(scale));
+               points = this._applyFlipsToPoints(points, gid);
                const poly = Shape.Polygon(points);
                result.push(poly);
             }
             if (object instanceof Rectangle) {
-               const box = Shape.Box(object.width, object.height, Vector.Zero);
-               box.points = this._applyFlipsToPoints(box.points, gid);
-               if (useWorldCoordinates) {
-                  box.points = box.points.map(p => p.add(vec(object.x, object.y)));
-               }
+               const bb = BoundingBox.fromDimension(
+                  object.width * scale.x,
+                  object.height * scale.y,
+                  anchor);
+               const points = this._applyFlipsToPoints(bb.getPoints(), gid);
+               const box = Shape.Polygon(points);
                result.push(box);
             }
             if (object instanceof Circle) {
-               const offset = useWorldCoordinates ? vec(object.x, object.y) : Vector.Zero;
+               // This is the offset into the first point (local space)
+               const offset = vec(object.x, object.y);
                const circle = Shape.Circle(
                      Math.min(object.width / 2, object.height / 2),
-                          vec(object.width / 2, object.height / 2).add(offset));
+                          vec(object.width / 2, object.height / 2).add(offset).scale(scale));
                result.push(circle);
             }
          }

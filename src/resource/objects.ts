@@ -98,7 +98,8 @@ export class Ellipse extends PluginObject {
    }
 }
 export class Rectangle extends PluginObject {
-   constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number) {
+
+   constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number, public readonly anchor: Vector) {
       super({tiledObject});
    }
 }
@@ -149,12 +150,10 @@ export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
       } else { // rectangle
          if (object.width && object.height) {
             // if defaulted the rectangle center is accurate, otherwise need to be offset by radius
-            newObject = new Rectangle(object, object.width, object.height);
-            newObject.x += object.width / 2;
-            newObject.y += object.height / 2;
+            newObject = new Rectangle(object, object.width, object.height, Vector.Zero);
          } else {
-            // Tiled undocumented default is 20x20
-            newObject = new Rectangle(object, 20, 20);
+            // Tiled undocumented default is 20x20 AND pivots around the center
+            newObject = new Rectangle(object, 20, 20, Vector.Half);
          }
       }
       mapProps(newObject, object.properties);
