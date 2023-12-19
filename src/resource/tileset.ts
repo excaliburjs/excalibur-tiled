@@ -18,7 +18,6 @@ export interface TileOptions {
  * Friendly plugin representation of tiled Tile
  */
 export class Tile implements Properties {
-   // TODO class
    id: number;
    tileset: Tileset;
    tiledTile: TiledTile;
@@ -63,7 +62,6 @@ export class Tileset implements Properties {
    // TODO fill mode
    // TODO orientation
    // TODO grid width/height
-   // TODO tileset class
    name: string;
    class?: string;
    firstGid = -1;
@@ -91,7 +89,6 @@ export class Tileset implements Properties {
          this.spritesheet = spritesheet;
          this.firstGid = tiledTileset.firstgid;
          this.tileCount = tiledTileset.tilecount;
-         // TODO produce tiles
          for (const tile of tiledTileset.tiles) {
             this.tiles.push(new Tile({
                id: tile.id,
@@ -160,7 +157,6 @@ export class Tileset implements Properties {
          }
          return sprite;
       }
-      // TODO should we throw here?
       throw new Error(`Tileset: [${this.name}] Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
    }
 
@@ -186,7 +182,7 @@ export class Tileset implements Properties {
          for (let object of tile.objects) {
             if (object instanceof Polygon) {
                // This is the offset into the first point (local space)
-               let points = object.points.map(p => p.add(vec(object.x, object.y)).scale(scale));
+               let points = object.points.map(p => p.scale(scale));
                points = this._applyFlipsToPoints(points, gid);
                const poly = Shape.Polygon(points);
                result.push(poly);

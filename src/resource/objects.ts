@@ -58,7 +58,6 @@ export class Text extends PluginObject {
             return BaseAlign.Bottom;
          }
          case 'center': {
-            // TODO is this right?
             return BaseAlign.Middle;
          }
          case 'top': {
@@ -82,7 +81,6 @@ export class Text extends PluginObject {
             return TextAlign.Right
          }
          case 'justify': {
-            // TODO is this right?
             return TextAlign.Start
          }
          default: {
@@ -107,9 +105,7 @@ export class Polygon extends PluginObject {
    public readonly points: Vector[] = []
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
       super({tiledObject});
-      // TODO why did we need to cook the offset before?
-      // Maybe it was for tiles with colliders to work properly
-      this.points = points.map(p => vec(p.x, p.y));//.add(vec(this.x, this.y)));
+      this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
    }
 }
 export class Polyline extends PluginObject {

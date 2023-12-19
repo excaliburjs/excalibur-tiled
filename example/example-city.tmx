@@ -1323,7 +1323,7 @@
   </object>
   <object id="33" x="210" y="99.8182"/>
   <object id="37" x="200" y="89.9091" width="20.1818" height="19.9091"/>
-  <object id="38" x="186.545" y="99.8182"/>
-  <object id="39" x="154.727" y="90.3636" width="19.2727" height="19.4545"/>
+  <object id="38" x="186.545" y="99.8182" rotation="45"/>
+  <object id="39" x="154.727" y="90.3636" width="19.2727" height="19.4545" rotation="47"/>
  </objectgroup>
 </map>

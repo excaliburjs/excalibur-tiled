@@ -66,6 +66,8 @@ export class ObjectLayer implements Layer {
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
       // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
+
+
       // TODO factory instantiation!
 
       const objects = parseObjects(this.tiledObjectLayer);
@@ -76,11 +78,7 @@ export class ObjectLayer implements Layer {
             x: (object.x ?? 0) + offset.x,
             y: (object.y ?? 0) + offset.y,
             anchor: Vector.Zero,
-            rotation: toRadians(object.tiledObject.rotation ?? 0), // convert to radians
-            // ...(this._hasWidthHeight(object) ? {
-            //    width: object.tiledObject.width,
-            //    height: object.tiledObject.height,
-            // } : {})
+            rotation: toRadians(object.tiledObject.rotation ?? 0),
          });
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
@@ -165,9 +163,6 @@ export class ObjectLayer implements Layer {
             newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
             console.log(object);
          }
-
-         // TODO tile animations
-         // TODO Tile colliders
 
          this.objects.push(object);
          this.actors.push(newActor);
@@ -313,7 +308,6 @@ export class TileLayer implements Layer {
             const tile = this.tilemap.tiles[i];
             tile.addGraphic(sprite);
 
-            // TODO DO Tile colliders need to have offset included because
             // the whole tilemap uses a giant composite collider relative to the Tilemap
             // not individual tiles
             const colliders = tileset.getCollidersForGid(gid);
@@ -332,25 +326,5 @@ export class TileLayer implements Layer {
             }
          }
       }
-
-      // I know this looks goofy, but the entity and the layer "it belongs" to are the same here
-      // tileMapLayer.z = this._calculateZIndex(layer, layer); 
-      // for (let i = 0; i < rawLayer.data.length; i++) {
-      //    let gid = <number>rawLayer.data[i];
-      //    if (gid !== 0) {
-      //       const sprite = this.getSpriteForGid(gid);
-      //       tileMapLayer.tiles[i].addGraphic(sprite);
-      //       const colliders = this.getCollidersForGid(gid);
-      //       for (let collider of colliders) {
-      //          tileMapLayer.tiles[i].addCollider(collider);
-      //       }
-      //       const animation = this.getAnimationForGid(gid);
-      //       if (animation) {
-      //          tileMapLayer.tiles[i].clearGraphics();
-      //          tileMapLayer.tiles[i].addGraphic(animation);
-      //       }
-      //    }
-      // }
    }
-   
 }

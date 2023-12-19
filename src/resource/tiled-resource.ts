@@ -9,6 +9,13 @@ import { pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
 
 export interface TiledResourceOptions {
+
+   /**
+    * Plugin will operate in headless mode and skip all graphics related
+    * excalibur items.
+    */
+   headless: boolean;
+
    /**
     * Default true. If false, only tilemap will be parsed and displayed, it's up to you to wire up any excalibur behavior.
     * Automatically wires excalibur to the following
@@ -16,11 +23,11 @@ export interface TiledResourceOptions {
     * * Make Actors/Tiles with colliders on Tiled tiles & Tild objects
     * * Support solid layers
     */
-   useExcaliburWiring?: boolean, // TODO implement
+   useExcaliburWiring?: boolean; // TODO implement
    /**
     * Plugin detects the map type based on extension, if you know better you can force an override.
     */
-   mapFormatOverride?: 'TMX' | 'TMJ',
+   mapFormatOverride?: 'TMX' | 'TMJ';
    /**
     * The pathMap helps work around odd things bundlers do with static files.
     *
@@ -287,7 +294,6 @@ export class TiledResource implements Loadable<any> {
             }
          }
 
-         // TODO external tileset collection of images
          if (isTiledTilesetCollectionOfImages(tileset)) { 
             const friendlyTileset = new Tileset({
                name: tileset.name,
@@ -327,7 +333,7 @@ export class TiledResource implements Loadable<any> {
    }
 
    addToScene(scene: Scene) {
-      // TODO pick a position?
+      // TODO pick a position to insert into the scene?
       for (const layer of this.layers) {
          if (layer instanceof TileLayer) {
             scene.add(layer.tilemap);

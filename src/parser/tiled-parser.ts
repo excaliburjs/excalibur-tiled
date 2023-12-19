@@ -206,23 +206,12 @@ const TiledImageLayer = z.object({
 
 
 // FIXME recursive Group Layer definition
-// const TiledGroupLayerBase = z.object({
-//     name: z.string(),
-//     id: z.number(),
-// });
-// type TiledGroupLayer = z.infer<typeof TiledTileLayerBase> & {
-//     layers: TiledLayer[]
-// }
 const TiledLayer = z.union([
    TiledImageLayer,
    TiledTileLayer,
-   TiledObjectLayer,
-   // TiledGroupLayerBase
+   TiledObjectLayer
 ]);
 
-// const TiledGroupLayer = TiledGroupLayerBase.extend({
-//     layers: z.lazy(() => z.array(TiledLayer))
-// });
 
 const TiledObjectGroup = z.object({
    draworder: z.string(),
@@ -882,7 +871,7 @@ export class TiledParser {
          switch (node.tagName) {
             case 'group': {
                // recurse through groups!
-               // TODO currently we support groups by flattening them :/
+               // currently we support groups by flattening them, no group types
                for (let child of node.children) {
                   parseHelper(child);
                }
