@@ -1,6 +1,6 @@
 import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, Vector } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
-import { Tileset } from "./tileset";
+import { Tile, Tileset } from "./tileset";
 import { Layer, ObjectLayer, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
@@ -8,32 +8,47 @@ import { getCanonicalGid } from "./gid-util";
 import { pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
 
+export interface TiledAddToSceneOptions {
+   pos: Vector;
+}
+
 export interface TiledResourceOptions {
 
    /**
     * Plugin will operate in headless mode and skip all graphics related
     * excalibur items.
     */
-   headless: boolean;
+   headless?: boolean; // TODO implement
 
    /**
     * Default true. If false, only tilemap will be parsed and displayed, it's up to you to wire up any excalibur behavior.
     * Automatically wires excalibur to the following
     * * Wire up current scene camera
-    * * Make Actors/Tiles with colliders on Tiled tiles & Tild objects
+    * * Make Actors/Tiles with colliders on Tiled tiles & Tiled objects
     * * Support solid layers
     */
    useExcaliburWiring?: boolean; // TODO implement
+
+
+   useTilemapCameraStrategy?: boolean // TODO implements
+
    /**
     * Plugin detects the map type based on extension, if you know better you can force an override.
     */
    mapFormatOverride?: 'TMX' | 'TMJ';
+
    /**
     * The pathMap helps work around odd things bundlers do with static files.
     *
     * When the Tiled resource comes across something that matches `path`, it will use the output string instead.
     */
-   pathMap?: { path: string | RegExp, output: string }[];
+   pathMap?: { path: string | RegExp, output: string }[]; // TODO implement
+
+   /**
+    * Optionally provide a custom file loader implementation instead of using the built in Excalibur resource ajax loader
+    * that takes a path and returns file data
+    */
+   fileLoader?: (path: string) => Promise<any>; // TODO implement
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.
@@ -48,7 +63,13 @@ export interface TiledResourceOptions {
     *
     * By default it's 4 for 4x scaled bitmap
     */
-   textQuality?: number; // TODO implement
+   textQuality?: number;
+
+   /**
+    * Configure custom Actor/Entity factory functions to construct Actors/Entities
+    * given a Tiled class name.
+    */
+   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity>; // TODO implement
 }
 
 export interface FactoryProps {
@@ -59,7 +80,7 @@ export interface FactoryProps {
    /**
     * Tiled name in UI
     */
-   name: string;
+   name?: string;
    /**
     * Tiled class in UI (internally in Tiled is represented as the string 'type')
     */
@@ -97,15 +118,21 @@ export class TiledResource implements Loadable<any> {
    layers: Layer[] = [];
 
    public readonly mapFormat: 'TMX' | 'TMJ' = 'TMX';
-   private _factories = new Map<string, (props: FactoryProps) => Entity>();
+   // ? should this be publish?
+   public factories = new Map<string, (props: FactoryProps) => Entity>();
    private _resource: Resource<string>;
    private _parser = new TiledParser();
 
    public firstGidToImage = new Map<number, ImageSource>();
    private tileToImage = new Map<TiledTile, ImageSource>();
+   public readonly textQuality: number = 4;
 
    constructor(public path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride } = { ...options };
+      const { mapFormatOverride, textQuality, entityClassNameFactories } = { ...options };
+      this.textQuality = textQuality ?? this.textQuality;
+      for (const key in entityClassNameFactories) {
+         this.registerEntityFactory(key, entityClassNameFactories[key]);
+      }
       const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? 'TMX' : 'TMJ');
       switch (detectedType) {
          case 'TMX':
@@ -122,17 +149,17 @@ export class TiledResource implements Loadable<any> {
    }
 
    registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity): void {
-      if (this._factories.has(className)) {
+      if (this.factories.has(className)) {
          console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
       }
-      this._factories.set(className, factory);
+      this.factories.set(className, factory);
    }
 
    unregisterEntityFactory(className: string) {
-      if (!this._factories.has(className)) {
+      if (!this.factories.has(className)) {
          console.warn(`No factory has been registered for tiled class/type "${className}", cannot unregister!`);
       }
-      this._factories.delete(className);
+      this.factories.delete(className);
    }
 
    getTilesetForTile(gid: number): Tileset {
@@ -147,20 +174,61 @@ export class TiledResource implements Loadable<any> {
       throw Error(`No tileset exists for tiled gid [${gid}] normalized [${normalizedGid}]!`);
    }
 
-   getLayersByName() {
+   getTilesByClassName(className: string): Tile[] {
+      let results: Tile[] = [];
+      for (let tileset of this.tilesets) {
+         results = results.concat(tileset.tiles.filter(t => t.class === className));
+      }
 
+      return results;
+   }
+
+   getTilesByProperty(name: string, value?: any): Tile[] {
+      let results: Tile[] = [];
+      for (let tileset of this.tilesets) {
+         if (value !== undefined) {
+            results = results.concat(tileset.tiles.filter(t => t.properties.get(name) === value));
+         } else {
+            results = results.concat(tileset.tiles.filter(t => t.properties.has(name)));
+         }
+      }
+
+      return results;
+   }
+
+   getImageLayers(): Layer[] {
+      // TODO implement
+      return [];
+   }
+
+   getTileLayers(): TileLayer[] {
+      // TODO implement
+      return [];
+   }
+
+   getObjectLayers(): ObjectLayer[] {
+      // TODO implement
+      return [];
+   }
+
+   getLayersByName(name: string): Layer[] {
+      // TODO implement
+      return [];
    }
    
-   getLayersByClass() {
-
+   getLayersByClassName(className: string): Layer[] {
+      // TODO implement
+      return [];
    }
 
-   getLayersByProperty() {
-
+   getLayersByProperty(name: string, value?: any): Layer[] {
+      // TODO implement
+      return [];
    }
 
 
    async load(): Promise<any> {
+      // TODO refactor this method is too BIG
       const data = await this._resource.load();
 
       // Parse initial Tiled map structure
@@ -332,17 +400,18 @@ export class TiledResource implements Loadable<any> {
       console.log(this);
    }
 
-   addToScene(scene: Scene) {
+   addToScene(scene: Scene, options?: TiledAddToSceneOptions) { // TODO implement
       // TODO pick a position to insert into the scene?
       for (const layer of this.layers) {
          if (layer instanceof TileLayer) {
             scene.add(layer.tilemap);
          }
          if (layer instanceof ObjectLayer) {
-            for (const actor of layer.actors) {
+            for (const actor of layer.entities) {
                scene.add(actor);
             }
          }
+         // TODO image layers
       }
    }
 

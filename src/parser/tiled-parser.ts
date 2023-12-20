@@ -143,7 +143,7 @@ export const TiledText = z.object({
 const TiledObject = z.object({
    id: z.number().optional(), // Template files might not have an id for some reason
    name: z.string().optional(),
-   type: z.string(),
+   type: z.string().optional(),
    x: z.number(),
    y: z.number(),
    rotation: z.number().optional(),

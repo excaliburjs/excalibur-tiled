@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="40">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="15" nextobjectid="42">
  <editorsettings>
   <export target="example-city.tmj" format="json"/>
  </editorsettings>
@@ -1282,7 +1282,7 @@
   <properties>
    <property name="excalibur" type="bool" value="true"/>
   </properties>
-  <object id="6" name="player-start" type="player-start" x="375" y="104">
+  <object id="6" name="Player" type="player-start" x="375" y="104">
    <point/>
   </object>
   <object id="7" name="Camera" type="Camera" x="444.5" y="404.5">

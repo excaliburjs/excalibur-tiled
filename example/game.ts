@@ -3,6 +3,25 @@ import { TiledMapResource } from '@excalibur-tiled';
 import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
 import { TiledResource } from '../src/resource/tiled-resource';
 
+class Player extends ex.Actor {
+   override onPostUpdate(engine: ex.Engine) {
+      this.vel = ex.vec(0, 0)
+      const speed = 64;
+      if (engine.input.keyboard.isHeld(ex.Keys.Right)) {
+         this.vel.x = speed;
+      }
+      if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
+         this.vel.x = -speed;
+      }
+      if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+         this.vel.y = -speed;
+      }
+      if (game.input.keyboard.isHeld(ex.Input.Keys.Down)) {
+         this.vel.y = speed;
+      }
+   }
+}
+
 const game = new ex.Engine({
    width: 800, 
    height: 600, 
@@ -11,7 +30,19 @@ const game = new ex.Engine({
    antialiasing: false
 });
 
-const newResource = new TiledResource('./example-city.tmx');
+const newResource = new TiledResource('./example-city.tmx', {
+   entityClassNameFactories: {
+      'player-start': (props) => {
+         return new Player({
+            pos: props.worldPos,
+            width: 16,
+            height: 16,
+            color: ex.Color.Blue,
+            collisionType: ex.CollisionType.Active
+         });
+      }
+   }
+});
 const loader = new ex.Loader([newResource]);
 
 let currentPointer!: ex.Vector;

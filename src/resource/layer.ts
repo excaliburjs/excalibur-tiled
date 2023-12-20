@@ -1,11 +1,13 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
-import { TiledResource } from "./tiled-resource";
+import { FactoryProps, TiledResource } from "./tiled-resource";
 import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
 import { getCanonicalGid } from "./gid-util";
 import { Tile } from "./tileset";
+import { TiledDataComponent } from "./tiled-data-component";
+import { satisfies } from "compare-versions";
 
 export type LayerTypes = ObjectLayer | TileLayer;
 
@@ -19,9 +21,10 @@ export interface Layer extends Properties {
 export class ObjectLayer implements Layer {
    public readonly name: string;
    properties = new Map<string, string | number | boolean>();
-   objects: Object[] = [];
-   actors: Actor[] = [];
-   objectToActor = new Map<Object, Actor>();
+   objects: PluginObject[] = [];
+   entities: Entity[] = [];
+   private _objectToActor = new Map<PluginObject, Entity>();
+   private _actorToObject = new Map<Entity, PluginObject>();
    constructor(public tiledObjectLayer: TiledObjectLayer, public resource: TiledResource) {
       this.name = tiledObjectLayer.name;
 
@@ -29,50 +32,94 @@ export class ObjectLayer implements Layer {
    }
 
    _hasWidthHeight(object: PluginObject) {
-      return object instanceof Rectangle || object instanceof InsertedTile
+      return object instanceof Rectangle || object instanceof InsertedTile;
    }
 
-   getObjectByName(): PluginObject[] {
-      // TODO
-      return [];
+   getObjectByName(name: string): PluginObject[] {
+      return this.objects.filter(o => o.tiledObject.name === name);
    }
 
-   getActorByName(): PluginObject[] {
-      // TODO
-      return [];
+   getEntityByName(name: string): Entity[] {
+      return this.entities.filter(a => a.name === name);
    }
 
-   getObjectByProperty(): PluginObject[] {
-      // TODO
-      return [];
-   
-   }
-   getActorByProperty(): PluginObject[] {
-      // TODO
-      return [];
+   getEntityByObject(object: PluginObject): Entity | undefined {
+      return this._objectToActor.get(object);
    }
 
-   getObjectByClassName(): PluginObject[] {
-      return [];
+   getObjectByEntity(actor: Entity): PluginObject | undefined {
+      return this._actorToObject.get(actor);
    }
 
-   getActorByClassName(): PluginObject[] {
-      return [];
+   /**
+    * Search for a tiled object that has a property name, and optionally specify a value
+    * @param propertyName 
+    * @param value 
+    * @returns 
+    */
+   getObjectsByProperty(propertyName: string, value?: any): PluginObject[] {
+      if (value !== undefined) {
+         return this.objects.filter(o => o.properties.get(propertyName) === value);
+      } else {
+         return this.objects.filter(o => o.properties.has(propertyName));
+      }
+   }
+   /**
+    * Search for actors that were created from tiled objects
+    * @returns 
+    */
+   getActorsByProperty(propertyName: string, value?: any): Actor[] {
+      return this.getObjectsByProperty(propertyName, value).map(o => this._objectToActor.get(o)).filter(a => !!a) as Actor[];
+   }
+
+   /**
+    * Search for an Tiled object by it's Tiled class name
+    * @returns 
+    */
+   getObjectsByClassName(className: string): PluginObject[] {
+      return this.objects.filter(o => o.tiledObject.name === className);
+   }
+
+   /**
+    * Search for an Actor created by the plugin by it's Tiled object
+    * @param className 
+    * @returns 
+    */
+   getActorByClassName(className: string): Actor[] {
+      return this.getObjectsByClassName(className).map(o => this._objectToActor.get(o)).filter(a => !!a) as Actor[];
    }
 
    async load() {
+      // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
       const opacity = this.tiledObjectLayer.opacity;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
-      // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
-
-
-      // TODO factory instantiation!
 
       const objects = parseObjects(this.tiledObjectLayer);
+
       for (let object of objects) {
+         let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
+
+         if (object.tiledObject.type) {
+            // TODO we should also use factories on templates
+            const factory = this.resource.factories.get(object.tiledObject.type);
+            if (factory) {
+               const entity = factory({
+                  worldPos,
+                  name: object.tiledObject.name,
+                  class: object.tiledObject.type,
+                  layer: this,
+                  object,
+                  properties: object.properties
+               } satisfies FactoryProps);
+               this._recordObjectEntityMapping(object, entity);
+               continue; // If we do a factor method we skip any default processing
+            }
+         }
+
          // TODO excalibur smarts for solid/collision type/factory map
+         // TODO collision type
          const newActor = new Actor({
             name: object.tiledObject.name,
             x: (object.x ?? 0) + offset.x,
@@ -84,7 +131,6 @@ export class ObjectLayer implements Layer {
          if (graphics) {
             graphics.opacity = opacity;
          }
-         
 
          if (object instanceof Text) {
             newActor.graphics.use(object.text);
@@ -144,12 +190,11 @@ export class ObjectLayer implements Layer {
          }
 
          if (object instanceof Polyline) {
-            console.log('polyline', object);
-            // TODO should we do any actor stuff here
+            // ? should we do any excalibur things here
          }
 
          if (object instanceof Point) {
-            // TODO should we do any actor stuff here
+            // ? should we do any excalibur things here
          }
 
          if (object instanceof Rectangle) {
@@ -164,16 +209,23 @@ export class ObjectLayer implements Layer {
             console.log(object);
          }
 
-         this.objects.push(object);
-         this.actors.push(newActor);
-         // TODO do we need this?
-         this.objectToActor.set(object, newActor);
+         this._recordObjectEntityMapping(object, newActor);
       }
+   }
+
+   private _recordObjectEntityMapping(object: PluginObject, entity: Entity){
+      entity.addComponent(new TiledDataComponent({
+         tiledObject: object
+      }));
+      this.objects.push(object);
+      this.entities.push(entity);
+      this._objectToActor.set(object, entity);
+      this._actorToObject.set(entity, object);
    }
 }
 
 /**
- * Tile information for both excalibur and tiled tile represenations
+ * Tile information for both excalibur and tiled tile representations
  */
 export interface TileInfo {
    /**
@@ -207,6 +259,7 @@ export class TileLayer implements Layer {
     * Excalibur TileMap structure for drawing in excalibur
     */
    tilemap!: TileMap;
+
 
    getTileByPoint(worldPos: Vector): TileInfo | null {
       // TODO IF the resource is not loaded & decoded THIS WONT WORK
@@ -246,14 +299,6 @@ export class TileLayer implements Layer {
          return { tiledTile, exTile };
       }
       return null;
-   }
-
-   getTileByClass() {
-      // TODO implement getTileByClass
-   }
-
-   getTileByProperty() {
-      // TODO implement getTileByProperty
    }
 
    constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
