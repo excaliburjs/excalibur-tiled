@@ -1,7 +1,7 @@
 import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, Vector } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
-import { Layer, ObjectLayer, TileLayer } from "./layer";
+import { ImageLayer, Layer, ObjectLayer, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
@@ -292,7 +292,6 @@ export class TiledResource implements Loadable<any> {
             loadedTilesets.push(ts);
          }
       }
-      console.log(loadedTilesets);
 
       // load all images
       // 1/2 Internal+External tilesets
@@ -319,7 +318,6 @@ export class TiledResource implements Loadable<any> {
       await Promise.all(images.map(i => i.load().catch(() => {
          console.error(`Unable to load Tiled Tileset image ${i.path}, if you are using a bundler check the files are where they should be. Use "pathMap" to adjust file mappings to work around bundlers`);
       })));
-      console.log(images);
 
       // TODO Load templates
 
@@ -372,8 +370,6 @@ export class TiledResource implements Loadable<any> {
          }
       }
 
-      console.log('friendlyTilesets', this.tilesets);
-
       // Templates
       // TODO Friendly templates
 
@@ -381,7 +377,6 @@ export class TiledResource implements Loadable<any> {
       let friendlyLayers: Layer[] = [];
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
-            // TODO get tileset/tile props out of excalibur Types
             const tilelayer = new TileLayer(layer, this);
             friendlyLayers.push(tilelayer);
          }
@@ -390,17 +385,15 @@ export class TiledResource implements Loadable<any> {
             friendlyLayers.push(objectlayer);
          }
          if (layer.type === 'imagelayer') {
-
+            const imagelayer = new ImageLayer(layer, this);
+            friendlyLayers.push(imagelayer);
          }
       }
       await Promise.all(friendlyLayers.map(layer => layer.load()));
-      console.log('friendlyLayers', friendlyLayers);
       this.layers = friendlyLayers;
-
-      console.log(this);
    }
 
-   addToScene(scene: Scene, options?: TiledAddToSceneOptions) { // TODO implement
+   addToScene(scene: Scene, options?: TiledAddToSceneOptions) { // TODO implement options
       // TODO pick a position to insert into the scene?
       for (const layer of this.layers) {
          if (layer instanceof TileLayer) {
@@ -411,7 +404,11 @@ export class TiledResource implements Loadable<any> {
                scene.add(actor);
             }
          }
-         // TODO image layers
+         if (layer instanceof ImageLayer) {
+            if (layer.imageActor) {
+               scene.add(layer.imageActor);
+            }
+         }
       }
    }
 

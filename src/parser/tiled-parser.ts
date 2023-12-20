@@ -192,11 +192,13 @@ const TiledImageLayer = z.object({
    id: z.number(),
    type: z.literal('imagelayer'),
    class: z.string().optional(),
-   image: z.string(),
+   image: z.string().optional(),
    opacity: z.number(),
    properties: z.array(TiledProperty).optional(),
    visible: z.boolean(),
    tintcolor: z.string().optional(),
+   repeatx: z.boolean().optional(),
+   repeaty: z.boolean().optional(),
    parallaxx: z.number().optional(),
    parallaxy: z.number().optional(),
    offsetx: z.number().optional(),
@@ -342,6 +344,7 @@ export type TiledTemplateFile = z.infer<typeof TiledTemplateFile>;
 export type TiledMap = z.infer<typeof TiledMap>;
 export type TiledTileLayer = z.infer<typeof TiledTileLayer>;
 export type TiledObjectLayer = z.infer<typeof TiledObjectLayer>;
+export type TiledImageLayer = z.infer<typeof TiledImageLayer>;
 export type TiledLayer = z.infer<typeof TiledLayer>;
 export type TiledProperty = z.infer<typeof TiledProperty>;
 export type TiledPropertyTypes = Pick<TiledProperty, 'type'>['type'];
@@ -441,7 +444,9 @@ export class TiledParser {
       // attribute names to coerce into booleans
       const booleanProps = [
          "infinite",
-         'visible'
+         'visible',
+         'repeatx',
+         'repeaty',
       ]
 
       for (let attribute of node.attributes) {

@@ -1,6 +1,6 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource } from "excalibur";
 import { Properties, mapProps } from "./properties";
-import { TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledImageLayer, TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { FactoryProps, TiledResource } from "./tiled-resource";
 import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
@@ -8,6 +8,7 @@ import { getCanonicalGid } from "./gid-util";
 import { Tile } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";
 import { satisfies } from "compare-versions";
+import { pathRelativeToBase } from "./path-util";
 
 export type LayerTypes = ObjectLayer | TileLayer;
 
@@ -16,7 +17,40 @@ export interface Layer extends Properties {
    load(): Promise<void>;
 }
 
-// TODO Image layer!
+export class ImageLayer implements Layer {
+   public readonly name: string;
+   properties = new Map<string, string | number | boolean>();
+   image: ImageSource | null = null;
+   imageActor: Actor | null = null;
+   constructor(public tiledImageLayer: TiledImageLayer, public resource: TiledResource) {
+      this.name = tiledImageLayer.name;
+      mapProps(this, tiledImageLayer.properties);
+      if (tiledImageLayer.image) {
+         this.image = new ImageSource(pathRelativeToBase(this.resource.path, tiledImageLayer.image))
+      }
+   }
+   async load(): Promise<void> {
+      const opacity = this.tiledImageLayer.opacity;
+      const hasTint = !!this.tiledImageLayer.tintcolor;
+      const tint = this.tiledImageLayer.tintcolor ? Color.fromHex(this.tiledImageLayer.tintcolor) : Color.White;
+      const offset = vec(this.tiledImageLayer.offsetx ?? 0, this.tiledImageLayer.offsety ?? 0);
+      if (this.image) {
+         await this.image.load();
+         this.imageActor = new Actor({
+            name: this.tiledImageLayer.name,
+            pos: offset,
+            anchor: Vector.Zero
+         });
+         // FIXME when excalibur supports tiling we should use it here for repeatx/repeaty!
+         const sprite = this.image.toSprite();
+         this.imageActor.graphics.use(sprite);
+         this.imageActor.graphics.opacity = opacity;
+         if (hasTint) {
+            sprite.tint = tint;
+         }
+      }
+   }
+}
 
 export class ObjectLayer implements Layer {
    public readonly name: string;
@@ -174,7 +208,6 @@ export class ObjectLayer implements Layer {
                const offsetx = -width * anchor.x;
                const offsety = -height * anchor.y;
                const offset = vec(offsetx, offsety);
-               console.log('tiled collider', newActor.name, offset, object, colliders[0]);
                for (let collider of colliders) {
                   collider.offset = offset;
                }
@@ -206,7 +239,6 @@ export class ObjectLayer implements Layer {
             // FIXME: Excalibur doesn't support ellipses :( fallback to circle
             // pick the smallest dimension and that's our radius
             newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
-            console.log(object);
          }
 
          this._recordObjectEntityMapping(object, newActor);
