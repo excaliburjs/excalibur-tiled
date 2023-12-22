@@ -69,6 +69,9 @@ export class ObjectLayer implements Layer {
       return object instanceof Rectangle || object instanceof InsertedTile;
    }
 
+   // TODO casing matters here, we should avoid that
+   // TODO for well know excalibur properties we should export types!
+
    getObjectByName(name: string): PluginObject[] {
       return this.objects.filter(o => o.tiledObject.name === name);
    }
