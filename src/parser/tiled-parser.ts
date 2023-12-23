@@ -245,6 +245,17 @@ const TiledTilesetEmbedded = z.object({
    name: z.string(),
    firstgid: z.number().optional(),
    class: z.string().optional(),
+   objectalignment: z.union([
+      z.literal('topleft'),
+      z.literal('top'),
+      z.literal('topright'),
+      z.literal('left'),
+      z.literal('center'),
+      z.literal('right'),
+      z.literal('bottomleft'),
+      z.literal('bottom'),
+      z.literal('bottomright'),
+   ]).optional(),
    // optional image/width/height if collection of images
    image: z.string().optional(),
    imagewidth: z.number().optional(),

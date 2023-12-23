@@ -38,7 +38,7 @@ export class Tile implements Properties {
       mapProps(this, tiledTile.properties);
 
       if (tiledTile.objectgroup && tiledTile.objectgroup.objects) {
-         this.objects = parseObjects(tiledTile.objectgroup);
+         this.objects = parseObjects(tiledTile.objectgroup, -1); // text isn't possible at the moment inside a tile so -1
       }
 
       if (tiledTile.animation) {
@@ -70,6 +70,7 @@ export class Tileset implements Properties {
    tiledTileset: TiledTileset;
    spritesheet!: SpriteSheet;
    tiles: Tile[] = [];
+   objectalignment: string = 'bottomleft';
    properties = new Map<string, string | number | boolean>();
 
    horizontalFlipTransform!: AffineMatrix;
@@ -87,6 +88,7 @@ export class Tileset implements Properties {
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
+         this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
          this.spritesheet = spritesheet;
          this.firstGid = tiledTileset.firstgid;
          this.tileCount = tiledTileset.tilecount;
@@ -102,6 +104,7 @@ export class Tileset implements Properties {
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
+         this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
          this.firstGid = tiledTileset.firstgid!;
          this.tileCount = tiledTileset.tilecount;
          let sprites: Sprite[] = []
@@ -118,6 +121,43 @@ export class Tileset implements Properties {
             }
          }
          this.spritesheet = new SpriteSheet({ sprites });
+      }
+   }
+
+   getTilesetAlignmentAnchor() {
+      // TODO if isometric this is bottom
+      // https://doc.mapeditor.org/en/stable/manual/editing-tilesets/#tileset-properties
+      switch(this.objectalignment) {
+         case 'topleft' : {
+            return vec(0, 0);
+         }
+         case 'top' : {
+            return vec(0.5, 0);
+         }
+         case 'topright' : {
+            return vec(1, 0);
+         }
+         case 'left' : {
+            return vec(0, .5);
+         }
+         case 'center' : {
+            return vec(0.5, 0.5);
+         }
+         case 'right' : {
+            return vec(1, .5);
+         }
+         case 'bottomleft' : {
+            return vec(0, 1);
+         }
+         case 'bottom' : {
+            return vec(0.5, 1);
+         }
+         case 'bottomright' : {
+            return vec(1, 1);
+         }
+         default: { // default is bottom left
+            return vec(0, 1);
+         }
       }
    }
 

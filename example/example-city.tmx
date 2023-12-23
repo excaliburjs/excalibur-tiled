@@ -3,7 +3,7 @@
  <editorsettings>
   <export target="example-city.tmj" format="json"/>
  </editorsettings>
- <tileset firstgid="1" name="Kenny RPG Urban Pack" class="kenny" tilewidth="16" tileheight="16" tilecount="486" columns="27">
+ <tileset firstgid="1" name="Kenny RPG Urban Pack" class="kenny" tilewidth="16" tileheight="16" tilecount="486" columns="27" objectalignment="bottomleft">
   <properties>
    <property name="tilesetprop" value="someprop"/>
   </properties>

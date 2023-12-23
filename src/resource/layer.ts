@@ -137,13 +137,12 @@ export class ObjectLayer implements Layer {
    }
 
    async load() {
-      // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
       const opacity = this.tiledObjectLayer.opacity;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
 
-      const objects = parseObjects(this.tiledObjectLayer);
+      const objects = parseObjects(this.tiledObjectLayer, this.resource.textQuality);
 
       for (let object of objects) {
          let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
@@ -165,8 +164,6 @@ export class ObjectLayer implements Layer {
             }
          }
 
-         // TODO excalibur smarts for solid/collision type/factory map
-         // TODO collision type
          const newActor = new Actor({
             name: object.tiledObject.name,
             x: (object.x ?? 0) + offset.x,
@@ -213,14 +210,14 @@ export class ObjectLayer implements Layer {
          }
 
          if (object instanceof InsertedTile) {
-            const anchor = vec(0, 1);
+            const tileset = this.resource.getTilesetForTileGid(object.gid);
+            const anchor = tileset.getTilesetAlignmentAnchor();
              // Inserted tiles pivot from the bottom left in Tiled
             newActor.anchor = anchor;
             const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
             const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
             const scale = vec(scaleX, scaleY);
             
-            const tileset = this.resource.getTilesetForTileGid(object.gid);
             // need to clone because we are modify sprite properties, sprites are shared by default
             const sprite = tileset.getSpriteForGid(object.gid).clone();
             sprite.destSize.width = object.tiledObject.width ?? sprite.width;

@@ -35,7 +35,7 @@ export class Text extends PluginObject {
    text: ExText;
    font: Font;
    
-   constructor(tiledObject: TiledObject, text: TiledText, width: number) {
+   constructor(tiledObject: TiledObject, text: TiledText, width: number, textQuality: number) {
       super({tiledObject});
 
       this.font = new Font({
@@ -45,7 +45,7 @@ export class Text extends PluginObject {
          unit: FontUnit.Px,
          textAlign: this._textAlignFromTiled(text.halign),
          baseAlign: this._textBaselineFromTiled(text.valign),
-         quality: 4 // TODO smarts to interpret quality
+         quality: textQuality
       })
 
       const textWrap = text.wrap ?? false;
@@ -132,7 +132,7 @@ export class Polyline extends PluginObject {
 
 export type ObjectTypes = Polygon | Polyline | Rectangle | Ellipse | Text | Point | InsertedTile | PluginObject;
 
-export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
+export function parseObjects(tiledObjectGroup: TiledObjectGroup, textQuality: number) {
    const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {
       let newObject: PluginObject;
@@ -154,7 +154,7 @@ export function parseObjects(tiledObjectGroup: TiledObjectGroup) {
       } else if (object.polyline) {
          newObject = new Polyline(object, object.polyline);
       } else if(object.text) {
-         newObject = new Text(object, object.text, object.width ?? 0);
+         newObject = new Text(object, object.text, object.width ?? 0, textQuality);
       } else if (object.gid) {
          newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
       } else { // rectangle
