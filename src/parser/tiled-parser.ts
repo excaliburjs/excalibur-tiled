@@ -332,7 +332,6 @@ export const TiledMap = z.object({
    properties: z.array(TiledProperty).optional()
 })
 
-// TODO export all types
 export type TiledObjectGroup = z.infer<typeof TiledObjectGroup>;
 export type TiledObject = z.infer<typeof TiledObject>;
 export type TiledTile = z.infer<typeof TiledTile>;
@@ -343,15 +342,8 @@ export type TiledTilesetEmbedded = z.infer<typeof TiledTilesetEmbedded>;
 export type TiledTilesetExternal = z.infer<typeof TiledTilesetExternal>;
 export type TiledTilesetFile = z.infer<typeof TiledTilesetFile>;
 
-export function isTiledTilesetEmbedded(ts: TiledTileset): ts is TiledTilesetEmbedded {
-   return !!!(ts as TiledTilesetExternal).source;
-}
-
-export function isTiledTilesetExternal(ts: TiledTileset): ts is TiledTilesetExternal {
-   return !!(ts as TiledTilesetExternal).source;
-}
-
 export type TiledTemplateFile = z.infer<typeof TiledTemplateFile>;
+
 export type TiledMap = z.infer<typeof TiledMap>;
 export type TiledTileLayer = z.infer<typeof TiledTileLayer>;
 export type TiledObjectLayer = z.infer<typeof TiledObjectLayer>;
@@ -359,6 +351,14 @@ export type TiledImageLayer = z.infer<typeof TiledImageLayer>;
 export type TiledLayer = z.infer<typeof TiledLayer>;
 export type TiledProperty = z.infer<typeof TiledProperty>;
 export type TiledPropertyTypes = Pick<TiledProperty, 'type'>['type'];
+
+export function isTiledTilesetEmbedded(ts: TiledTileset): ts is TiledTilesetEmbedded {
+   return !!!(ts as TiledTilesetExternal).source;
+}
+
+export function isTiledTilesetExternal(ts: TiledTileset): ts is TiledTilesetExternal {
+   return !!(ts as TiledTilesetExternal).source;
+}
 
 
 class BoundingBox {

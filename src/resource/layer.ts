@@ -10,6 +10,7 @@ import { TiledDataComponent } from "./tiled-data-component";
 import { pathRelativeToBase } from "./path-util";
 import { byNameCaseInsensitive, byPropertyCaseInsensitive, byClassCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
+import { TiledLayerDataComponent } from "./tiled-layer-component";
 
 export type LayerTypes = ObjectLayer | TileLayer;
 
@@ -402,12 +403,11 @@ export class TileLayer implements Layer {
          columns: layer.width,
          rows: layer.height
       });
+      this.tilemap.addComponent(new TiledLayerDataComponent({tiledTileLayer: layer}));
       const graphics = this.tilemap.get(GraphicsComponent);
       if (graphics) {
          graphics.opacity = opacity;
       }
-      // TODO attach the "this" to the tilemap
-      // this.tilemap.addComponent(new TiledLayerComponent(layer));
       if (layer.parallaxx || layer.parallaxy) {
          const factor = vec(layer.parallaxx ?? 1.0, layer.parallaxy ?? 1.0);
          this.tilemap.addComponent(new ParallaxComponent(factor));
@@ -476,7 +476,6 @@ export class TileLayer implements Layer {
                         }
                      }
                   }
-
                }
             }
          }

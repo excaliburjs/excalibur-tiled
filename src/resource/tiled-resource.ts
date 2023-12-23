@@ -9,6 +9,7 @@ import { pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
+import { FileLoader } from './file-loader';
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -53,7 +54,7 @@ export interface TiledResourceOptions {
     * Optionally provide a custom file loader implementation instead of using the built in Excalibur resource ajax loader
     * that takes a path and returns file data
     */
-   fileLoader?: (path: string) => Promise<string>; // TODO implement
+   fileLoader?: FileLoader; // TODO implement
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.

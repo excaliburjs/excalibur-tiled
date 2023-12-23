@@ -4,7 +4,6 @@ import { Properties } from "./properties";
 
 export interface TiledDataComponentOptions {
    tiledObject: PluginObject;
-   // tiledProperties: Properties;
 }
 export class TiledDataComponent extends Component<'ex.tiled-data'> {
    public readonly type = 'ex.tiled-data';
