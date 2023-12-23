@@ -54,6 +54,9 @@
    </properties>
   </tile>
   <tile id="190">
+   <properties>
+    <property name="meter" value="meter"/>
+   </properties>
    <objectgroup draworder="index" id="2">
     <object id="3" x="6.0625" y="8.875">
      <polygon points="0,0 3.0625,0 3,6.0625 -0.0625,6"/>
@@ -142,6 +145,9 @@
    </objectgroup>
   </tile>
   <tile id="272">
+   <properties>
+    <property name="test" value=""/>
+   </properties>
    <objectgroup draworder="index" id="2">
     <object id="1" x="4" y="0" width="8" height="16"/>
    </objectgroup>
@@ -1288,7 +1294,7 @@
   <object id="6" name="Player" type="player-start" x="375" y="104">
    <point/>
   </object>
-  <object id="7" name="Camera" type="Camera" x="444.5" y="404.5">
+  <object id="7" name="Camera" type="Camera" x="630.583" y="209">
    <properties>
     <property name="Camera" type="bool" value="true"/>
     <property name="Zoom" type="float" value="4"/>
@@ -1314,7 +1320,7 @@
   <object id="17" name="star" x="260" y="135.091" rotation="-93">
    <polygon points="0,0 -9.90909,-14.6364 4.18182,-12.6364 15.5455,-25.2727 17.0909,-12.2727 29,-8.36364 16.7273,-0.727273 14.8182,19.9091 7,4.45455 -5.36364,13.3636"/>
   </object>
-  <object id="18" x="251.727" y="163.364" height="0.0909091"/>
+  <object id="18" x="251.727" y="163.364"/>
   <object id="19" x="237.636" y="159.182" width="24.3636" height="20"/>
   <object id="20" x="262.273" y="87.5455">
    <polygon points="0,0 -15.6364,4.09091 0.727273,7.18182"/>

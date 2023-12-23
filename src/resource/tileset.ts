@@ -1,4 +1,4 @@
-import { AffineMatrix, Circle, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox } from "excalibur";
+import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
@@ -26,10 +26,10 @@ export class Tile implements Properties {
    graphic?: Graphic;
    objects: PluginObject[] = [];
    colliders: Collider[] = [];
-   animation: {tileid: number, duration: number}[] = [];
+   animation: { tileid: number, duration: number }[] = [];
    properties = new Map<string, string | number | boolean>()
    constructor(options: TileOptions) {
-      const {id, tileset, tiledTile} = options;
+      const { id, tileset, tiledTile } = options;
       this.id = id;
       this.tileset = tileset;
       this.tiledTile = tiledTile;
@@ -38,7 +38,7 @@ export class Tile implements Properties {
       mapProps(this, tiledTile.properties);
 
       if (tiledTile.objectgroup && tiledTile.objectgroup.objects) {
-         this.objects =  parseObjects(tiledTile.objectgroup);
+         this.objects = parseObjects(tiledTile.objectgroup);
       }
 
       if (tiledTile.animation) {
@@ -80,13 +80,13 @@ export class Tileset implements Properties {
       const { name, tiledTileset, spritesheet, tileToImage } = options;
       this.name = name;
       this.tiledTileset = tiledTileset;
-      
+
       if (isTiledTilesetSingleImage(tiledTileset) && tiledTileset.firstgid !== undefined && spritesheet) {
          mapProps(this, tiledTileset.properties);
          this.class = tiledTileset.class;
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
-         this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI/2).scale(-1, 1);
+         this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.spritesheet = spritesheet;
          this.firstGid = tiledTileset.firstgid;
          this.tileCount = tiledTileset.tilecount;
@@ -97,11 +97,11 @@ export class Tileset implements Properties {
                tiledTile: tile
             }))
          }
-      } 
+      }
       if (isTiledTilesetCollectionOfImages(tiledTileset) && tiledTileset.firstgid !== undefined && tileToImage) {
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
-         this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI/2).scale(-1, 1);
+         this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.firstGid = tiledTileset.firstgid!;
          this.tileCount = tiledTileset.tilecount;
          let sprites: Sprite[] = []
@@ -117,7 +117,7 @@ export class Tileset implements Properties {
                sprites.push(image.toSprite())
             }
          }
-         this.spritesheet = new SpriteSheet({sprites});
+         this.spritesheet = new SpriteSheet({ sprites });
       }
    }
 
@@ -179,12 +179,12 @@ export class Tileset implements Properties {
     * - Note: Ellipses can only be circles, the minimum dimension will be used to make a circle.
     * @param gid
     */
-   getCollidersForGid(gid: number, options?: { anchor: Vector, scale: Vector}): Collider[] {
+   getCollidersForGid(gid: number, options?: { anchor?: Vector, scale?: Vector }): Collider[] {
       let { anchor, scale } = {
          anchor: Vector.Zero,
          scale: Vector.One,
          ...options
-      } ;
+      };
       const tile = this.getTileByGid(gid);
       const result: Collider[] = [];
       if (tile && tile.objects) {
@@ -201,16 +201,15 @@ export class Tileset implements Properties {
                   object.width * scale.x,
                   object.height * scale.y,
                   anchor);
-               const points = this._applyFlipsToPoints(bb.getPoints(), gid);
-               const box = Shape.Polygon(points);
+               let points = this._applyFlipsToPoints(bb.getPoints(), gid);
+               const box = Shape.Polygon(points.map(p => p.add(vec(object.x, object.y))));
                result.push(box);
             }
-            if (object instanceof Circle) {
+            if (object instanceof Ellipse) {
                // This is the offset into the first point (local space)
-               const offset = vec(object.x, object.y);
-               const circle = Shape.Circle(
-                     Math.min(object.width / 2, object.height / 2),
-                          vec(object.width / 2, object.height / 2).add(offset).scale(scale));
+               let offsetPoint = vec(object.x, object.y);
+               const radius = Math.min(object.width / 2, object.height / 2);
+               const circle = Shape.Circle(radius, offsetPoint.scale(scale));
                result.push(circle);
             }
          }

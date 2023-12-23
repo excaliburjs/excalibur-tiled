@@ -241,7 +241,7 @@ export class ObjectLayer implements Layer {
                newActor.graphics.use(animationScaled);
             }
 
-            const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale});
+            const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale });
             if (colliders) {
                // insertable tiles have an x, y, width, height, gid
                // by default they pivot from the bottom left (0, 1)
