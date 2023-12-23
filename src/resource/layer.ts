@@ -1,4 +1,4 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource, Logger } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledImageLayer, TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -9,21 +9,25 @@ import { Tile } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";
 import { satisfies } from "compare-versions";
 import { pathRelativeToBase } from "./path-util";
+import { byNameCaseInsensitive, byPropertyCaseInsensitive, byClassCaseInsensitive } from "./filter-util";
 
 export type LayerTypes = ObjectLayer | TileLayer;
 
 export interface Layer extends Properties {
    name: string;
+   class?: string;
    load(): Promise<void>;
 }
 
 export class ImageLayer implements Layer {
    public readonly name: string;
+   public readonly class?: string;
    properties = new Map<string, string | number | boolean>();
    image: ImageSource | null = null;
    imageActor: Actor | null = null;
    constructor(public tiledImageLayer: TiledImageLayer, public resource: TiledResource) {
       this.name = tiledImageLayer.name;
+      this.class = tiledImageLayer.class;
       mapProps(this, tiledImageLayer.properties);
       if (tiledImageLayer.image) {
          this.image = new ImageSource(pathRelativeToBase(this.resource.path, tiledImageLayer.image))
@@ -53,39 +57,47 @@ export class ImageLayer implements Layer {
 }
 
 export class ObjectLayer implements Layer {
+   private logger = Logger.getInstance();
+
    public readonly name: string;
+   public readonly class?: string;
    properties = new Map<string, string | number | boolean>();
    objects: PluginObject[] = [];
    entities: Entity[] = [];
-   private _objectToActor = new Map<PluginObject, Entity>();
-   private _actorToObject = new Map<Entity, PluginObject>();
+   private _objectToEntity = new Map<PluginObject, Entity>();
+   private _entityToObject = new Map<Entity, PluginObject>();
+   private _loaded = false;
    constructor(public tiledObjectLayer: TiledObjectLayer, public resource: TiledResource) {
       this.name = tiledObjectLayer.name;
+      this.class = tiledObjectLayer.class;
 
       mapProps(this, tiledObjectLayer.properties);
    }
 
-   _hasWidthHeight(object: PluginObject) {
-      return object instanceof Rectangle || object instanceof InsertedTile;
-   }
-
-   // TODO casing matters here, we should avoid that
    // TODO for well know excalibur properties we should export types!
 
+   private _logLoadedWarning<TMethod extends keyof ObjectLayer>(name: TMethod) {
+      this.logger.warn(`ObjectLayer ${this.name} is not yet loaded, ${name}() will always be empty!`);
+   }
+
    getObjectByName(name: string): PluginObject[] {
-      return this.objects.filter(o => o.tiledObject.name === name);
+      if (!this._loaded) this._logLoadedWarning('getObjectByName');
+      return this.objects.filter(byNameCaseInsensitive(name));
    }
 
    getEntityByName(name: string): Entity[] {
-      return this.entities.filter(a => a.name === name);
+      if (!this._loaded) this._logLoadedWarning('getEntityByName');
+      return this.entities.filter(byNameCaseInsensitive(name));
    }
 
    getEntityByObject(object: PluginObject): Entity | undefined {
-      return this._objectToActor.get(object);
+      if (!this._loaded) this._logLoadedWarning('getEntityByObject');
+      return this._objectToEntity.get(object);
    }
 
    getObjectByEntity(actor: Entity): PluginObject | undefined {
-      return this._actorToObject.get(actor);
+      if (!this._loaded) this._logLoadedWarning('getObjectByEntity');
+      return this._entityToObject.get(actor);
    }
 
    /**
@@ -95,18 +107,16 @@ export class ObjectLayer implements Layer {
     * @returns 
     */
    getObjectsByProperty(propertyName: string, value?: any): PluginObject[] {
-      if (value !== undefined) {
-         return this.objects.filter(o => o.properties.get(propertyName) === value);
-      } else {
-         return this.objects.filter(o => o.properties.has(propertyName));
-      }
+      if (!this._loaded) this._logLoadedWarning('getObjectsByProperty');
+      return this.objects.filter(byPropertyCaseInsensitive(propertyName, value));
    }
    /**
     * Search for actors that were created from tiled objects
     * @returns 
     */
-   getActorsByProperty(propertyName: string, value?: any): Actor[] {
-      return this.getObjectsByProperty(propertyName, value).map(o => this._objectToActor.get(o)).filter(a => !!a) as Actor[];
+   getEntitiesByProperty(propertyName: string, value?: any): Entity[] {
+      if (!this._loaded) this._logLoadedWarning('getEntitiesByProperty');
+      return this.getObjectsByProperty(propertyName, value).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
    }
 
    /**
@@ -114,7 +124,8 @@ export class ObjectLayer implements Layer {
     * @returns 
     */
    getObjectsByClassName(className: string): PluginObject[] {
-      return this.objects.filter(o => o.tiledObject.name === className);
+      if (!this._loaded) this._logLoadedWarning('getObjectsByClassName');
+      return this.objects.filter(byClassCaseInsensitive(className));
    }
 
    /**
@@ -122,8 +133,9 @@ export class ObjectLayer implements Layer {
     * @param className 
     * @returns 
     */
-   getActorByClassName(className: string): Actor[] {
-      return this.getObjectsByClassName(className).map(o => this._objectToActor.get(o)).filter(a => !!a) as Actor[];
+   getEntitiesByClassName(className: string): Entity[] {
+      if (!this._loaded) this._logLoadedWarning('getEntitiesByClassName');
+      return this.getObjectsByClassName(className).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
    }
 
    async load() {
@@ -181,7 +193,7 @@ export class ObjectLayer implements Layer {
             const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
             const scale = vec(scaleX, scaleY);
             
-            const tileset = this.resource.getTilesetForTile(object.gid);
+            const tileset = this.resource.getTilesetForTileGid(object.gid);
             // need to clone because we are modify sprite properties, sprites are shared by default
             const sprite = tileset.getSpriteForGid(object.gid).clone();
             sprite.destSize.width = object.tiledObject.width ?? sprite.width;
@@ -221,7 +233,7 @@ export class ObjectLayer implements Layer {
          if (object instanceof Polygon) {
             newActor.anchor = vec(0, 1);
             newActor.pos = vec(object.x, object.y);
-            const polygon = Shape.Polygon(object.points)
+            const polygon = Shape.Polygon(object.localPoints).triangulate();
             newActor.collider.set(polygon);
          }
 
@@ -246,6 +258,8 @@ export class ObjectLayer implements Layer {
 
          this._recordObjectEntityMapping(object, newActor);
       }
+
+      this._loaded = true;
    }
 
    private _recordObjectEntityMapping(object: PluginObject, entity: Entity){
@@ -254,8 +268,8 @@ export class ObjectLayer implements Layer {
       }));
       this.objects.push(object);
       this.entities.push(entity);
-      this._objectToActor.set(object, entity);
-      this._actorToObject.set(entity, object);
+      this._objectToEntity.set(object, entity);
+      this._entityToObject.set(entity, object);
    }
 }
 
@@ -274,16 +288,19 @@ export interface TileInfo {
 }
 
 export class TileLayer implements Layer {
+   private logger = Logger.getInstance();
    public readonly name: string;
-   properties = new Map<string, string | number | boolean>();
+   public readonly class?: string;
    /**
     * Number of tiles wide
     */
-   width: number = 0;
+   public readonly width: number = 0;
    /**
     * Number of tiles high
     */
-   height: number = 0;
+   public readonly height: number = 0;
+
+   properties = new Map<string, string | number | boolean>();
 
    /**
     * Original list of gids for this layer from tiled
@@ -297,8 +314,10 @@ export class TileLayer implements Layer {
 
 
    getTileByPoint(worldPos: Vector): TileInfo | null {
-      // TODO IF the resource is not loaded & decoded THIS WONT WORK
-      // log a warning
+      if (!this.tilemap) {
+         this.logger.warn('Tilemap has not yet been loaded! getTileByPoint() will only return null');
+         return null;
+      }
       if (this.tilemap) {
          const exTile = this.tilemap.getTileByPoint(worldPos);
          const tileIndex = this.tilemap.tiles.indexOf(exTile);
@@ -308,7 +327,7 @@ export class TileLayer implements Layer {
             return null;
          }
 
-         const tileset = this.resource.getTilesetForTile(gid);
+         const tileset = this.resource.getTilesetForTileGid(gid);
          const tiledTile = tileset.getTileByGid(gid);
 
          return { tiledTile, exTile };
@@ -317,8 +336,10 @@ export class TileLayer implements Layer {
    }
 
    getTileByCoordinate(x: number, y: number): TileInfo | null {
-      // TODO IF the resource is not loaded & decoded THIS WONT WORK
-      // log a warning
+      if (!this.tilemap) {
+         this.logger.warn('Tilemap has not yet been loaded! getTileByCoordinate() will only return null');
+         return null;
+      }
       if (this.tilemap) {
          const exTile = this.tilemap.getTile(x, y);
          const tileIndex = this.tilemap.tiles.indexOf(exTile);
@@ -328,7 +349,7 @@ export class TileLayer implements Layer {
             return null;
          }
 
-         const tileset = this.resource.getTilesetForTile(gid);
+         const tileset = this.resource.getTilesetForTileGid(gid);
          const tiledTile = tileset.getTileByGid(gid);
 
          return { tiledTile, exTile };
@@ -338,9 +359,10 @@ export class TileLayer implements Layer {
 
    constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
       this.name = tiledTileLayer.name;
-      mapProps(this, tiledTileLayer.properties);
+      this.class = tiledTileLayer.class;
       this.width = tiledTileLayer.width;
       this.height = tiledTileLayer.height;
+      mapProps(this, tiledTileLayer.properties);
    }
 
    async load() {
@@ -379,7 +401,7 @@ export class TileLayer implements Layer {
       for (let i = 0; i < this.data.length; i++) {
          let gid = this.data[i];
          if (gid !== 0) {
-            const tileset = this.resource.getTilesetForTile(gid);
+            const tileset = this.resource.getTilesetForTileGid(gid);
             let sprite = tileset.getSpriteForGid(gid);
             if (hasTint) {
                sprite = sprite.clone();

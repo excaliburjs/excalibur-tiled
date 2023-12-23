@@ -10,10 +10,16 @@ export class PluginObject implements Properties {
    id: number;
    x: number;
    y: number;
+   name?: string;
+   class?: string;
    tiledObject: TiledObject;
    properties = new Map<string, string | number | boolean>();
    constructor(props: PluginObjectProps) {
       this.tiledObject = props.tiledObject;
+      this.name = this.tiledObject.name;
+      // Yes this is class in the Tiled UI, it switched from Type -> Class but not all the representations match
+      // class mostly synonymous with type in tiled except for a few instances
+      this.class = this.tiledObject.type; 
       this.id = this.tiledObject.id ?? -1;
       this.x = this.tiledObject.x;
       this.y = this.tiledObject.y;
@@ -102,9 +108,17 @@ export class Rectangle extends PluginObject {
    }
 }
 export class Polygon extends PluginObject {
-   public readonly points: Vector[] = []
+   /**
+    * Transformed world space points
+    */
+   public readonly points: Vector[] = [];
+   /**
+    * Local space points
+    */
+   public readonly localPoints: Vector[] = [];
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
       super({tiledObject});
+      this.localPoints = points.map(p => vec(p.x, p.y));
       this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
    }
 }

@@ -5,6 +5,7 @@ import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parse
 import { Properties, mapProps } from "./properties";
 import { PluginObject } from "./objects";
 import { pathRelativeToBase } from "./path-util";
+import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 
 
 export interface TileOptions {
@@ -131,6 +132,14 @@ export class Tileset implements Properties {
       const tileIndex = normalizedGid - this.firstGid;
       const tile = this.tiles.find(t => t.id === tileIndex);
       return tile;
+   }
+
+   getTilesByClassName(className: string): Tile[] {
+      return this.tiles.filter(byClassCaseInsensitive(className));
+   }
+
+   getTilesByProperty(name: string, value?: any): Tile[] {
+      return this.tiles.filter(byPropertyCaseInsensitive(name, value));
    }
 
    getSpriteForGid(gid: number): Sprite {

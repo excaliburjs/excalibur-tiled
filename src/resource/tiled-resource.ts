@@ -1,12 +1,13 @@
-import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, Vector } from "excalibur";
+import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
-import { ImageLayer, Layer, ObjectLayer, TileLayer } from "./layer";
+import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
+import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -69,7 +70,7 @@ export interface TiledResourceOptions {
     * Configure custom Actor/Entity factory functions to construct Actors/Entities
     * given a Tiled class name.
     */
-   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity>; // TODO implement
+   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity>;
 }
 
 export interface FactoryProps {
@@ -113,13 +114,27 @@ export class TiledResource implements Loadable<any> {
     * If loaded from a Tiled TMX file, it has been converted to the same JSON/TMJ format
     */
    map!: TiledMap;
+   /**
+    * A list of Tilesets from Tiled in a friendly data structure (original TSX/TSJ is available on that type)
+    */
    tilesets: Tileset[] = [];
+   /**
+    * A list of Templates from Tiled in a friendly data structure (original TX/TJ is available on that type)
+    */
    templates: Template[] = [];
+   /**
+    * A list of Layers from Tiled in a friendly data structure (original layer format is available on that type)
+    *
+    * Layers can either be an ObjectLayer, TileLayer, or ImageLayer
+    *
+    * GroupLayers don't exist in the plugin, they are flattened and the proper order preserved.
+    */
    layers: Layer[] = [];
 
    public readonly mapFormat: 'TMX' | 'TMJ' = 'TMX';
-   // ? should this be publish?
+
    public factories = new Map<string, (props: FactoryProps) => Entity>();
+
    private _resource: Resource<string>;
    private _parser = new TiledParser();
 
@@ -162,7 +177,12 @@ export class TiledResource implements Loadable<any> {
       this.factories.delete(className);
    }
 
-   getTilesetForTile(gid: number): Tileset {
+   /**
+    * Given a gid, find the Tileset it belongs to in the map!
+    * @param gid 
+    * @returns 
+    */
+   getTilesetForTileGid(gid: number): Tileset {
       const normalizedGid = getCanonicalGid(gid)
       if (this.tilesets) {
          for (let tileset of this.tilesets) {
@@ -174,56 +194,113 @@ export class TiledResource implements Loadable<any> {
       throw Error(`No tileset exists for tiled gid [${gid}] normalized [${normalizedGid}]!`);
    }
 
+   /**
+    * Queries for tilesets in the map by name (case insensitive)
+    * @param name 
+    * @returns 
+    */
+   getTilesetByName(name: string): Tileset[] {
+      return this.tilesets.filter(byNameCaseInsensitive(name));
+   }
+   /**
+    * Queries for tilesets in the map by class name (case insensitive)
+    * @param className 
+    * @returns 
+    */
+   getTilesetByClassName(className: string): Tileset[] {
+      return this.tilesets.filter(byClassCaseInsensitive(className));
+   }
+
+   /**
+    * Queries for tilesets in the map by property and an optional value (case insensitive)
+    * @param propertyName 
+    * @param value 
+    * @returns 
+    */
+   getTilesetByProperty(propertyName: string, value?: any): Tileset[] {
+      return this.tilesets.filter(byPropertyCaseInsensitive(propertyName, value));
+   }
+
+   /**
+    * Queries ALL tilesets in the map for a specific class name (case insensitive)
+    * @param className 
+    * @returns 
+    */
    getTilesByClassName(className: string): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
-         results = results.concat(tileset.tiles.filter(t => t.class === className));
+         results = results.concat(tileset.tiles.filter(byClassCaseInsensitive(className)));
       }
-
       return results;
    }
 
+   /**
+    * Queries ALL tilesets in the map for a specific property and an optional value (case insensitive)
+    * @param name 
+    * @param value 
+    * @returns 
+    */
    getTilesByProperty(name: string, value?: any): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
-         if (value !== undefined) {
-            results = results.concat(tileset.tiles.filter(t => t.properties.get(name) === value));
-         } else {
-            results = results.concat(tileset.tiles.filter(t => t.properties.has(name)));
-         }
+            results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
       }
-
       return results;
    }
 
-   getImageLayers(): Layer[] {
-      // TODO implement
-      return [];
+   /**
+    * Returns a tile by the world position from a layer. (Uses the first layer name that matches case insensitive).
+    * @param layerName 
+    * @param worldPos 
+    * @returns 
+    */
+   getTileByPoint(layerName: string, worldPos: Vector): TileInfo | null {
+      const layer = this.getTileLayers().find(byNameCaseInsensitive(layerName));
+      if (layer) {
+         return layer.getTileByPoint(worldPos);
+      }
+
+      return null;
+   }
+
+   /**
+    * Returns a tile by x, y integer coordinate from a layer. (Uses the first layer name that matches case insensitive).
+    * @param layerName 
+    * @param x 
+    * @param y 
+    * @returns 
+    */
+   getTileByCoordinate(layerName: string, x: number, y: number): TileInfo | null {
+      const layer = this.getTileLayers().find(byNameCaseInsensitive(layerName));
+      if (layer) {
+         return layer.getTileByCoordinate(x, y);
+      }
+
+      return null;
+   }
+
+   getImageLayers(): ImageLayer[] {
+      return this.layers.filter(l => l instanceof ImageLayer) as ImageLayer[];
    }
 
    getTileLayers(): TileLayer[] {
-      // TODO implement
-      return [];
+      return this.layers.filter(l => l instanceof TileLayer) as TileLayer[];
    }
 
    getObjectLayers(): ObjectLayer[] {
-      // TODO implement
-      return [];
+      return this.layers.filter(l => l instanceof ObjectLayer) as ObjectLayer[];
    }
 
    getLayersByName(name: string): Layer[] {
-      // TODO implement
-      return [];
+      return this.layers.filter(byNameCaseInsensitive(name));
    }
    
    getLayersByClassName(className: string): Layer[] {
-      // TODO implement
-      return [];
+      return this.layers.filter(byClassCaseInsensitive(className));
    }
 
-   getLayersByProperty(name: string, value?: any): Layer[] {
-      // TODO implement
-      return [];
+   getLayersByProperty(propertyName: string, value?: any): Layer[] {
+      return this.layers.filter(byPropertyCaseInsensitive(propertyName, value));
    }
 
 
@@ -393,19 +470,28 @@ export class TiledResource implements Loadable<any> {
       this.layers = friendlyLayers;
    }
 
-   addToScene(scene: Scene, options?: TiledAddToSceneOptions) { // TODO implement options
-      // TODO pick a position to insert into the scene?
+   addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
+      const defaultOptions: TiledAddToSceneOptions = {
+         pos: vec(0, 0)
+      };
+      const { pos } = { ...defaultOptions, ...options };
       for (const layer of this.layers) {
          if (layer instanceof TileLayer) {
+            layer.tilemap.pos = layer.tilemap.pos.add(pos);
             scene.add(layer.tilemap);
          }
          if (layer instanceof ObjectLayer) {
-            for (const actor of layer.entities) {
-               scene.add(actor);
+            for (const entity of layer.entities) {
+               const tx = entity.get(TransformComponent);
+               if (tx) {
+                  tx.pos = tx.pos.add(pos);
+               }
+               scene.add(entity);
             }
          }
          if (layer instanceof ImageLayer) {
             if (layer.imageActor) {
+               layer.imageActor.pos = layer.imageActor.pos.add(pos);
                scene.add(layer.imageActor);
             }
          }
