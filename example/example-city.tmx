@@ -1290,6 +1290,7 @@
   </object>
   <object id="7" name="Camera" type="Camera" x="444.5" y="404.5">
    <properties>
+    <property name="Camera" type="bool" value="true"/>
     <property name="Zoom" type="float" value="4"/>
    </properties>
    <point/>

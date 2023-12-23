@@ -1,4 +1,4 @@
-import { Entity, ImageSource, Loadable, Resource, Scene, SpriteSheet, TransformComponent, Vector, vec } from "excalibur";
+import { Entity, ImageSource, Loadable, Logger, Resource, Scene, SpriteSheet, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
@@ -8,6 +8,7 @@ import { getCanonicalGid } from "./gid-util";
 import { pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { ExcaliburTiledProperties } from "./excalibur-properties";
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -28,9 +29,12 @@ export interface TiledResourceOptions {
     * * Make Actors/Tiles with colliders on Tiled tiles & Tiled objects
     * * Support solid layers
     */
-   useExcaliburWiring?: boolean; // TODO implement
+   useExcaliburWiring?: boolean;
 
 
+   /**
+    * Keeps the camera viewport within the bounds of the TileMap
+    */
    useTilemapCameraStrategy?: boolean // TODO implements
 
    /**
@@ -49,7 +53,7 @@ export interface TiledResourceOptions {
     * Optionally provide a custom file loader implementation instead of using the built in Excalibur resource ajax loader
     * that takes a path and returns file data
     */
-   fileLoader?: (path: string) => Promise<any>; // TODO implement
+   fileLoader?: (path: string) => Promise<string>; // TODO implement
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.
@@ -101,6 +105,7 @@ export interface FactoryProps {
 }
 
 export class TiledResource implements Loadable<any> {
+   private logger = Logger.getInstance();
    /**
     * Currently the latest tested and supported version of Tiled
     * with the Excalibur Tiled plugin
@@ -141,9 +146,11 @@ export class TiledResource implements Loadable<any> {
    public firstGidToImage = new Map<number, ImageSource>();
    private tileToImage = new Map<TiledTile, ImageSource>();
    public readonly textQuality: number = 4;
+   public readonly useExcaliburWiring: boolean = true;
 
    constructor(public path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories } = { ...options };
+      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring } = { ...options };
+      this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.textQuality = textQuality ?? this.textQuality;
       for (const key in entityClassNameFactories) {
          this.registerEntityFactory(key, entityClassNameFactories[key]);
@@ -261,6 +268,97 @@ export class TiledResource implements Loadable<any> {
       }
 
       return null;
+   }
+
+   /**
+    * Queries all layers for objects that match a name (case insensitive)
+    * @param name 
+    * @returns 
+    */
+   getObjectsByName(name: string): PluginObject[] {
+      let results: PluginObject[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getObjectsByName(name));
+      }
+      return results;
+   }
+
+   getEntitiesByName(name: string): Entity[] {
+      let results: Entity[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getEntitiesByName(name));
+      }
+      return results;
+   }
+
+   getEntityByObject(object: PluginObject): Entity | undefined {
+      for (let objectlayer of this.getObjectLayers()) {
+         const entity = objectlayer.getEntityByObject(object);
+         if (entity) {
+            return entity;
+         }
+      }
+      return;
+   }
+
+   getObjectByEntity(actor: Entity): PluginObject | undefined {
+      for (let objectlayer of this.getObjectLayers()) {
+         const object = objectlayer.getObjectByEntity(actor);
+         if (object) {
+            return object;
+         }
+      }
+      return;
+   }
+
+   /**
+    * Search for a tiled object that has a property name, and optionally specify a value
+    * @param propertyName 
+    * @param value 
+    * @returns 
+    */
+   getObjectsByProperty(propertyName: string, value?: any): PluginObject[] {
+      let results: PluginObject[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getObjectsByProperty(propertyName, value));
+      }
+      return results;
+   }
+   /**
+    * Search for actors that were created from tiled objects
+    * @returns 
+    */
+   getEntitiesByProperty(propertyName: string, value?: any): Entity[] {
+      let results: Entity[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getEntitiesByProperty(propertyName, value));
+      }
+      return results;
+   }
+
+   /**
+    * Search for an Tiled object by it's Tiled class name
+    * @returns 
+    */
+   getObjectsByClassName(className: string): PluginObject[] {
+      let results: PluginObject[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getObjectsByClassName(className));
+      }
+      return results;
+   }
+
+   /**
+    * Search for an Actor created by the plugin by it's Tiled object
+    * @param className 
+    * @returns 
+    */
+   getEntitiesByClassName(className: string): Entity[] {
+      let results: Entity[] = [];
+      for (let objectlayer of this.getObjectLayers()) {
+         results = results.concat(objectlayer.getEntitiesByClassName(className));
+      }
+      return results;
    }
 
    /**
@@ -471,6 +569,10 @@ export class TiledResource implements Loadable<any> {
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
+      if (!this.isLoaded()) {
+         this.logger.warn(`TiledResource ${this.path} is not loaded! Nothing will be wired into excalibur!`);
+         return;
+      }
       const defaultOptions: TiledAddToSceneOptions = {
          pos: vec(0, 0)
       };
@@ -496,10 +598,23 @@ export class TiledResource implements Loadable<any> {
             }
          }
       }
+
+      if (this.useExcaliburWiring) {
+         const objects = this.getObjectsByProperty(ExcaliburTiledProperties.Camera.Camera, true);
+         if (objects && objects.length) {
+            const cameraObject = objects[0];
+            let zoom = 1;
+            const zoomProp = cameraObject.properties.get(ExcaliburTiledProperties.Camera.Zoom);
+            if (zoomProp && typeof zoomProp === 'number') {
+               zoom = zoomProp;
+            }
+            scene.camera.pos = vec(cameraObject.x, cameraObject.y);
+            scene.camera.zoom = zoom;
+         }
+      }
    }
 
    isLoaded(): boolean {
-      throw new Error("Method not implemented.");
+      return !!this.map;
    }
-   
 }

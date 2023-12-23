@@ -1,4 +1,4 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource, Logger } from "excalibur";
+import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource, Logger, AnimationStrategy, CollisionType } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledImageLayer, TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -7,9 +7,9 @@ import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangl
 import { getCanonicalGid } from "./gid-util";
 import { Tile } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";
-import { satisfies } from "compare-versions";
 import { pathRelativeToBase } from "./path-util";
 import { byNameCaseInsensitive, byPropertyCaseInsensitive, byClassCaseInsensitive } from "./filter-util";
+import { ExcaliburTiledProperties } from "./excalibur-properties";
 
 export type LayerTypes = ObjectLayer | TileLayer;
 
@@ -74,19 +74,17 @@ export class ObjectLayer implements Layer {
       mapProps(this, tiledObjectLayer.properties);
    }
 
-   // TODO for well know excalibur properties we should export types!
-
    private _logLoadedWarning<TMethod extends keyof ObjectLayer>(name: TMethod) {
       this.logger.warn(`ObjectLayer ${this.name} is not yet loaded, ${name}() will always be empty!`);
    }
 
-   getObjectByName(name: string): PluginObject[] {
-      if (!this._loaded) this._logLoadedWarning('getObjectByName');
+   getObjectsByName(name: string): PluginObject[] {
+      if (!this._loaded) this._logLoadedWarning('getObjectsByName');
       return this.objects.filter(byNameCaseInsensitive(name));
    }
 
-   getEntityByName(name: string): Entity[] {
-      if (!this._loaded) this._logLoadedWarning('getEntityByName');
+   getEntitiesByName(name: string): Entity[] {
+      if (!this._loaded) this._logLoadedWarning('getEntitiesByName');
       return this.entities.filter(byNameCaseInsensitive(name));
    }
 
@@ -176,6 +174,35 @@ export class ObjectLayer implements Layer {
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0),
          });
+
+         if (this.resource.useExcaliburWiring) {
+            const collisionType = object.properties.get(ExcaliburTiledProperties.Collision.Type);
+            if (collisionType && typeof collisionType === 'string') {
+               switch(collisionType.toLowerCase()) {
+                  case CollisionType.Active.toLowerCase(): {
+                     newActor.body.collisionType = CollisionType.Active;
+                     break;
+                  }
+                  case CollisionType.Fixed.toLowerCase(): {
+                     newActor.body.collisionType = CollisionType.Fixed;
+                     break;
+                  }
+                  case CollisionType.Passive.toLowerCase(): {
+                     newActor.body.collisionType = CollisionType.Passive;
+                     break;
+                  }
+                  case CollisionType.PreventCollision.toLowerCase(): {
+                     newActor.body.collisionType = CollisionType.PreventCollision;
+                     break;
+                  }
+                  default: {
+                     this.logger.warn(`Unknown collision type in layer ${this.name}, for object id ${object.id} and name ${object.name}: ${collisionType}`);
+                     break;
+                  }
+               }
+            }
+         }
+
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
             graphics.opacity = opacity;
@@ -235,14 +262,6 @@ export class ObjectLayer implements Layer {
             newActor.pos = vec(object.x, object.y);
             const polygon = Shape.Polygon(object.localPoints).triangulate();
             newActor.collider.set(polygon);
-         }
-
-         if (object instanceof Polyline) {
-            // ? should we do any excalibur things here
-         }
-
-         if (object instanceof Point) {
-            // ? should we do any excalibur things here
          }
 
          if (object instanceof Rectangle) {
@@ -397,18 +416,25 @@ export class TileLayer implements Layer {
          this.tilemap.addComponent(new ParallaxComponent(factor));
       }
 
+      const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
+
       // Read tiled data into Excalibur's tilemap type
       for (let i = 0; i < this.data.length; i++) {
          let gid = this.data[i];
          if (gid !== 0) {
+            const tile = this.tilemap.tiles[i];
+            if (this.resource.useExcaliburWiring && isSolidLayer) {
+               tile.solid = true;
+            }
+
             const tileset = this.resource.getTilesetForTileGid(gid);
             let sprite = tileset.getSpriteForGid(gid);
             if (hasTint) {
                sprite = sprite.clone();
                sprite.tint = tint;
             }
-            const tile = this.tilemap.tiles[i];
             tile.addGraphic(sprite);
+
 
             // the whole tilemap uses a giant composite collider relative to the Tilemap
             // not individual tiles
@@ -425,6 +451,36 @@ export class TileLayer implements Layer {
                }
                tile.clearGraphics();
                tile.addGraphic(animation);
+               if (this.resource.useExcaliburWiring) {
+                  const tileObj = tileset.getTileByGid(gid);
+                  const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);
+                  if (strategy && typeof strategy === 'string') {
+                     switch(strategy.toLowerCase()) {
+                        case AnimationStrategy.End.toLowerCase(): {
+                           animation.strategy = AnimationStrategy.End;
+                           break;
+                        }
+                        case AnimationStrategy.Freeze.toLowerCase(): {
+                           animation.strategy = AnimationStrategy.Freeze;
+                           break;
+                        }
+                        case AnimationStrategy.Loop.toLowerCase(): {
+                           animation.strategy = AnimationStrategy.Loop;
+                           break;
+                        }
+                        case AnimationStrategy.PingPong.toLowerCase(): {
+                           animation.strategy = AnimationStrategy.PingPong;
+                           break;
+                        }
+                        default: {
+                           // unknown animation strategy
+                           this.logger.warn(`Unknown animation strategy in tileset ${tileset.name} on tile gid ${gid}: ${strategy}`);
+                           break;
+                        }
+                     }
+                  }
+
+               }
             }
          }
       }

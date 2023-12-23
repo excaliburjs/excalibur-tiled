@@ -1,6 +1,6 @@
 
 export const byNameCaseInsensitive = (name?: string) => {
-   return function innerFilter<TObject extends {name?: string}>(object: TObject) {
+   return <TObject extends {name?: string}>(object: TObject) => {
       if (object?.name && name) {
          return object.name.toLocaleLowerCase().localeCompare(name.toLocaleLowerCase()) === 0;
       }
@@ -9,7 +9,7 @@ export const byNameCaseInsensitive = (name?: string) => {
 }
 
 export const byClassCaseInsensitive = (className?: string) => {
-   return function innerFilter<TObject extends {class?: string}>(object: TObject) {
+   return <TObject extends {class?: string}>(object: TObject) => {
       if (object?.class && className) {
          return object.class.toLocaleLowerCase().localeCompare(className.toLocaleLowerCase()) === 0;
       }
@@ -17,16 +17,31 @@ export const byClassCaseInsensitive = (className?: string) => {
    }
 }
 
+const copyPropsLowerCase = (properties: Map<string, string | number | boolean>) => {
+   const lowercase = new Map<string, string | number | boolean>();
+   for (let [key, value] of properties) {
+      let normalizedValue = value;
+      if (typeof value === 'string') {
+         normalizedValue = value.toLocaleLowerCase();
+      }
+      lowercase.set(key.toLocaleLowerCase(), normalizedValue);
+   }
+   return lowercase;
+}
+
 export const byPropertyCaseInsensitive = (propertyName: string, value?: any) => {
-   return function innerFilter<TObject extends {properties:Map<string, string | number | boolean>}>(object: TObject) {
+   return <TObject extends {properties: Map<string, string | number | boolean>}>(object: TObject) => {
+      const lowercase = copyPropsLowerCase(object.properties);
+
       if (value !== undefined) {
          let normalizedValue = value;
          if (typeof value === 'string') {
             normalizedValue = value.toLocaleLowerCase();
          }
-         return object.properties.get(propertyName.toLocaleLowerCase()) === normalizedValue;
+
+         return lowercase.get(propertyName.toLocaleLowerCase()) === normalizedValue;
       } else {
-         return object.properties.has(propertyName.toLocaleLowerCase());
+         return lowercase.has(propertyName.toLocaleLowerCase());
       }
    }
 }

@@ -251,7 +251,6 @@ export class Tileset implements Properties {
          }
          return new Animation({
             frames: exFrames,
-            // TODO excalibur smarts animation strategy
             strategy: AnimationStrategy.Loop
          });
       }
