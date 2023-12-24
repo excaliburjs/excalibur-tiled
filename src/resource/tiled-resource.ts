@@ -502,12 +502,9 @@ export class TiledResource implements Loadable<any> {
          console.error(`Unable to load Tiled Tileset image ${i.path}, if you are using a bundler check the files are where they should be. Use "pathMap" to adjust file mappings to work around bundlers`);
       })));
 
-      // TODO Load templates
-
-      // friendly plugin data structures
+      // Friendly plugin data structures
 
       // Tilesets
-      
       for (const tileset of loadedTilesets) {
          if (isTiledTilesetSingleImage(tileset) && tileset.firstgid) {
             const spacing = tileset.spacing;
@@ -554,7 +551,7 @@ export class TiledResource implements Loadable<any> {
       }
 
       // Templates
-      // Do templates last so we can re-use object layers
+      // Scan for template refrences in object files
       let templates: string[] = [];
       for (const layer of this.map.layers) {
          if (layer.type === 'objectgroup') {
@@ -562,12 +559,12 @@ export class TiledResource implements Loadable<any> {
             templates = templates.concat(templateObjects);
          }
       }
-      // Load Friendly templates
       // unique template paths
       const uniqueTemplatePaths = templates.filter((value, index, array) => {
          return array.findIndex(path => path === value) === index;
       });
       
+      // Load Friendly templates
       this.templates = uniqueTemplatePaths.map(path => new Template(path, this));
       await Promise.all(this.templates.map(t => t.load()));
       console.log(this.templates);

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <tileset firstgid="1" source="external-collection.tsx"/>
+ <object gid="2" width="111" height="128"/>
+</template>

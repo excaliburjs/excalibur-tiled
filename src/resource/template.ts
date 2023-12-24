@@ -1,13 +1,14 @@
-import { TiledTemplate, TiledTilesetFile } from "../parser/tiled-parser";
+import { ImageSource, SpriteSheet } from "excalibur";
+import { TiledTemplate, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { PluginObject, parseObject } from "./objects";
 import { pathRelativeToBase } from "./path-util";
 import { TiledResource } from "./tiled-resource";
-import { Tileset } from "./tileset";
+import { Tileset, loadExternalFriendlyTileset } from "./tileset";
 
+// Templates are basically a mini tiled resource, they have a self contained object and optionally a tileset
 export class Template {
-   
    tiledTemplate!: TiledTemplate;
-   object?: PluginObject;
+   object!: PluginObject;
    tileset?: Tileset;
 
    constructor(public templatePath: string, private _resource: TiledResource) {}
@@ -23,27 +24,12 @@ export class Template {
          template = TiledTemplate.parse(content);
       }
       this.tiledTemplate = template;
-      this.object = parseObject(template.object);
+      this.object = parseObject(template.object, []);
 
       if (template.tileset) {
-         // TODO Template tilesets are not included in the TiledResource list, is this right?
-         const tilesetType = template.tileset.source.includes('.tsx') ? 'xml' : 'json';
+         //Template tilesets are not included in the TiledResource list because their gids can collide with map tilesets
          const tilesetPath = pathRelativeToBase(templateFilePath, template.tileset.source);
-
-         const tilesetData = await this._resource.fileLoader(tilesetPath, tilesetType);
-         let tileset: TiledTilesetFile;
-         // TMJ tileset
-         if (tilesetType === 'json') {
-            tileset = TiledTilesetFile.parse(tilesetData);
-         } else { // TMX tileset
-            tileset = this._resource.parser.parseExternalTileset(tilesetData);
-         }
-         tileset.firstgid = template.tileset.firstgid;
-         this.tileset = new Tileset({
-            name: tileset.name,
-            tiledTileset: tileset
-         });
-         this.tileset.firstGid = template.tileset.firstgid;
+         this.tileset = await loadExternalFriendlyTileset(tilesetPath, template.tileset.firstgid, this._resource);
       }
    }
 }

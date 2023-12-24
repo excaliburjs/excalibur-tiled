@@ -5,7 +5,7 @@ import { Decoder } from "./decoder";
 import { FactoryProps, TiledResource } from "./tiled-resource";
 import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, TemplateObject, Text, parseObjects } from "./objects";
 import { getCanonicalGid } from "./gid-util";
-import { Tile } from "./tileset";
+import { Tile, Tileset } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";
 import { pathRelativeToBase } from "./path-util";
 import { byNameCaseInsensitive, byPropertyCaseInsensitive, byClassCaseInsensitive } from "./filter-util";
@@ -143,13 +143,83 @@ export class ObjectLayer implements Layer {
       return this.objects.filter(o => o instanceof TemplateObject) as TemplateObject[];
    }
 
-   async load() {
-      const opacity = this.tiledObjectLayer.opacity;
+   _actorFromObject(object: PluginObject, newActor: Actor, tileset?: Tileset): void {
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
+
+      if (object instanceof InsertedTile && tileset) {
+
+         const anchor = tileset.getTilesetAlignmentAnchor();
+            // Inserted tiles pivot from the bottom left in Tiled
+         newActor.anchor = anchor;
+         const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
+         const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
+         const scale = vec(scaleX, scaleY);
+         
+         // need to clone because we are modify sprite properties, sprites are shared by default
+         const sprite = tileset.getSpriteForGid(object.gid).clone();
+         sprite.destSize.width = object.tiledObject.width ?? sprite.width;
+         sprite.destSize.height = object.tiledObject.height ?? sprite.height;
+         if (hasTint) {
+            sprite.tint = tint;
+         }
+
+         newActor.graphics.use(sprite);
+
+         const animation = tileset.getAnimationForGid(object.gid);
+         if (animation) {
+            const animationScaled = animation.clone();
+            animationScaled.scale = scale;
+            if (hasTint) {
+               animationScaled.tint = tint;
+            }
+            newActor.graphics.use(animationScaled);
+         }
+
+         const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale });
+         if (colliders) {
+            // insertable tiles have an x, y, width, height, gid
+            // by default they pivot from the bottom left (0, 1)
+            const width = (object.tiledObject.width ?? 0);
+            const height = (object.tiledObject.height ?? 0);
+            const offsetx = -width * anchor.x;
+            const offsety = -height * anchor.y;
+            const offset = vec(offsetx, offsety);
+            for (let collider of colliders) {
+               collider.offset = offset;
+            }
+            newActor.collider.useCompositeCollider(colliders);
+         }
+      }
+
+      if (object instanceof Text) {
+         newActor.graphics.use(object.text);
+      }
+
+      if (object instanceof Polygon) {
+         newActor.anchor = vec(0, 1);
+         newActor.pos = vec(object.x, object.y);
+         const polygon = Shape.Polygon(object.localPoints).triangulate();
+         newActor.collider.set(polygon);
+      }
+
+      if (object instanceof Rectangle) {
+         newActor.anchor = object.anchor;
+         newActor.collider.useBoxCollider(object.width, object.height, object.anchor);
+      }
+
+      if (object instanceof Ellipse) {
+         // FIXME: Excalibur doesn't support ellipses :( fallback to circle
+         // pick the smallest dimension and that's our radius
+         newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
+      }
+   }
+
+   async load() {
+      const opacity = this.tiledObjectLayer.opacity;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
 
-      const objects = parseObjects(this.tiledObjectLayer, this.resource.textQuality);
+      const objects = parseObjects(this.tiledObjectLayer, this.resource.templates, this.resource.textQuality);
 
       for (let object of objects) {
          let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
@@ -214,73 +284,17 @@ export class ObjectLayer implements Layer {
 
          if (object instanceof TemplateObject) {
             console.log(object);
-         }
-
-         if (object instanceof Text) {
-            newActor.graphics.use(object.text);
-         }
-
-         if (object instanceof InsertedTile) {
-            const tileset = this.resource.getTilesetForTileGid(object.gid);
-            const anchor = tileset.getTilesetAlignmentAnchor();
-             // Inserted tiles pivot from the bottom left in Tiled
-            newActor.anchor = anchor;
-            const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
-            const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
-            const scale = vec(scaleX, scaleY);
-            
-            // need to clone because we are modify sprite properties, sprites are shared by default
-            const sprite = tileset.getSpriteForGid(object.gid).clone();
-            sprite.destSize.width = object.tiledObject.width ?? sprite.width;
-            sprite.destSize.height = object.tiledObject.height ?? sprite.height;
-            if (hasTint) {
-               sprite.tint = tint;
+            // templates reference their own tilesets
+            const tileset = object.template.tileset;
+            if (object.template.object) {
+               this._actorFromObject(object.template.object, newActor, tileset);
             }
-
-            newActor.graphics.use(sprite);
-
-            const animation = tileset.getAnimationForGid(object.gid);
-            if (animation) {
-               const animationScaled = animation.clone();
-               animationScaled.scale = scale;
-               if (hasTint) {
-                  animationScaled.tint = tint;
-               }
-               newActor.graphics.use(animationScaled);
+         } else {
+            let tileset: Tileset | undefined;
+            if (object instanceof InsertedTile) {
+               tileset = this.resource.getTilesetForTileGid(object.gid);
             }
-
-            const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale });
-            if (colliders) {
-               // insertable tiles have an x, y, width, height, gid
-               // by default they pivot from the bottom left (0, 1)
-               const width = (object.tiledObject.width ?? 0);
-               const height = (object.tiledObject.height ?? 0);
-               const offsetx = -width * anchor.x;
-               const offsety = -height * anchor.y;
-               const offset = vec(offsetx, offsety);
-               for (let collider of colliders) {
-                  collider.offset = offset;
-               }
-               newActor.collider.useCompositeCollider(colliders);
-            }
-         }
-
-         if (object instanceof Polygon) {
-            newActor.anchor = vec(0, 1);
-            newActor.pos = vec(object.x, object.y);
-            const polygon = Shape.Polygon(object.localPoints).triangulate();
-            newActor.collider.set(polygon);
-         }
-
-         if (object instanceof Rectangle) {
-            newActor.anchor = object.anchor;
-            newActor.collider.useBoxCollider(object.width, object.height, object.anchor);
-         }
-
-         if (object instanceof Ellipse) {
-            // FIXME: Excalibur doesn't support ellipses :( fallback to circle
-            // pick the smallest dimension and that's our radius
-            newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
+            this._actorFromObject(object, newActor, tileset);
          }
 
          this._recordObjectEntityMapping(object, newActor);

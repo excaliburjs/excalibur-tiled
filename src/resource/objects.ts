@@ -2,7 +2,7 @@ import { BaseAlign, Color, Font, FontUnit, TextAlign, Vector, vec } from "excali
 import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
 import { Properties, mapProps } from "./properties";
-import { Tileset } from "./tileset";
+import { Template } from "./template";
 
 export interface PluginObjectProps {
    tiledObject: TiledObject;
@@ -29,12 +29,14 @@ export class PluginObject implements Properties {
 
 export class TemplateObject extends PluginObject {
    public source: string;
+   public template: Template;
    public tiledTemplate: TiledObject;
-   constructor(tiledObject: TiledObject) {
+   constructor(tiledObject: TiledObject, template: Template) {
       super({tiledObject});
       if (!tiledObject.template) throw new Error('Invalid template');
       this.source = tiledObject.template
       this.tiledTemplate = tiledObject;
+      this.template = template;
    }
 }
 export class InsertedTile extends PluginObject {
@@ -143,7 +145,7 @@ export class Polyline extends PluginObject {
 }
 
 export type ObjectTypes = Polygon | Polyline | Rectangle | Ellipse | Text | Point | InsertedTile | PluginObject;
-export function parseObject(object: TiledObject, textQuality = 4): PluginObject {
+export function parseObject(object: TiledObject, templates: Template[], textQuality = 4,): PluginObject {
    let newObject: PluginObject;
    if (object.point) {
       // Template objects don't have an id for some reason
@@ -167,7 +169,13 @@ export function parseObject(object: TiledObject, textQuality = 4): PluginObject 
    } else if (object.gid) {
       newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
    } else if (object.template) {
-      newObject = new TemplateObject(object);
+      const template = templates.find(t => t.templatePath === object.template);
+      if (template) {
+         newObject = new TemplateObject(object, template);
+      } else {
+         // This is truly an error situation
+         throw new Error(`Template object id ${object.id} with name ${object.name} is missing loaded template file, there should be one loaded from ${object.template}! Is your tiled map or template corrupted?`);
+      }
    } else { // rectangle
       if (object.width && object.height) {
          // if defaulted the rectangle center is accurate, otherwise need to be offset by radius
@@ -180,10 +188,10 @@ export function parseObject(object: TiledObject, textQuality = 4): PluginObject 
    return newObject;
 }
 
-export function parseObjects(tiledObjectGroup: TiledObjectGroup, textQuality: number) {
+export function parseObjects(tiledObjectGroup: TiledObjectGroup, templates: Template[], textQuality: number) {
    const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {
-      let newObject: PluginObject = parseObject(object, textQuality);
+      let newObject: PluginObject = parseObject(object, templates, textQuality);
       mapProps(newObject, object.properties);
       objects.push(newObject);
    }
