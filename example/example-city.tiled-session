@@ -1,0 +1,35 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "example-city.tmx#Kenny RPG Urban Pack": {
+            "dynamicWrapping": false
+        },
+        "example-city.tmx#embedded-collection": {
+            "dynamicWrapping": true
+        },
+        "external-collection.tsx": {
+            "dynamicWrapping": false
+        },
+        "external-collsion-json.tsj": {
+            "dynamicWrapping": true
+        },
+        "external-kenny.tsx": {
+            "dynamicWrapping": false
+        }
+    },
+    "last.imagePath": "C:/projects/excalibur-tiled/example/assets/kenny-rpg-urban-pack",
+    "last.objectTemplatePath": "C:/projects/excalibur-tiled/example",
+    "openFiles": [
+    ],
+    "project": "example-city.tiled-project",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

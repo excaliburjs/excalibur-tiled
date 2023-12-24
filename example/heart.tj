@@ -1,0 +1,18 @@
+{ "object":
+    {
+     "gid":253,
+     "height":16,
+     "id":49,
+     "name":"",
+     "rotation":0,
+     "type":"",
+     "visible":true,
+     "width":16
+    },
+ "tileset":
+    {
+     "firstgid":1,
+     "source":"external-kenny.tsx"
+    },
+ "type":"template"
+}

@@ -1,15 +1,15 @@
 import { Entity, ImageSource, Loadable, Logger, Resource, Scene, SpriteSheet, TransformComponent, Vector, vec } from "excalibur";
-import { TiledMap, TiledParser, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
+import { TiledMap, TiledParser, TiledTemplate, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { pathRelativeToBase } from "./path-util";
-import { PluginObject } from "./objects";
+import { PluginObject, TemplateObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
-import { FileLoader } from './file-loader';
+import { FetchLoader, FileLoader } from './file-loader';
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -55,6 +55,11 @@ export interface TiledResourceOptions {
     * that takes a path and returns file data
     */
    fileLoader?: FileLoader; // TODO implement
+
+   /**
+    * Optionally provide a custom image loader implementation instead of using the built in Excalibur ImageSource 
+    */
+   imageLoader?: (path: string) => Promise<HTMLImageElement>; // TODO does this even make sense? Or would headless mode suffice
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.
@@ -142,10 +147,12 @@ export class TiledResource implements Loadable<any> {
    public factories = new Map<string, (props: FactoryProps) => Entity>();
 
    private _resource: Resource<string>;
-   private _parser = new TiledParser();
+   public parser = new TiledParser();
 
    public firstGidToImage = new Map<number, ImageSource>();
    private tileToImage = new Map<TiledTile, ImageSource>();
+
+   public fileLoader: FileLoader = FetchLoader;
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
 
@@ -413,7 +420,7 @@ export class TiledResource implements Loadable<any> {
 
          if (this.mapFormat === 'TMX') {
             const xmlMap = data;
-            map = this._parser.parse(xmlMap)
+            map = this.parser.parse(xmlMap)
          } else {
             map = TiledMap.parse(data);
          }
@@ -463,7 +470,7 @@ export class TiledResource implements Loadable<any> {
          }
          // TMX tileset
          if (externalTileset.responseType === 'text') {
-            const ts = this._parser.parseExternalTileset(externalTileset.data);
+            const ts = this.parser.parseExternalTileset(externalTileset.data);
             ts.firstgid = firstgid;
             loadedTilesets.push(ts);
          }
@@ -547,7 +554,23 @@ export class TiledResource implements Loadable<any> {
       }
 
       // Templates
-      // TODO Friendly templates
+      // Do templates last so we can re-use object layers
+      let templates: string[] = [];
+      for (const layer of this.map.layers) {
+         if (layer.type === 'objectgroup') {
+            let templateObjects = layer.objects.filter(o => o.template).map(o => o.template) as string[];
+            templates = templates.concat(templateObjects);
+         }
+      }
+      // Load Friendly templates
+      // unique template paths
+      const uniqueTemplatePaths = templates.filter((value, index, array) => {
+         return array.findIndex(path => path === value) === index;
+      });
+      
+      this.templates = uniqueTemplatePaths.map(path => new Template(path, this));
+      await Promise.all(this.templates.map(t => t.load()));
+      console.log(this.templates);
 
       // Layers
       let friendlyLayers: Layer[] = [];
@@ -567,6 +590,7 @@ export class TiledResource implements Loadable<any> {
       }
       await Promise.all(friendlyLayers.map(layer => layer.load()));
       this.layers = friendlyLayers;
+
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {

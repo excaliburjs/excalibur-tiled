@@ -144,8 +144,8 @@ const TiledObject = z.object({
    id: z.number().optional(), // Template files might not have an id for some reason
    name: z.string().optional(),
    type: z.string().optional(),
-   x: z.number(),
-   y: z.number(),
+   x: z.number().optional(), // template files dont have x/y sometimes
+   y: z.number().optional(), // template files dont have x/y sometimes
    rotation: z.number().optional(),
    height: z.number().optional(),
    width: z.number().optional(),
@@ -299,13 +299,12 @@ const TiledTilesetExternal = z.object({
 
 export const TiledTileset = z.union([TiledTilesetEmbedded, TiledTilesetExternal]);
 
-const TiledTemplateFile = z.object({
+export const TiledTemplate = z.object({
    object: TiledObject.extend({ id: z.number().optional() }),
    tileset: TiledTilesetExternal.optional(),
    type: z.literal('template')
 });
 
-//  hexsidelength="70" staggeraxis="y" staggerindex="odd"
 export const TiledMap = z.object({
    type: z.string(),
    class: z.string().optional(),
@@ -342,7 +341,7 @@ export type TiledTilesetEmbedded = z.infer<typeof TiledTilesetEmbedded>;
 export type TiledTilesetExternal = z.infer<typeof TiledTilesetExternal>;
 export type TiledTilesetFile = z.infer<typeof TiledTilesetFile>;
 
-export type TiledTemplateFile = z.infer<typeof TiledTemplateFile>;
+export type TiledTemplate = z.infer<typeof TiledTemplate>;
 
 export type TiledMap = z.infer<typeof TiledMap>;
 export type TiledTileLayer = z.infer<typeof TiledTileLayer>;
@@ -822,7 +821,7 @@ export class TiledParser {
       }
    }
 
-   parseExternalTemplate(txXml: string): TiledTemplateFile {
+   parseExternalTemplate(txXml: string): TiledTemplate {
       const domParser = new DOMParser();
       const doc = domParser.parseFromString(txXml, 'application/xml');
       const templateElement = doc.querySelector('template') as Element;
@@ -838,7 +837,7 @@ export class TiledParser {
          template.tileset = this.parseTileset(tileSetElement);
       }
 
-      return TiledTemplateFile.parse(template);
+      return TiledTemplate.parse(template);
    }
 
    /**

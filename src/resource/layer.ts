@@ -3,7 +3,7 @@ import { Properties, mapProps } from "./properties";
 import { TiledImageLayer, TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { FactoryProps, TiledResource } from "./tiled-resource";
-import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
+import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, TemplateObject, Text, parseObjects } from "./objects";
 import { getCanonicalGid } from "./gid-util";
 import { Tile } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";
@@ -137,6 +137,12 @@ export class ObjectLayer implements Layer {
       return this.getObjectsByClassName(className).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
    }
 
+
+   getTemplates(): TemplateObject[] {
+      if (!this._loaded) this._logLoadedWarning('getTemplates');
+      return this.objects.filter(o => o instanceof TemplateObject) as TemplateObject[];
+   }
+
    async load() {
       const opacity = this.tiledObjectLayer.opacity;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
@@ -204,6 +210,10 @@ export class ObjectLayer implements Layer {
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
             graphics.opacity = opacity;
+         }
+
+         if (object instanceof TemplateObject) {
+            console.log(object);
          }
 
          if (object instanceof Text) {

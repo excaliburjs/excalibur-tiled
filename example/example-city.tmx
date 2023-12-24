@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="17" nextobjectid="42">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="63">
  <editorsettings>
   <export target="example-city.tmj" format="json"/>
  </editorsettings>
@@ -342,6 +342,7 @@
  </tileset>
  <tileset firstgid="490" source="external-collection.tsx"/>
  <tileset firstgid="495" source="external-collsion-json.tsj"/>
+ <tileset firstgid="498" source="external-kenny.tsx"/>
  <layer id="1" name="Ground" width="100" height="100">
   <data encoding="csv">
 63,29,29,29,29,29,29,29,29,29,29,29,29,29,29,30,462,463,464,36,37,37,37,37,37,37,37,37,37,37,38,462,463,464,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,
@@ -1335,5 +1336,27 @@
   <object id="37" x="200" y="89.9091" width="20.1818" height="19.9091"/>
   <object id="38" x="186.545" y="99.8182" rotation="45"/>
   <object id="39" x="154.727" y="90.3636" width="19.2727" height="19.4545" rotation="47"/>
+  <object id="42" gid="308" x="160" y="175.75" width="16" height="16"/>
+  <object id="43" gid="252" x="95.75" y="176.25" width="16" height="16"/>
+  <object id="44" template="cone.tx" x="80.75" y="128"/>
+  <object id="45" gid="308" x="108" y="152.5" width="16" height="16"/>
+  <object id="46" gid="308" x="84.5" y="169.5" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup id="17" name="Templates">
+  <object id="48" template="collectable.tx" x="112" y="209"/>
+  <object id="49" template="heart.tj" x="136" y="207.5"/>
+  <object id="50" template="collectable.tx" x="160" y="198"/>
+  <object id="51" template="collectable.tx" x="87" y="187.5"/>
+  <object id="52" template="collectable.tx" x="142" y="151.5"/>
+  <object id="53" template="collectable.tx" x="193" y="193"/>
+  <object id="54" template="collectable.tx" x="67.5" y="206.5"/>
+  <object id="55" template="collectable.tx" x="85" y="207.5"/>
+  <object id="56" template="collectable.tx" x="92.5" y="207.5"/>
+  <object id="57" template="collectable.tx" x="167" y="209.5"/>
+  <object id="58" template="collectable.tx" x="195" y="208.5"/>
+  <object id="59" template="collectable.tx" x="214" y="206"/>
+  <object id="60" template="collectable.tx" x="220.5" y="221"/>
+  <object id="61" template="collectable.tx" x="216" y="243.5"/>
+  <object id="62" template="collectable.tx" x="71.5" y="174"/>
  </objectgroup>
 </map>

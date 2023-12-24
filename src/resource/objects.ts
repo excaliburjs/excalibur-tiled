@@ -1,7 +1,8 @@
-import { BaseAlign, Collider, Color, Font, FontUnit, Graphic, ImageSource, Sprite, SpriteSheet, TextAlign, Vector, vec } from "excalibur";
+import { BaseAlign, Color, Font, FontUnit, TextAlign, Vector, vec } from "excalibur";
 import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
 import { Properties, mapProps } from "./properties";
+import { Tileset } from "./tileset";
 
 export interface PluginObjectProps {
    tiledObject: TiledObject;
@@ -21,8 +22,19 @@ export class PluginObject implements Properties {
       // class mostly synonymous with type in tiled except for a few instances
       this.class = this.tiledObject.type; 
       this.id = this.tiledObject.id ?? -1;
-      this.x = this.tiledObject.x;
-      this.y = this.tiledObject.y;
+      this.x = this.tiledObject.x ?? 0;
+      this.y = this.tiledObject.y ?? 0;
+   }
+}
+
+export class TemplateObject extends PluginObject {
+   public source: string;
+   public tiledTemplate: TiledObject;
+   constructor(tiledObject: TiledObject) {
+      super({tiledObject});
+      if (!tiledObject.template) throw new Error('Invalid template');
+      this.source = tiledObject.template
+      this.tiledTemplate = tiledObject;
    }
 }
 export class InsertedTile extends PluginObject {
@@ -131,41 +143,47 @@ export class Polyline extends PluginObject {
 }
 
 export type ObjectTypes = Polygon | Polyline | Rectangle | Ellipse | Text | Point | InsertedTile | PluginObject;
+export function parseObject(object: TiledObject, textQuality = 4): PluginObject {
+   let newObject: PluginObject;
+   if (object.point) {
+      // Template objects don't have an id for some reason
+      newObject = new Point({tiledObject: object});
+   } else if (object.ellipse) {
+      if (object.width && object.height) {
+         // if defaulted the circle center is accurate, otherwise need to be offset by radius
+         newObject = new Ellipse(object, object.width, object.height);
+         newObject.x += object.width / 2;
+         newObject.y += object.height / 2;
+      } else {
+         // Tiled undocumented default is 20x20
+         newObject = new Ellipse(object, 20, 20);
+      }
+   } else if (object.polygon) {
+      newObject = new Polygon(object, object.polygon);
+   } else if (object.polyline) {
+      newObject = new Polyline(object, object.polyline);
+   } else if(object.text) {
+      newObject = new Text(object, object.text, object.width ?? 0, textQuality);
+   } else if (object.gid) {
+      newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
+   } else if (object.template) {
+      newObject = new TemplateObject(object);
+   } else { // rectangle
+      if (object.width && object.height) {
+         // if defaulted the rectangle center is accurate, otherwise need to be offset by radius
+         newObject = new Rectangle(object, object.width, object.height, Vector.Zero);
+      } else {
+         // Tiled undocumented default is 20x20 AND pivots around the center
+         newObject = new Rectangle(object, 20, 20, Vector.Half);
+      }
+   }
+   return newObject;
+}
 
 export function parseObjects(tiledObjectGroup: TiledObjectGroup, textQuality: number) {
    const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {
-      let newObject: PluginObject;
-      if (object.point) {
-         // Template objects don't have an id for some reason
-         newObject = new Point({tiledObject: object});
-      } else if (object.ellipse) {
-         if (object.width && object.height) {
-            // if defaulted the circle center is accurate, otherwise need to be offset by radius
-            newObject = new Ellipse(object, object.width, object.height);
-            newObject.x += object.width / 2;
-            newObject.y += object.height / 2;
-         } else {
-            // Tiled undocumented default is 20x20
-            newObject = new Ellipse(object, 20, 20);
-         }
-      } else if (object.polygon) {
-         newObject = new Polygon(object, object.polygon);
-      } else if (object.polyline) {
-         newObject = new Polyline(object, object.polyline);
-      } else if(object.text) {
-         newObject = new Text(object, object.text, object.width ?? 0, textQuality);
-      } else if (object.gid) {
-         newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
-      } else { // rectangle
-         if (object.width && object.height) {
-            // if defaulted the rectangle center is accurate, otherwise need to be offset by radius
-            newObject = new Rectangle(object, object.width, object.height, Vector.Zero);
-         } else {
-            // Tiled undocumented default is 20x20 AND pivots around the center
-            newObject = new Rectangle(object, 20, 20, Vector.Half);
-         }
-      }
+      let newObject: PluginObject = parseObject(object, textQuality);
       mapProps(newObject, object.properties);
       objects.push(newObject);
    }

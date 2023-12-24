@@ -59,7 +59,6 @@ export interface TilesetOptions {
  * Friendly plugin representation of Tiled tilesets
  */
 export class Tileset implements Properties {
-   // TODO object alignment specified in tileset! https://doc.mapeditor.org/en/stable/manual/objects/#insert-tile
    // TODO fill mode
    // TODO orientation
    // TODO grid width/height

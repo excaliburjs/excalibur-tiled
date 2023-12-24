@@ -1,14 +1,14 @@
 
 
-export type FileLoader = (path: string) => Promise<string>;
+export type FileLoader = (path: string, contentType: 'json' | 'xml') => Promise<string>;
 
 
-export const FetchLoader: FileLoader = async (path: string) => {
+export const FetchLoader: FileLoader = async (path: string, contentType: 'json' | 'xml') => {
    const response = await fetch(path);
-   const contentType = response.headers.get('Content-Type') ?? 'text/plain';
    switch(contentType.toLowerCase()) {
-      case 'text/plain': return await response.text();
-      case 'application/json': return await response.json();
+      case 'xml': return await response.text();
+      case 'json': return await response.json();
+      default: return await response.text();
    }
 }
 
