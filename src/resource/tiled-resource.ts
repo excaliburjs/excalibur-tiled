@@ -563,11 +563,10 @@ export class TiledResource implements Loadable<any> {
       const uniqueTemplatePaths = templates.filter((value, index, array) => {
          return array.findIndex(path => path === value) === index;
       });
-      
+
       // Load Friendly templates
       this.templates = uniqueTemplatePaths.map(path => new Template(path, this));
       await Promise.all(this.templates.map(t => t.load()));
-      console.log(this.templates);
 
       // Layers
       let friendlyLayers: Layer[] = [];

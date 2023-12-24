@@ -283,7 +283,6 @@ export class ObjectLayer implements Layer {
          }
 
          if (object instanceof TemplateObject) {
-            console.log(object);
             // templates reference their own tilesets
             const tileset = object.template.tileset;
             if (object.template.object) {
