@@ -250,6 +250,14 @@
     <object id="1" x="0.9375" y="1.375" width="6.0625" height="14.8125"/>
    </objectgroup>
   </tile>
+  <tile id="409">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="2" y="1" width="5" height="15"/>
+    <object id="2" x="1.36364" y="4.54545">
+     <polygon points="0,0 8.27273,0 9.81818,1.27273 9.72727,11.3636 12.2727,11.3636 12.3636,-1.36364 11,-2.45455 -0.181818,-2.45455"/>
+    </object>
+   </objectgroup>
+  </tile>
   <tile id="420">
    <objectgroup draworder="index" id="2">
     <object id="1" x="4" y="0" width="12" height="16"/>
@@ -1360,6 +1368,5 @@
   <object id="62" template="collectable.tx" x="71.5" y="174"/>
   <object id="63" template="collectable.tx" x="608.5" y="176"/>
   <object id="64" template="greencube.tx" x="752.5" y="290"/>
-  <object id="65" template="template-with-type.tx" x="618.667" y="506"/>
  </objectgroup>
 </map>

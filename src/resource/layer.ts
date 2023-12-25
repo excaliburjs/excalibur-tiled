@@ -150,12 +150,12 @@ export class ObjectLayer implements Layer {
       if (object instanceof InsertedTile && tileset) {
 
          const anchor = tileset.getTilesetAlignmentAnchor();
-            // Inserted tiles pivot from the bottom left in Tiled
+         // Inserted tiles pivot from the bottom left in Tiled
          newActor.anchor = anchor;
          const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
          const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
          const scale = vec(scaleX, scaleY);
-         
+
          // need to clone because we are modify sprite properties, sprites are shared by default
          const sprite = tileset.getSpriteForGid(object.gid).clone();
          sprite.destSize.width = object.tiledObject.width ?? sprite.width;
@@ -238,7 +238,9 @@ export class ObjectLayer implements Layer {
                   object,
                   properties: object.properties
                } satisfies FactoryProps);
-               this._recordObjectEntityMapping(object, entity);
+               if (entity) {
+                  this._recordObjectEntityMapping(object, entity);
+               }
                continue; // If we do a factor method we skip any default processing
             }
          }

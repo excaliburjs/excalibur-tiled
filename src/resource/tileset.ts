@@ -243,8 +243,9 @@ export class Tileset implements Properties {
                   object.width * scale.x,
                   object.height * scale.y,
                   anchor);
-               let points = this._applyFlipsToPoints(bb.getPoints(), gid);
-               const box = Shape.Polygon(points.map(p => p.add(vec(object.x, object.y))));
+               let points = bb.getPoints().map(p => p.add(vec(object.x, object.y)));
+               points = this._applyFlipsToPoints(points, gid);
+               const box = Shape.Polygon(points);
                result.push(box);
             }
             if (object instanceof Ellipse) {

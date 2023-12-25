@@ -80,7 +80,7 @@ export interface TiledResourceOptions {
     * Configure custom Actor/Entity factory functions to construct Actors/Entities
     * given a Tiled class name.
     */
-   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity>;
+   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity | undefined>;
 }
 
 export interface FactoryProps {
@@ -144,7 +144,7 @@ export class TiledResource implements Loadable<any> {
 
    public readonly mapFormat: 'TMX' | 'TMJ' = 'TMX';
 
-   public factories = new Map<string, (props: FactoryProps) => Entity>();
+   public factories = new Map<string, (props: FactoryProps) => Entity | undefined>();
 
    private _resource: Resource<string>;
    public parser = new TiledParser();
@@ -178,7 +178,7 @@ export class TiledResource implements Loadable<any> {
       }
    }
 
-   registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity): void {
+   registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity | undefined): void {
       if (this.factories.has(className)) {
          console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
       }
