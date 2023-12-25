@@ -2,7 +2,9 @@ import { TiledProperty } from "../parser/tiled-parser";
 
 export interface Properties {
    /**
-    * Tiled properties are all lowercased when imported
+    * Tiled properties are all lowercased when imported.
+    *
+    * These are all converted to lowercase keys, and lowercase if the value is a string
     */
    properties: Map<string, string | number | boolean>;
 }

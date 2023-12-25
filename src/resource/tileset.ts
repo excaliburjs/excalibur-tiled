@@ -353,7 +353,7 @@ export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid:
       const images: ImageSource[] = [];
       for (let tile of tileset.tiles) {
          if (tile.image) {
-            const imagePath = pathRelativeToBase(tilesetPath, tile.image);
+            const imagePath = pathRelativeToBase(tilesetPath, tile.image, resource.pathMap);
             const image = new ImageSource(imagePath);
             tileToImage.set(tile, image);
             images.push(image);

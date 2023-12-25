@@ -31,7 +31,7 @@ export class ImageLayer implements Layer {
       this.class = tiledImageLayer.class;
       mapProps(this, tiledImageLayer.properties);
       if (tiledImageLayer.image) {
-         this.image = new ImageSource(pathRelativeToBase(this.resource.path, tiledImageLayer.image))
+         this.image = new ImageSource(pathRelativeToBase(this.resource.path, tiledImageLayer.image, this.resource.pathMap))
       }
    }
    async load(): Promise<void> {

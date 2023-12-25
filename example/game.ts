@@ -1,7 +1,10 @@
 import * as ex from 'excalibur';
 import { TiledMapResource } from '@excalibur-tiled';
 import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
+// TODO exports need to be updated
+// TODO old stuff needs deprecations
 import { TiledResource } from '../src/resource/tiled-resource';
+import { filenameFromPath } from '../src/resource/path-util';
 
 class Player extends ex.Actor {
    override onPostUpdate(engine: ex.Engine) {
@@ -31,6 +34,10 @@ const game = new ex.Engine({
 });
 
 const newResource = new TiledResource('./example-city.tmx', {
+   pathMap: [
+      // special [match] in output string that is replaced with the first match from the regex
+      { path: /(.*\..*$)/, output: './[match]'}
+   ],
    entityClassNameFactories: {
       'player-start': (props) => {
          return new Player({

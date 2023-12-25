@@ -5,7 +5,7 @@ import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
-import { pathRelativeToBase } from "./path-util";
+import { PathMap, pathRelativeToBase } from "./path-util";
 import { PluginObject, TemplateObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
@@ -29,6 +29,8 @@ export interface TiledResourceOptions {
     * * Wire up current scene camera
     * * Make Actors/Tiles with colliders on Tiled tiles & Tiled objects
     * * Support solid layers
+    *
+    * Read more at excaliburjs.com!
     */
    useExcaliburWiring?: boolean;
 
@@ -44,11 +46,24 @@ export interface TiledResourceOptions {
    mapFormatOverride?: 'TMX' | 'TMJ';
 
    /**
-    * The pathMap helps work around odd things bundlers do with static files.
+    * The pathMap helps work around odd things bundlers do with static files by providing a way to redirect the original
+    * source paths in the Tiled files to new locations.
     *
     * When the Tiled resource comes across something that matches `path`, it will use the output string instead.
+    * 
+    * Example:
+    * ```typescript
+    * const newResource = new TiledResource('./example-city.tmx', {
+    *     pathMap: [
+    *        // If the "path" is included in the source path, the output will be used
+    *        { path: 'cone.tx', output: '/static/assets/cone.tx' },
+    *        // Regex matching with special [match] in output string that is replaced with the first match from the regex
+    *        { path: /(.*\..*$)/, output: '/static/assets/[match]'}
+    *     ]
+    *  }
+    * ```
     */
-   pathMap?: { path: string | RegExp, output: string }[]; // TODO implement
+   pathMap?: PathMap;
 
    /**
     * Optionally provide a custom file loader implementation instead of using the built in Excalibur resource ajax loader
@@ -105,7 +120,7 @@ export interface FactoryProps {
     */
    object?: PluginObject;
    /**
-    * Tiled properties
+    * Tiled properties, these are all converted to lowercase keys, and lowercase if the value is a string
     */
    properties: Record<string, any>;
 }
@@ -153,13 +168,15 @@ export class TiledResource implements Loadable<any> {
    private tileToImage = new Map<TiledTile, ImageSource>();
 
    public fileLoader: FileLoader = FetchLoader;
+   public pathMap: PathMap | undefined;
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
 
    constructor(public path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring } = { ...options };
+      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap } = { ...options };
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.textQuality = textQuality ?? this.textQuality;
+      this.pathMap = pathMap;
       for (const key in entityClassNameFactories) {
          this.registerEntityFactory(key, entityClassNameFactories[key]);
       }
@@ -447,7 +464,7 @@ export class TiledResource implements Loadable<any> {
             const type = tileset.source.includes('.tsx') ? 'text' : 'json';
             // TODO make this into a tileset resource!
             // GH issue about this https://github.com/excaliburjs/excalibur-tiled/issues/455
-            const tilesetPath = pathRelativeToBase(this.path, tileset.source);
+            const tilesetPath = pathRelativeToBase(this.path, tileset.source, this.pathMap);
             const externalTileset = new Resource<string>(tilesetPath, type);
             externalToFirstGid.set(externalTileset, tileset.firstgid);
             externalTilesets.push(externalTileset);
@@ -489,7 +506,7 @@ export class TiledResource implements Loadable<any> {
          if (isTiledTilesetCollectionOfImages(tileset)) {
             for (let tile of tileset.tiles) {
                if (tile.image) {
-                  const imagePath = pathRelativeToBase(this.path, tile.image);
+                  const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
                   const image = new ImageSource(imagePath);
                   this.tileToImage.set(tile, image);
                   images.push(image);
