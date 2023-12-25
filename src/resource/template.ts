@@ -5,7 +5,11 @@ import { pathRelativeToBase } from "./path-util";
 import { TiledResource } from "./tiled-resource";
 import { Tileset, loadExternalFriendlyTileset } from "./tileset";
 
-// Templates are basically a mini tiled resource, they have a self contained object and optionally a tileset
+/**
+ * Templates are basically a mini tiled resource, they have a self contained object and optionally a tileset
+ * 
+ * They can be used to instance objects in ObjectLayers, or as part of Tile Collider definitions
+ */
 export class Template {
    tiledTemplate!: TiledTemplate;
    object!: PluginObject;

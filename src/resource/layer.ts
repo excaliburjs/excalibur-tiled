@@ -223,15 +223,17 @@ export class ObjectLayer implements Layer {
 
       for (let object of objects) {
          let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
-
-         if (object.tiledObject.type) {
-            // TODO we should also use factories on templates
-            const factory = this.resource.factories.get(object.tiledObject.type);
+         let objectType = object.class;
+         if (object instanceof TemplateObject) {
+            objectType = objectType ? objectType : object.template.object.class;
+         }
+         if (objectType) {
+            const factory = this.resource.factories.get(objectType);
             if (factory) {
                const entity = factory({
                   worldPos,
-                  name: object.tiledObject.name,
-                  class: object.tiledObject.type,
+                  name: object.name,
+                  class: objectType,
                   layer: this,
                   object,
                   properties: object.properties
@@ -248,6 +250,10 @@ export class ObjectLayer implements Layer {
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0),
          });
+         const graphics = newActor.get(GraphicsComponent);
+         if (graphics) {
+            graphics.opacity = opacity;
+         }
 
          if (this.resource.useExcaliburWiring) {
             const collisionType = object.properties.get(ExcaliburTiledProperties.Collision.Type);
@@ -277,10 +283,6 @@ export class ObjectLayer implements Layer {
             }
          }
 
-         const graphics = newActor.get(GraphicsComponent);
-         if (graphics) {
-            graphics.opacity = opacity;
-         }
 
          if (object instanceof TemplateObject) {
             // templates reference their own tilesets
