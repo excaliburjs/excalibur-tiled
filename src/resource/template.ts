@@ -1,9 +1,6 @@
-import { ImageSource, SpriteSheet } from "excalibur";
-import { TiledTemplate, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
-import { PluginObject, parseObject } from "./objects";
-import { pathRelativeToBase } from "./path-util";
-import { TiledResource } from "./tiled-resource";
-import { Tileset, loadExternalFriendlyTileset } from "./tileset";
+import { TiledTemplate } from "../parser/tiled-parser";
+import { PluginObject } from "./objects";
+import { Tileset } from "./tileset";
 
 export interface TemplateOptions {
    templatePath: string;

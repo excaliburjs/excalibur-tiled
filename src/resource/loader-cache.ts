@@ -1,10 +1,6 @@
-
-export type Ctor<T> = new (...args: any[]) => T;
-
 export interface CanLoad {
    load(): Promise<any>;
 }
-
 
 /**
  * Read through cache for loadables

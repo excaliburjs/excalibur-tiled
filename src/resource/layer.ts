@@ -1,9 +1,9 @@
-import { Actor, Color, ParallaxComponent, Polygon as ExPolygon, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, CompositeCollider, Entity, ImageSource, Logger, AnimationStrategy, CollisionType } from "excalibur";
+import { Actor, Color, ParallaxComponent, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, Entity, ImageSource, Logger, AnimationStrategy, CollisionType } from "excalibur";
 import { Properties, mapProps } from "./properties";
-import { TiledImageLayer, TiledMap, TiledObjectGroup, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledImageLayer, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { FactoryProps, TiledResource } from "./tiled-resource";
-import { Ellipse, InsertedTile, PluginObject, Point, Polygon, Polyline, Rectangle, TemplateObject, Text, parseObjects } from "./objects";
+import { Ellipse, InsertedTile, PluginObject, Polygon, Rectangle, TemplateObject, Text, parseObjects } from "./objects";
 import { getCanonicalGid } from "./gid-util";
 import { Tile, Tileset } from "./tileset";
 import { TiledDataComponent } from "./tiled-data-component";

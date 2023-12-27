@@ -1,12 +1,10 @@
 import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
-import { TiledTile, TiledTileset, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
-import { Ellipse, InsertedTile, Point, Polygon, Polyline, Rectangle, Text, parseObjects } from "./objects";
+import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
+import { Ellipse, Polygon, Rectangle, parseObjects } from "./objects";
 import { Properties, mapProps } from "./properties";
 import { PluginObject } from "./objects";
-import { pathRelativeToBase } from "./path-util";
 import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
-import { TiledResource } from "./tiled-resource";
 
 
 export interface TileOptions {
@@ -319,79 +317,4 @@ export class Tileset implements Properties {
       }
       return null;
    }
-
-}
-
-// TODO move to tileset resource
-export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid: number, resource: TiledResource): Promise<Tileset | undefined> {
-   const tilesetType = tilesetPath.includes('.tsx') ? 'xml' : 'json';
-   const tilesetData = await resource.fileLoader(tilesetPath, tilesetType);
-   let tileset: TiledTilesetFile;
-   // TMJ tileset
-   if (tilesetType === 'json') {
-      tileset = TiledTilesetFile.parse(tilesetData);
-   } else { // TMX tileset
-      tileset = resource.parser.parseExternalTileset(tilesetData);
-   }
-
-   if (isTiledTilesetSingleImage(tileset)) {
-      const spacing = tileset.spacing;
-      const columns = Math.floor((tileset.imagewidth + spacing) / (tileset.tilewidth + spacing));
-      const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
-      const image = new ImageSource(tileset.image);
-      await image.load();
-      if (image) {
-         const spritesheet = SpriteSheet.fromImageSource({
-            image,
-            grid: {
-               rows,
-               columns,
-               spriteWidth: tileset.tilewidth,
-               spriteHeight: tileset.tileheight
-            },
-            spacing: {
-               originOffset: {
-                  x: tileset.margin ?? 0,
-                  y: tileset.margin ?? 0
-               },
-               margin: {
-                  x: tileset.spacing ?? 0,
-                  y: tileset.spacing ?? 0
-               }
-            }
-         });
-         tileset.firstgid = firstGid;
-         return new Tileset({
-            name: tileset.name,
-            tiledTileset: tileset,
-            image,
-            firstGid
-         });
-         
-      }
-   }
-
-   if (isTiledTilesetCollectionOfImages(tileset)) {
-      const tileToImage =  new Map<TiledTile, ImageSource>();
-      const images: ImageSource[] = [];
-      for (let tile of tileset.tiles) {
-         if (tile.image) {
-            const imagePath = pathRelativeToBase(tilesetPath, tile.image, resource.pathMap);
-            const image = new ImageSource(imagePath);
-            tileToImage.set(tile, image);
-            images.push(image);
-         }
-      }
-
-      await Promise.all(images.map(i => i.load()));
-      tileset.firstgid = firstGid;
-      return new Tileset({
-         name: tileset.name,
-         tiledTileset: tileset,
-         tileToImage: tileToImage,
-         firstGid,
-      });
-   }
-
-   return undefined;
 }

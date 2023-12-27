@@ -1,12 +1,12 @@
-import { Entity, ImageSource, Loadable, Logger, Resource, Scene, SpriteSheet, TransformComponent, Vector, vec } from "excalibur";
-import { TiledMap, TiledParser, TiledTemplate, TiledTile, TiledTileset, TiledTilesetEmbedded, TiledTilesetExternal, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
+import { Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
+import { TiledMap, TiledParser,TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
-import { compare, satisfies } from "compare-versions";
+import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { PathMap, pathRelativeToBase } from "./path-util";
-import { PluginObject, TemplateObject } from "./objects";
+import { PluginObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { FetchLoader, FileLoader } from './file-loader';
@@ -81,7 +81,7 @@ export interface TiledResourceOptions {
     * If you have something that the Tiled plugin does not expect, you can set this to false and it will do it's best
     * to parse the Tiled source map file.
     */
-   strictTiledParsing?: boolean; // TODO implement
+   strict?: boolean;
 
    /**
     * Configure the text quality to use in Excalibur's Text implementation for the Tiled resources that involve text
@@ -157,6 +157,7 @@ export class TiledResource implements Loadable<any> {
    layers: Layer[] = [];
 
    public readonly mapFormat: 'TMX' | 'TMJ' = 'TMX';
+   public readonly strict: boolean = true;
 
    public factories = new Map<string, (props: FactoryProps) => Entity | undefined>();
 
@@ -173,7 +174,8 @@ export class TiledResource implements Loadable<any> {
    private _tilesetLoader = new LoaderCache(TilesetResource);
    private _templateLoader = new LoaderCache(TemplateResource);
    constructor(public readonly path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap, fileLoader } = { ...options };
+      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap, fileLoader, strict } = { ...options };
+      this.strict = strict ?? this.strict;
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.textQuality = textQuality ?? this.textQuality;
       this.fileLoader = fileLoader ?? this.fileLoader;
@@ -415,33 +417,39 @@ export class TiledResource implements Loadable<any> {
       return this.layers.filter(byPropertyCaseInsensitive(propertyName, value));
    }
 
+   private _parseMap(data: any) {
+      if (this.mapFormat === 'TMX') {
+         return this.parser.parse(data, this.strict);
+      } else {
+         return data as TiledMap;
+      }
+   }
 
    async load(): Promise<any> {
       const data = await this.fileLoader(this.path, this.mapFormat === 'TMX' ? 'xml' : 'json');
 
       // Parse initial Tiled map structure
       let map: TiledMap;
-      try {
-
-         if (this.mapFormat === 'TMX') {
-            const xmlMap = data;
-            map = this.parser.parse(xmlMap)
-         } else {
-            map = TiledMap.parse(data);
+      if (this.strict) {
+         try {
+            map = this._parseMap(data);
+         } catch (e) {
+            console.error(`Could not parse tiled map from location ${this.path}, attempted to interpret as ${this.mapFormat}.\nExcalibur only supports the latest version of Tiled formats as of the plugin's release.`);
+            console.error(`Is your map file corrupted or being interpreted as the wrong type?`)
+            throw e;
          }
-      } catch (e) {
-         console.error(`Could not parse tiled map from location ${this.path}, attempted to interpret as ${this.mapFormat}.\nExcalibur only supports the latest version of Tiled formats as of the plugin's release.`);
-         console.error(`Is your map file corrupted or being interpreted as the wrong type?`)
-         throw e;
+      } else {
+         map = this._parseMap(data);
       }
 
       if (compare(TiledResource.supportedTiledVersion, map.tiledversion, ">")) {
          console.warn(`The excalibur tiled plugin officially supports ${TiledResource.supportedTiledVersion}+, the current map has tiled version ${map.tiledversion}`)
       }
+
       this.map = map;
 
       this._collectTilesets();
-      const templateResources = this._collectTemplates();
+      this._collectTemplates();
 
       // Load all the stuff!
       await Promise.all([this._tilesetLoader.load(), this._imageLoader.load(), this._templateLoader.load()]);
@@ -517,7 +525,7 @@ export class TiledResource implements Loadable<any> {
    }
 
    private _collectTemplates() {
-      // Scan for template refrences in object files
+      // Scan for template references in object files
       let templates: string[] = [];
       for (const layer of this.map.layers) {
          if (layer.type === 'objectgroup') {
@@ -531,12 +539,14 @@ export class TiledResource implements Loadable<any> {
       });
 
       // Load Friendly templates
-      const templateResources = uniqueTemplatePaths.map(path => this._templateLoader.getOrAdd(path, {
-         parser: this.parser,
-         fileLoader: this.fileLoader,
-         imageLoader: this._imageLoader,
-         pathMap: this.pathMap
-      } satisfies TemplateResourceOptions));
+      for (const templatePath of uniqueTemplatePaths) {
+         this._templateLoader.getOrAdd(templatePath, {
+            parser: this.parser,
+            fileLoader: this.fileLoader,
+            imageLoader: this._imageLoader,
+            pathMap: this.pathMap
+         } satisfies TemplateResourceOptions)
+      }
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {

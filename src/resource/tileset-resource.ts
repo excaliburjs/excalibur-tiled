@@ -1,4 +1,4 @@
-import { ImageSource, Loadable, SpriteSheet } from "excalibur";
+import { ImageSource, Loadable } from "excalibur";
 import { Tileset } from "./tileset";
 import { TiledParser, TiledTile, TiledTilesetFile, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { FetchLoader, FileLoader } from "./file-loader";
@@ -6,6 +6,7 @@ import { PathMap, pathRelativeToBase } from "./path-util";
 import { LoaderCache } from "./loader-cache";
 
 export interface TilesetResourceOptions {
+   strict?: boolean;
    parser?: TiledParser,
    fileLoader?: FileLoader,
    imageLoader?: LoaderCache<ImageSource>,
@@ -14,14 +15,17 @@ export interface TilesetResourceOptions {
 
 export class TilesetResource implements Loadable<Tileset> {
    data!: Tileset;
-   firstGid: number;
+   public readonly firstGid: number;
+   public readonly strict: boolean = true;
+
    private fileLoader: FileLoader = FetchLoader;
    private imageLoader: LoaderCache<ImageSource>;
    private pathMap?: PathMap;
    private parser: TiledParser;
 
    constructor(public path: string, firstGid: number, options?: TilesetResourceOptions) {
-      const { fileLoader, parser, pathMap, imageLoader } = {...options};
+      const { fileLoader, parser, pathMap, imageLoader, strict } = {...options};
+      this.strict = strict ?? this.strict;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.imageLoader = imageLoader ?? new LoaderCache(ImageSource);
       this.parser = parser ?? new TiledParser();
@@ -36,10 +40,14 @@ export class TilesetResource implements Loadable<Tileset> {
 
       if (tilesetType === 'json') {
          // Verify TMJ is correct
-         tileset = TiledTilesetFile.parse(tilesetData);
+         if (this.strict) {
+            tileset = TiledTilesetFile.parse(tilesetData);
+         } else {
+            tileset = tilesetData as TiledTilesetFile;
+         }
       } else { 
          // Parse & Verify TMX tileset
-         tileset = this.parser.parseExternalTileset(tilesetData);
+         tileset = this.parser.parseExternalTileset(tilesetData, this.strict);
       }
 
       if (isTiledTilesetSingleImage(tileset)) {

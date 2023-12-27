@@ -1,6 +1,5 @@
 import { Component } from "excalibur";
 import { PluginObject } from "./objects";
-import { Properties } from "./properties";
 
 export interface TiledDataComponentOptions {
    tiledObject: PluginObject;

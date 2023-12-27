@@ -470,7 +470,7 @@ export class TiledParser {
       }
    }
 
-   parseObject(objectNode: Element): TiledObject {
+   parseObject(objectNode: Element, strict = true): TiledObject {
       const object: any = {};
       object.type = '';
       object.x = 0;
@@ -569,15 +569,18 @@ export class TiledParser {
          }
       }
 
-      try {
-         return TiledObject.parse(object);
-      } catch (e) {
-         console.error('Could not parse object', object, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledObject.parse(object);
+         } catch (e) {
+            console.error('Could not parse object', object, e);
+            throw e;
+         }
       }
+      return object as TiledObject;
    }
 
-   parseTileset(tilesetNode: Element): TiledTileset {
+   parseTileset(tilesetNode: Element, strict = true): TiledTileset {
       const tileset: any = {};
       tileset.spacing = 0;
       tileset.margin = 0;
@@ -640,7 +643,7 @@ export class TiledParser {
                         tile.objectgroup = objectgroup;
 
                         for (let objectChild of tileChild.children) {
-                           const object = this.parseObject(objectChild);
+                           const object = this.parseObject(objectChild, strict);
                            objectgroup.objects.push(object);
                         }
                         break;
@@ -664,25 +667,32 @@ export class TiledParser {
                   }
                }
 
-               try {
-                  tileset.tiles.push(TiledTile.parse(tile));
-               } catch (e) {
-                  console.error('Could not parse Tile', tile, e);
-                  throw e;
+               if (strict) {
+                  try {
+                     tileset.tiles.push(TiledTile.parse(tile));
+                  } catch (e) {
+                     console.error('Could not parse Tile', tile, e);
+                     throw e;
+                  }
+               } else {
+                  tileset.tiles.push(tile as TiledTile);
                }
                break;
             }
          }
       }
-      try {
-         return TiledTileset.parse(tileset);
-      } catch (e) {
-         console.error('Could not parse Tileset', tileset, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledTileset.parse(tileset);
+         } catch (e) {
+            console.error('Could not parse Tileset', tileset, e);
+            throw e;
+         }
       }
+      return tileset as TiledTileset;
    }
 
-   parseTileLayer(layerNode: Element, infinite: boolean): TiledLayer {
+   parseTileLayer(layerNode: Element, infinite: boolean, strict = true): TiledLayer {
       const layer: any = {};
       layer.type = 'tilelayer';
       layer.compression = ''; // default uncompressed
@@ -755,15 +765,18 @@ export class TiledParser {
             }
          }
       }
-      try {
-         return TiledLayer.parse(layer);
-      } catch (e) {
-         console.error('Could not parse tiled tile layer', layer, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledLayer.parse(layer);
+         } catch (e) {
+            console.error('Could not parse tiled tile layer', layer, e);
+            throw e;
+         }
       }
+      return layer as TiledLayer;
    }
 
-   parseObjectGroup(groupNode: Element): TiledLayer {
+   parseObjectGroup(groupNode: Element, strict = true): TiledLayer {
       const group: any = {};
       group.type = 'objectgroup';
       group.draworder = 'topdown';
@@ -780,22 +793,25 @@ export class TiledParser {
                break;
             }
             case 'object': {
-               const object = this.parseObject(groupChild);
+               const object = this.parseObject(groupChild, strict);
                group.objects.push(object);
                break;
             }
          }
       }
 
-      try {
-         return TiledLayer.parse(group);
-      } catch (e) {
-         console.error('Could not parse object group', group, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledLayer.parse(group);
+         } catch (e) {
+            console.error('Could not parse object group', group, e);
+            throw e;
+         }
       }
+      return group as TiledLayer;
    }
 
-   parseImageLayer(imageNode: Element): TiledLayer {
+   parseImageLayer(imageNode: Element, strict = true): TiledLayer {
       const imageLayer: any = {};
       imageLayer.type = 'imagelayer';
       imageLayer.visible = true;
@@ -813,15 +829,18 @@ export class TiledParser {
 
       this._parseAttributes(imageNode, imageLayer);
 
-      try {
-         return TiledLayer.parse(imageLayer);
-      } catch (e) {
-         console.error('Could not parse layer', imageLayer, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledLayer.parse(imageLayer);
+         } catch (e) {
+            console.error('Could not parse layer', imageLayer, e);
+            throw e;
+         }
       }
+      return imageLayer as TiledLayer;
    }
 
-   parseExternalTemplate(txXml: string): TiledTemplate {
+   parseExternalTemplate(txXml: string, strict = true): TiledTemplate {
       const domParser = new DOMParser();
       const doc = domParser.parseFromString(txXml, 'application/xml');
       const templateElement = doc.querySelector('template') as Element;
@@ -829,37 +848,49 @@ export class TiledParser {
       template.type = 'template';
       const objectElement = templateElement.querySelector('object');
       if (objectElement) {
-         template.object = this.parseObject(objectElement);
+         template.object = this.parseObject(objectElement, strict);
       }
 
       const tileSetElement = templateElement.querySelector('tileset');
       if (tileSetElement) {
-         template.tileset = this.parseTileset(tileSetElement);
+         template.tileset = this.parseTileset(tileSetElement, strict);
       }
 
-      return TiledTemplate.parse(template);
+      if (strict) {
+         try {
+            return TiledTemplate.parse(template);
+         } catch (e) {
+            console.error('Could not parse template', template, e);
+            throw e;
+         }
+      }
+      return template as TiledTemplate;
    }
 
    /**
     * Takes Tiled tmx xml and produces the equivalent Tiled txj (json) content
     * @param tsxXml 
     */
-   parseExternalTileset(tsxXml: string): TiledTilesetFile {
+   parseExternalTileset(tsxXml: string, strict = true): TiledTilesetFile {
       const domParser = new DOMParser();
       const doc = domParser.parseFromString(tsxXml, 'application/xml');
       const tilesetElement = doc.querySelector('tileset') as Element;
 
-      const tileset = this.parseTileset(tilesetElement);
+      const tileset = this.parseTileset(tilesetElement, strict);
 
       (tileset as any).type = 'tileset';
       this._parseAttributes(tilesetElement, tileset);
 
-      try {
-         return TiledTilesetFile.parse(tileset);
-      } catch (e) {
-         console.error('Could not parse tileset file', tileset, e);
-         throw e;
+
+      if (strict) {
+         try {
+            return TiledTilesetFile.parse(tileset);
+         } catch (e) {
+            console.error('Could not parse tileset file', tileset, e);
+            throw e;
+         }
       }
+      return tileset as TiledTilesetFile;
    }
 
 
@@ -868,7 +899,7 @@ export class TiledParser {
     * @param tmxXml 
     * @returns 
     */
-   parse(tmxXml: string): TiledMap {
+   parse(tmxXml: string, strict = true): TiledMap {
       const domParser = new DOMParser();
       const doc = domParser.parseFromString(tmxXml, 'application/xml');
 
@@ -882,18 +913,18 @@ export class TiledParser {
 
       this._parseAttributes(mapElement, tiledMap);
 
-      const parseHelper = (node: Element) => {
+      const parseHelper = (node: Element, strict = true) => {
          switch (node.tagName) {
             case 'group': {
                // recurse through groups!
                // currently we support groups by flattening them, no group types
                for (let child of node.children) {
-                  parseHelper(child);
+                  parseHelper(child, strict);
                }
                break;
             }
             case 'layer': {
-               const layer = this.parseTileLayer(node, tiledMap.infinite);
+               const layer = this.parseTileLayer(node, tiledMap.infinite, strict);
                tiledMap.layers.push(layer);
                break;
             }
@@ -902,17 +933,17 @@ export class TiledParser {
                break;
             }
             case 'tileset': {
-               const tileset = this.parseTileset(node);
+               const tileset = this.parseTileset(node, strict);
                tiledMap.tilesets.push(tileset);
                break;
             }
             case 'objectgroup': {
-               const objectgroup = this.parseObjectGroup(node);
+               const objectgroup = this.parseObjectGroup(node, strict);
                tiledMap.layers.push(objectgroup);
                break;
             }
             case 'imagelayer': {
-               const imageLayer = this.parseImageLayer(node);
+               const imageLayer = this.parseImageLayer(node, strict);
                tiledMap.layers.push(imageLayer);
                break;
             }
@@ -923,14 +954,15 @@ export class TiledParser {
          parseHelper(mapChild);
       }
 
-      let map!: TiledMap;
-      try {
-         map = TiledMap.parse(tiledMap);
-      } catch (e) {
-         console.error('Could not parse map', map, e);
-         throw e;
+      if (strict) {
+         try {
+            return TiledMap.parse(tiledMap);
+         } catch (e) {
+            console.error('Could not parse Tiled map', e);
+            throw e;
+         }
       }
 
-      return map;
+      return tiledMap as TiledMap;
    }
 }
