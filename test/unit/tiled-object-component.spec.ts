@@ -1,4 +1,4 @@
-import { TiledObjectComponent, TiledObject } from '@excalibur-tiled';
+import { TiledObjectComponent, TiledObject } from '@excalibur-tiled/deprecated';
 import { Actor } from 'excalibur';
 
 describe('A TiledObjectComponent', () => {

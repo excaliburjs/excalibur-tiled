@@ -1,4 +1,4 @@
-import { TiledMap } from "@excalibur-tiled"
+import { TiledMap } from "@excalibur-tiled/deprecated"
 import testTmx from './basic.tmx';
 import objectsTmx from './objects.tmx'
 import testZLibTmx from './zlib.tmx';

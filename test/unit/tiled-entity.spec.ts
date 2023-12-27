@@ -1,4 +1,4 @@
-import { TiledEntity } from '@excalibur-tiled';
+import { TiledEntity } from '@excalibur-tiled/deprecated';
 
 describe('A Tiled Entity', () => {
    it('should exist', () => {

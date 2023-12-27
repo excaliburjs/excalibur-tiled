@@ -1,10 +1,7 @@
 import * as ex from 'excalibur';
-import { TiledMapResource } from '@excalibur-tiled';
-import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
-// TODO exports need to be updated
-// TODO old stuff needs deprecations
-import { TiledResource } from '../src/resource/tiled-resource';
-import { filenameFromPath } from '../src/resource/path-util';
+// import { TiledMapResource } from '@excalibur-tiled';
+// import { ImageFiltering, ImageSource, Input, IsometricEntityComponent, Shape } from 'excalibur';
+import { TiledResource } from '@excalibur-tiled';
 
 class Player extends ex.Actor {
    override onPostUpdate(engine: ex.Engine) {
@@ -29,7 +26,7 @@ const game = new ex.Engine({
    width: 800, 
    height: 600, 
    canvasElementId: 'game',
-   pointerScope: ex.Input.PointerScope.Canvas,
+   pointerScope: ex.PointerScope.Canvas,
    antialiasing: false
 });
 

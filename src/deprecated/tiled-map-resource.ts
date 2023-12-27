@@ -40,7 +40,9 @@ import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedV
 import { getProperty, TiledEntity } from './tiled-entity';
 import { TiledObjectComponent } from './tiled-object-component';
 import { TiledLayerComponent } from './tiled-layer-component';
-import { RawTilesetTile, TiledLayer, TiledObjectGroup } from '.';
+import { RawTilesetTile } from './raw-tileset-tile';
+import { TiledLayer } from './tiled-layer';
+import { TiledObjectGroup } from './tiled-object';
 
 export enum TiledMapFormat {
 

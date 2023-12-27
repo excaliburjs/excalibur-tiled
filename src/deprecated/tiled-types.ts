@@ -1,7 +1,7 @@
 import {
    CollisionType
 } from 'excalibur';
-import { TiledObject } from '.';
+import { TiledObject } from './tiled-object';
 
 export interface ExcaliburData {
    camera?: ExcaliburCamera;

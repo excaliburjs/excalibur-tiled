@@ -8,7 +8,8 @@
       "outDir": "./dist",
       "sourceMap": true,
       "paths": {
-         "@excalibur-tiled": ["./src/"]
+         "@excalibur-tiled": ["./src/"],
+         "@excalibur-tiled/deprecated": ["./src/deprecated"]
       }
    },
    "include": ["example/**/*.ts", "./src/**/*.ts", "./test/unit/*.spec.ts", "files.d.ts"],

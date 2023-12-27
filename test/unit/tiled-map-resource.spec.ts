@@ -1,4 +1,4 @@
-import { TiledObjectComponent, TiledMapResource, TiledLayerComponent } from "@excalibur-tiled";
+import { TiledObjectComponent, TiledMapResource, TiledLayerComponent } from "@excalibur-tiled/deprecated";
 import { AnimationStrategy, Animation, Scene, TileMap, ParallaxComponent } from "excalibur";
 
 

@@ -1,4 +1,4 @@
-import { FLIPPED_DIAGONALLY_FLAG, FLIPPED_HORIZONTALLY_FLAG, FLIPPED_VERTICALLY_FLAG, getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically, TiledLayer } from "@excalibur-tiled";
+import { FLIPPED_DIAGONALLY_FLAG, FLIPPED_HORIZONTALLY_FLAG, FLIPPED_VERTICALLY_FLAG, getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically, TiledLayer } from "@excalibur-tiled/deprecated";
 
 
 describe('A Tiled Layer', () => {

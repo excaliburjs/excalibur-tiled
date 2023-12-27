@@ -1,4 +1,4 @@
-import { parseExternalJson, parseExternalTsx } from "@excalibur-tiled"
+import { parseExternalJson, parseExternalTsx } from "@excalibur-tiled/deprecated"
 import { AnimationStrategy, Rectangle } from "excalibur";
 
 import tsx from './tileset.tsx';
