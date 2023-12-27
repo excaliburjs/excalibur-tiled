@@ -54,7 +54,8 @@ export class Tile implements Properties {
 export interface TilesetOptions {
    name: string;
    tiledTileset: TiledTileset;
-   spritesheet?: SpriteSheet;
+   firstGid: number;
+   image?: ImageSource;
    tileToImage?: Map<TiledTile, ImageSource>;
 }
 
@@ -80,19 +81,40 @@ export class Tileset implements Properties {
    diagonalFlipTransform!: AffineMatrix;
 
    constructor(options: TilesetOptions) {
-      const { name, tiledTileset, spritesheet, tileToImage } = options;
+      const { name, tiledTileset, image, tileToImage, firstGid } = options;
       this.name = name;
       this.tiledTileset = tiledTileset;
+      this.firstGid = firstGid;
 
-      if (isTiledTilesetSingleImage(tiledTileset) && tiledTileset.firstgid !== undefined && spritesheet) {
+      if (isTiledTilesetSingleImage(tiledTileset) && image) {
          mapProps(this, tiledTileset.properties);
+         const spacing = tiledTileset.spacing;
+         const columns = Math.floor((tiledTileset.imagewidth + spacing) / (tiledTileset.tilewidth + spacing));
+         const rows = Math.floor((tiledTileset.imageheight + spacing) / (tiledTileset.tileheight + spacing));
          this.class = tiledTileset.class;
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
-         this.spritesheet = spritesheet;
-         this.firstGid = tiledTileset.firstgid;
+         this.spritesheet =  SpriteSheet.fromImageSource({
+            image,
+            grid: {
+               rows,
+               columns,
+               spriteWidth: tiledTileset.tilewidth,
+               spriteHeight: tiledTileset.tileheight
+            },
+            spacing: {
+               originOffset: {
+                  x: tiledTileset.margin ?? 0,
+                  y: tiledTileset.margin ?? 0
+               },
+               margin: {
+                  x: tiledTileset.spacing ?? 0,
+                  y: tiledTileset.spacing ?? 0
+               }
+            }
+         });
          this.tileCount = tiledTileset.tilecount;
          for (const tile of tiledTileset.tiles) {
             this.tiles.push(new Tile({
@@ -107,7 +129,6 @@ export class Tileset implements Properties {
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
-         this.firstGid = tiledTileset.firstgid!;
          this.tileCount = tiledTileset.tilecount;
          let sprites: Sprite[] = []
          for (const tile of tiledTileset.tiles) {
@@ -301,6 +322,7 @@ export class Tileset implements Properties {
 
 }
 
+// TODO move to tileset resource
 export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid: number, resource: TiledResource): Promise<Tileset | undefined> {
    const tilesetType = tilesetPath.includes('.tsx') ? 'xml' : 'json';
    const tilesetData = await resource.fileLoader(tilesetPath, tilesetType);
@@ -317,7 +339,7 @@ export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid:
       const columns = Math.floor((tileset.imagewidth + spacing) / (tileset.tilewidth + spacing));
       const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
       const image = new ImageSource(tileset.image);
-      await image.load(); // TODO does image loader make sense
+      await image.load();
       if (image) {
          const spritesheet = SpriteSheet.fromImageSource({
             image,
@@ -342,7 +364,8 @@ export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid:
          return new Tileset({
             name: tileset.name,
             tiledTileset: tileset,
-            spritesheet
+            image,
+            firstGid
          });
          
       }
@@ -365,7 +388,8 @@ export async function loadExternalFriendlyTileset(tilesetPath: string, firstGid:
       return new Tileset({
          name: tileset.name,
          tiledTileset: tileset,
-         tileToImage: tileToImage
+         tileToImage: tileToImage,
+         firstGid,
       });
    }
 

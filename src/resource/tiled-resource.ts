@@ -3,13 +3,16 @@ import { TiledMap, TiledParser, TiledTemplate, TiledTile, TiledTileset, TiledTil
 import { Tile, Tileset } from "./tileset";
 import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
-import { compare } from "compare-versions";
+import { compare, satisfies } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { PathMap, pathRelativeToBase } from "./path-util";
 import { PluginObject, TemplateObject } from "./objects";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { FetchLoader, FileLoader } from './file-loader';
+import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
+import { LoaderCache } from "./loader-cache";
+import { TemplateResource, TemplateResourceOptions } from "./template-resource";
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -19,7 +22,7 @@ export interface TiledResourceOptions {
 
    /**
     * Plugin will operate in headless mode and skip all graphics related
-    * excalibur items.
+    * excalibur items including creating ImageSource's for Tiled items.
     */
    headless?: boolean; // TODO implement
 
@@ -66,15 +69,11 @@ export interface TiledResourceOptions {
    pathMap?: PathMap;
 
    /**
-    * Optionally provide a custom file loader implementation instead of using the built in Excalibur resource ajax loader
+    * Optionally provide a custom file loader implementation instead of using the built in ajax (fetch) loader
     * that takes a path and returns file data
+    * 
     */
-   fileLoader?: FileLoader; // TODO implement
-
-   /**
-    * Optionally provide a custom image loader implementation instead of using the built in Excalibur ImageSource 
-    */
-   imageLoader?: (path: string) => Promise<HTMLImageElement>; // TODO does this even make sense? Or would headless mode suffice
+   fileLoader?: FileLoader;
 
    /**
     * By default `true`, means Tiled files must pass the plugins Typed parse pass.
@@ -85,7 +84,7 @@ export interface TiledResourceOptions {
    strictTiledParsing?: boolean; // TODO implement
 
    /**
-    * Configure the text quality in the Tiled resource
+    * Configure the text quality to use in Excalibur's Text implementation for the Tiled resources that involve text
     *
     * By default it's 4 for 4x scaled bitmap
     */
@@ -95,7 +94,7 @@ export interface TiledResourceOptions {
     * Configure custom Actor/Entity factory functions to construct Actors/Entities
     * given a Tiled class name.
     */
-   entityClassNameFactories?: Record<string,  (props: FactoryProps) => Entity | undefined>;
+   entityClassNameFactories?: Record<string, (props: FactoryProps) => Entity | undefined>;
 }
 
 export interface FactoryProps {
@@ -161,38 +160,28 @@ export class TiledResource implements Loadable<any> {
 
    public factories = new Map<string, (props: FactoryProps) => Entity | undefined>();
 
-   private _resource: Resource<string>;
    public parser = new TiledParser();
 
-   public firstGidToImage = new Map<number, ImageSource>();
-   private tileToImage = new Map<TiledTile, ImageSource>();
-
    public fileLoader: FileLoader = FetchLoader;
+
    public pathMap: PathMap | undefined;
+
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
 
-   constructor(public path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap } = { ...options };
+   private _imageLoader = new LoaderCache(ImageSource);
+   private _tilesetLoader = new LoaderCache(TilesetResource);
+   private _templateLoader = new LoaderCache(TemplateResource);
+   constructor(public readonly path: string, options?: TiledResourceOptions) {
+      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap, fileLoader } = { ...options };
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.textQuality = textQuality ?? this.textQuality;
+      this.fileLoader = fileLoader ?? this.fileLoader;
       this.pathMap = pathMap;
       for (const key in entityClassNameFactories) {
          this.registerEntityFactory(key, entityClassNameFactories[key]);
       }
-      const detectedType = mapFormatOverride ?? (path.includes('.tmx') ? 'TMX' : 'TMJ');
-      switch (detectedType) {
-         case 'TMX':
-            this._resource = new Resource(path, 'text');
-            this.mapFormat = 'TMX';
-            break;
-         case 'TMJ':
-            this._resource = new Resource(path, 'json');
-            this.mapFormat = 'TMJ';
-            break;
-         default:
-            throw new Error(`The format ${detectedType} is not currently supported. Please export Tiled map as JSON.`);
-      }
+      this.mapFormat = mapFormatOverride ?? (path.includes('.tmx') ? 'TMX' : 'TMJ');
    }
 
    registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity | undefined): void {
@@ -218,9 +207,9 @@ export class TiledResource implements Loadable<any> {
       const normalizedGid = getCanonicalGid(gid)
       if (this.tilesets) {
          for (let tileset of this.tilesets) {
-               if (normalizedGid >= tileset.firstGid && normalizedGid <= tileset.firstGid + tileset.tileCount - 1) {
-                  return tileset;
-               }
+            if (normalizedGid >= tileset.firstGid && normalizedGid <= tileset.firstGid + tileset.tileCount - 1) {
+               return tileset;
+            }
          }
       }
       throw Error(`No tileset exists for tiled gid [${gid}] normalized [${normalizedGid}]!`);
@@ -275,7 +264,7 @@ export class TiledResource implements Loadable<any> {
    getTilesByProperty(name: string, value?: any): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
-            results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
+         results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
       }
       return results;
    }
@@ -417,7 +406,7 @@ export class TiledResource implements Loadable<any> {
    getLayersByName(name: string): Layer[] {
       return this.layers.filter(byNameCaseInsensitive(name));
    }
-   
+
    getLayersByClassName(className: string): Layer[] {
       return this.layers.filter(byClassCaseInsensitive(className));
    }
@@ -428,8 +417,7 @@ export class TiledResource implements Loadable<any> {
 
 
    async load(): Promise<any> {
-      // TODO refactor this method is too BIG
-      const data = await this._resource.load();
+      const data = await this.fileLoader(this.path, this.mapFormat === 'TMX' ? 'xml' : 'json');
 
       // Parse initial Tiled map structure
       let map: TiledMap;
@@ -452,138 +440,15 @@ export class TiledResource implements Loadable<any> {
       }
       this.map = map;
 
-      // Resolve initial tilesets either embedded or external
-      let embeddedTilesets: TiledTilesetEmbedded[] = [];
-      let externalTilesets: Resource<string>[] = [];
-      let externalToFirstGid = new Map<Resource<string>, number>();
-      for (const tileset of this.map.tilesets) {
-         if (isTiledTilesetEmbedded(tileset)) {
-            embeddedTilesets.push(tileset);
-         }
-         if (isTiledTilesetExternal(tileset)) {
-            const type = tileset.source.includes('.tsx') ? 'text' : 'json';
-            // TODO make this into a tileset resource!
-            // GH issue about this https://github.com/excaliburjs/excalibur-tiled/issues/455
-            const tilesetPath = pathRelativeToBase(this.path, tileset.source, this.pathMap);
-            const externalTileset = new Resource<string>(tilesetPath, type);
-            externalToFirstGid.set(externalTileset, tileset.firstgid);
-            externalTilesets.push(externalTileset);
-         }
-      }
-      // Load external TMX/TMJ tilesets
-      let loadedTilesets: TiledTileset[] = [...embeddedTilesets];
-      const externalTilesetsLoading = externalTilesets.map(ts => ts.load());
-      await Promise.all(externalTilesetsLoading);
-      for (const externalTileset of externalTilesets) {
-         const firstgid = externalToFirstGid.get(externalTileset);
-         if (firstgid === undefined || firstgid === -1) {
-            throw Error(`Could not load external tileset correctly ${externalTileset.path} not firstGid, is your tilemap corrupted`);
-         }
-         // TMJ tileset
-         if (externalTileset.responseType === 'json') {
-            const ts = TiledTilesetFile.parse(externalTileset.data);
-            ts.firstgid = firstgid;
-            loadedTilesets.push(ts);
-         }
-         // TMX tileset
-         if (externalTileset.responseType === 'text') {
-            const ts = this.parser.parseExternalTileset(externalTileset.data);
-            ts.firstgid = firstgid;
-            loadedTilesets.push(ts);
-         }
-      }
+      this._collectTilesets();
+      const templateResources = this._collectTemplates();
 
-      // load all images
-      // 1/2 Internal+External tilesets
-      // 3 Collection of images tilesets
-      let images: ImageSource[] = [];
-      for (const tileset of loadedTilesets) {
-         if (isTiledTilesetSingleImage(tileset) && tileset.firstgid) {
-            const image = new ImageSource(tileset.image);
-            this.firstGidToImage.set(tileset.firstgid, image);
-            images.push(image);
-         }
-         if (isTiledTilesetCollectionOfImages(tileset)) {
-            for (let tile of tileset.tiles) {
-               if (tile.image) {
-                  const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
-                  const image = new ImageSource(imagePath);
-                  this.tileToImage.set(tile, image);
-                  images.push(image);
-               }
-            }
-         }
-      }
+      // Load all the stuff!
+      await Promise.all([this._tilesetLoader.load(), this._imageLoader.load(), this._templateLoader.load()]);
 
-      await Promise.all(images.map(i => i.load().catch(() => {
-         console.error(`Unable to load Tiled Tileset image ${i.path}, if you are using a bundler check the files are where they should be. Use "pathMap" to adjust file mappings to work around bundlers`);
-      })));
-
-      // Friendly plugin data structures
-
-      // Tilesets
-      for (const tileset of loadedTilesets) {
-         if (isTiledTilesetSingleImage(tileset) && tileset.firstgid) {
-            const spacing = tileset.spacing;
-            const columns = Math.floor((tileset.imagewidth + spacing) / (tileset.tilewidth + spacing));
-            const rows = Math.floor((tileset.imageheight + spacing) / (tileset.tileheight + spacing));
-            const image = this.firstGidToImage.get(tileset.firstgid);
-            if (image) {
-               const spritesheet = SpriteSheet.fromImageSource({
-                  image,
-                  grid: {
-                     rows,
-                     columns,
-                     spriteWidth: tileset.tilewidth,
-                     spriteHeight: tileset.tileheight
-                  },
-                  spacing: {
-                     originOffset: {
-                        x: tileset.margin ?? 0,
-                        y: tileset.margin ?? 0
-                     },
-                     margin: {
-                        x: tileset.spacing ?? 0,
-                        y: tileset.spacing ?? 0
-                     }
-                  }
-               });
-               const friendlyTileset = new Tileset({
-                  name: tileset.name,
-                  tiledTileset: tileset,
-                  spritesheet
-               });
-               this.tilesets.push(friendlyTileset);
-            }
-         }
-
-         if (isTiledTilesetCollectionOfImages(tileset)) { 
-            const friendlyTileset = new Tileset({
-               name: tileset.name,
-               tiledTileset: tileset,
-               tileToImage: this.tileToImage
-            });
-            this.tilesets.push(friendlyTileset);
-         }
-      }
-
-      // Templates
-      // Scan for template refrences in object files
-      let templates: string[] = [];
-      for (const layer of this.map.layers) {
-         if (layer.type === 'objectgroup') {
-            let templateObjects = layer.objects.filter(o => o.template).map(o => o.template) as string[];
-            templates = templates.concat(templateObjects);
-         }
-      }
-      // unique template paths
-      const uniqueTemplatePaths = templates.filter((value, index, array) => {
-         return array.findIndex(path => path === value) === index;
-      });
-
-      // Load Friendly templates
-      this.templates = uniqueTemplatePaths.map(path => new Template(path, this));
-      await Promise.all(this.templates.map(t => t.load()));
+      // Friendly data structures are needed before layer parsing
+      this.tilesets = [...this.tilesets, ...this._tilesetLoader.values().map(t => t.data)];
+      this.templates = this._templateLoader.values().map(t => t.data);
 
       // Layers
       let friendlyLayers: Layer[] = [];
@@ -601,9 +466,77 @@ export class TiledResource implements Loadable<any> {
             friendlyLayers.push(imagelayer);
          }
       }
+      // Layer loading depends on data from previous load step
       await Promise.all(friendlyLayers.map(layer => layer.load()));
       this.layers = friendlyLayers;
+   }
 
+   private _collectTilesets() {
+      // Resolve initial tilesets either embedded or external
+      for (const tileset of this.map.tilesets) {
+         // Embedded are technically already loaded
+         if (isTiledTilesetEmbedded(tileset)) {
+            if (isTiledTilesetSingleImage(tileset)) {
+               const image = this._imageLoader.getOrAdd(tileset.image);
+               const friendlyTileset = new Tileset({
+                  name: tileset.name,
+                  tiledTileset: tileset,
+                  image,
+                  firstGid: tileset.firstgid!
+               });
+               this.tilesets.push(friendlyTileset);
+            }
+            if (isTiledTilesetCollectionOfImages(tileset)) {
+               const tileToImage = new Map<TiledTile, ImageSource>();
+               for (let tile of tileset.tiles) {
+                  if (tile.image) {
+                     const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
+                     const image = this._imageLoader.getOrAdd(imagePath);
+                     tileToImage.set(tile, image);
+                  }
+               }
+               const friendlyTileset = new Tileset({
+                  name: tileset.name,
+                  tiledTileset: tileset,
+                  tileToImage,
+                  firstGid: tileset.firstgid!
+               });
+               this.tilesets.push(friendlyTileset);
+            }
+         }
+         if (isTiledTilesetExternal(tileset)) {
+            this._tilesetLoader.getOrAdd(tileset.source, tileset.firstgid,
+               {
+                  parser: this.parser,
+                  fileLoader: this.fileLoader,
+                  imageLoader: this._imageLoader,
+                  pathMap: this.pathMap
+               } satisfies TilesetResourceOptions);
+         }
+      }
+   }
+
+   private _collectTemplates() {
+      // Scan for template refrences in object files
+      let templates: string[] = [];
+      for (const layer of this.map.layers) {
+         if (layer.type === 'objectgroup') {
+            let templateObjects = layer.objects.filter(o => o.template).map(o => o.template) as string[];
+            templates = templates.concat(templateObjects);
+         }
+      }
+      // unique template paths
+      const uniqueTemplatePaths = templates.filter((value, index, array) => {
+         return array.findIndex(path => path === value) === index;
+      });
+
+      // Load Friendly templates
+      const templateResources = uniqueTemplatePaths.map(path => this._templateLoader.getOrAdd(path, {
+         parser: this.parser,
+         fileLoader: this.fileLoader,
+         imageLoader: this._imageLoader,
+         pathMap: this.pathMap
+      } satisfies TemplateResourceOptions));
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
