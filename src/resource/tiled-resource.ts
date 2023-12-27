@@ -1,5 +1,5 @@
-import { Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
-import { TiledMap, TiledParser,TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
+import { BoundingBox, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
+import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
@@ -39,9 +39,11 @@ export interface TiledResourceOptions {
 
 
    /**
-    * Keeps the camera viewport within the bounds of the TileMap
+    * Keeps the camera viewport within the bounds of the TileMap, uses the first tile layer's bounds.
+    *
+    * Defaults true, if false the camera will use the default strategy
     */
-   useTilemapCameraStrategy?: boolean // TODO implements
+   useTilemapCameraStrategy?: boolean
 
    /**
     * Plugin detects the map type based on extension, if you know better you can force an override.
@@ -169,14 +171,16 @@ export class TiledResource implements Loadable<any> {
 
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
+   public readonly useTilemapCameraStrategy: boolean = true;
 
    private _imageLoader = new LoaderCache(ImageSource);
    private _tilesetLoader = new LoaderCache(TilesetResource);
    private _templateLoader = new LoaderCache(TemplateResource);
    constructor(public readonly path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, pathMap, fileLoader, strict } = { ...options };
+      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, useTilemapCameraStrategy, pathMap, fileLoader, strict } = { ...options };
       this.strict = strict ?? this.strict;
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
+      this.useTilemapCameraStrategy = useTilemapCameraStrategy ?? this.useTilemapCameraStrategy;
       this.textQuality = textQuality ?? this.textQuality;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.pathMap = pathMap;
@@ -591,6 +595,17 @@ export class TiledResource implements Loadable<any> {
             }
             scene.camera.pos = vec(cameraObject.x, cameraObject.y);
             scene.camera.zoom = zoom;
+         }
+      }
+
+      if (this.useTilemapCameraStrategy) {
+         const firstLayer = this.getTileLayers()[0];
+         if (firstLayer) {
+            const mapBounds = BoundingBox.fromDimension(
+               this.map.width * this.map.tilewidth,
+               this.map.height * this.map.tileheight,
+               Vector.Zero, pos.add(firstLayer.tilemap.pos));
+            scene.camera.strategy.limitCameraBounds(mapBounds);
          }
       }
    }

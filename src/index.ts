@@ -1,3 +1,8 @@
+// TODO new exports
+
+
+// TODO everything below here is deprecated
+
 // exports
 export * from './tiled-types';
 export * from "./tiled-map-resource";
