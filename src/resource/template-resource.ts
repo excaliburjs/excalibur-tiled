@@ -9,6 +9,7 @@ import { Template } from "./template";
 import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
 
 export interface TemplateResourceOptions {
+   headless?: boolean;
    strict?: boolean;
    parser?: TiledParser,
    fileLoader?: FileLoader,
@@ -23,6 +24,7 @@ export interface TemplateResourceOptions {
  */
 export class TemplateResource implements Loadable<Template> {
    data!: Template;
+   public readonly headless: boolean = false;
    public readonly strict: boolean = true;
 
    private parser: TiledParser;
@@ -31,7 +33,8 @@ export class TemplateResource implements Loadable<Template> {
    private pathMap?: PathMap;
 
    constructor(public readonly templatePath: string, options?: TemplateResourceOptions) {
-      const { fileLoader, parser, pathMap, imageLoader, strict } = {...options};
+      const { fileLoader, parser, pathMap, imageLoader, strict, headless } = {...options};
+      this.headless = headless ?? this.headless;
       this.strict = strict ?? this.strict;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.imageLoader = imageLoader ?? new LoaderCache(ImageSource);
@@ -64,6 +67,7 @@ export class TemplateResource implements Loadable<Template> {
             // Template tilesets are not included in the TiledResource list because their gids can collide with map tilesets
             const tilesetPath = pathRelativeToBase(this.templatePath, template.tileset.source, this.pathMap);
             const tilesetResource = new TilesetResource(tilesetPath, template.tileset.firstgid, {
+               headless: this.headless,
                strict: this.strict,
                fileLoader: this.fileLoader,
                imageLoader: this.imageLoader,

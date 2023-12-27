@@ -6,6 +6,7 @@ import { PathMap, pathRelativeToBase } from "./path-util";
 import { LoaderCache } from "./loader-cache";
 
 export interface TilesetResourceOptions {
+   headless?: boolean;
    strict?: boolean;
    parser?: TiledParser,
    fileLoader?: FileLoader,
@@ -17,6 +18,7 @@ export class TilesetResource implements Loadable<Tileset> {
    data!: Tileset;
    public readonly firstGid: number;
    public readonly strict: boolean = true;
+   public readonly headless: boolean = false;
 
    private fileLoader: FileLoader = FetchLoader;
    private imageLoader: LoaderCache<ImageSource>;
@@ -24,7 +26,8 @@ export class TilesetResource implements Loadable<Tileset> {
    private parser: TiledParser;
 
    constructor(public path: string, firstGid: number, options?: TilesetResourceOptions) {
-      const { fileLoader, parser, pathMap, imageLoader, strict } = {...options};
+      const { fileLoader, parser, pathMap, imageLoader, strict, headless } = {...options};
+      this.headless = headless ?? this.headless;
       this.strict = strict ?? this.strict;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.imageLoader = imageLoader ?? new LoaderCache(ImageSource);
@@ -83,7 +86,9 @@ export class TilesetResource implements Loadable<Tileset> {
          });
       }
 
-      await this.imageLoader.load();
+      if (!this.headless) {
+         await this.imageLoader.load();
+      }
 
       if (this.data) {
          return this.data

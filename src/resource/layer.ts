@@ -40,7 +40,9 @@ export class ImageLayer implements Layer {
       const tint = this.tiledImageLayer.tintcolor ? Color.fromHex(this.tiledImageLayer.tintcolor) : Color.White;
       const offset = vec(this.tiledImageLayer.offsetx ?? 0, this.tiledImageLayer.offsety ?? 0);
       if (this.image) {
-         await this.image.load();
+         if (!this.resource.headless) {
+            await this.image.load();
+         }
          this.imageActor = new Actor({
             name: this.tiledImageLayer.name,
             pos: offset,

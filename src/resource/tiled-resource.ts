@@ -23,8 +23,10 @@ export interface TiledResourceOptions {
    /**
     * Plugin will operate in headless mode and skip all graphics related
     * excalibur items including creating ImageSource's for Tiled items.
+    *
+    * Default false.
     */
-   headless?: boolean; // TODO implement
+   headless?: boolean;
 
    /**
     * Default true. If false, only tilemap will be parsed and displayed, it's up to you to wire up any excalibur behavior.
@@ -41,7 +43,7 @@ export interface TiledResourceOptions {
    /**
     * Keeps the camera viewport within the bounds of the TileMap, uses the first tile layer's bounds.
     *
-    * Defaults true, if false the camera will use the default strategy
+    * Defaults true, if false the camera will use the layer bounds to keep the camera from showing the background.
     */
    useTilemapCameraStrategy?: boolean
 
@@ -172,13 +174,25 @@ export class TiledResource implements Loadable<any> {
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
    public readonly useTilemapCameraStrategy: boolean = true;
+   public readonly headless: boolean = false;
 
    private _imageLoader = new LoaderCache(ImageSource);
    private _tilesetLoader = new LoaderCache(TilesetResource);
    private _templateLoader = new LoaderCache(TemplateResource);
    constructor(public readonly path: string, options?: TiledResourceOptions) {
-      const { mapFormatOverride, textQuality, entityClassNameFactories, useExcaliburWiring, useTilemapCameraStrategy, pathMap, fileLoader, strict } = { ...options };
+      const {
+         mapFormatOverride,
+         textQuality,
+         entityClassNameFactories,
+         useExcaliburWiring,
+         useTilemapCameraStrategy,
+         pathMap,
+         fileLoader,
+         strict,
+         headless
+      } = { ...options };
       this.strict = strict ?? this.strict;
+      this.headless = headless ?? this.headless;
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.useTilemapCameraStrategy = useTilemapCameraStrategy ?? this.useTilemapCameraStrategy;
       this.textQuality = textQuality ?? this.textQuality;
@@ -456,7 +470,11 @@ export class TiledResource implements Loadable<any> {
       this._collectTemplates();
 
       // Load all the stuff!
-      await Promise.all([this._tilesetLoader.load(), this._imageLoader.load(), this._templateLoader.load()]);
+      await Promise.all([
+         this._tilesetLoader.load(),
+         (this.headless ? Promise.resolve() : this._imageLoader.load()),
+         this._templateLoader.load()
+      ]);
 
       // Friendly data structures are needed before layer parsing
       this.tilesets = [...this.tilesets, ...this._tilesetLoader.values().map(t => t.data)];
@@ -464,6 +482,7 @@ export class TiledResource implements Loadable<any> {
 
       // Layers
       let friendlyLayers: Layer[] = [];
+      // TODO order/zindex properties
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
             const tilelayer = new TileLayer(layer, this);
@@ -519,6 +538,7 @@ export class TiledResource implements Loadable<any> {
          if (isTiledTilesetExternal(tileset)) {
             this._tilesetLoader.getOrAdd(tileset.source, tileset.firstgid,
                {
+                  headless: this.headless,
                   parser: this.parser,
                   fileLoader: this.fileLoader,
                   imageLoader: this._imageLoader,
@@ -545,6 +565,7 @@ export class TiledResource implements Loadable<any> {
       // Load Friendly templates
       for (const templatePath of uniqueTemplatePaths) {
          this._templateLoader.getOrAdd(templatePath, {
+            headless: this.headless,
             parser: this.parser,
             fileLoader: this.fileLoader,
             imageLoader: this._imageLoader,

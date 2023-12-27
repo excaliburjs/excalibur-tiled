@@ -34,6 +34,7 @@ const game = new ex.Engine({
 });
 
 const newResource = new TiledResource('./example-city.tmx', {
+   headless: false,
    pathMap: [
       // special [match] in output string that is replaced with the first match from the regex
       { path: /(.*\..*$)/, output: './[match]'}
