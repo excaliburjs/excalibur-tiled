@@ -30,23 +30,27 @@ const game = new ex.Engine({
    antialiasing: false
 });
 
-const newResource = new TiledResource('./example-city.tmx', {
-   headless: false,
-   pathMap: [
-      // special [match] in output string that is replaced with the first match from the regex
-      { path: /(.*\..*$)/, output: './[match]'}
-   ],
-   entityClassNameFactories: {
-      'player-start': (props) => {
-         return new Player({
-            pos: props.worldPos,
-            width: 16,
-            height: 16,
-            color: ex.Color.Blue,
-            collisionType: ex.CollisionType.Active
-         });
-      }
-   }
+// const newResource = new TiledResource('./example-city.tmx', {
+//    headless: false,
+//    pathMap: [
+//       // special [match] in output string that is replaced with the first match from the regex
+//       { path: /(.*\..*$)/, output: './[match]'}
+//    ],
+//    entityClassNameFactories: {
+//       'player-start': (props) => {
+//          return new Player({
+//             pos: props.worldPos,
+//             width: 16,
+//             height: 16,
+//             color: ex.Color.Blue,
+//             collisionType: ex.CollisionType.Active
+//          });
+//       }
+//    }
+// });
+
+const newResource = new TiledResource('./isometric.tmx', {
+   useMapBackgroundColor: true
 });
 const loader = new ex.Loader([newResource]);
 
@@ -54,7 +58,6 @@ let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
       currentPointer = moveEvent.worldPos;
       game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
-      // game.currentScene.camera.pos = currentPointer;
 });
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
@@ -68,8 +71,8 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
 });
 
 game.start(loader).then(() => {
-   currentPointer = game.currentScene.camera.pos;
    newResource.addToScene(game.currentScene);
+   currentPointer = game.currentScene.camera.pos;
 });
 
 

@@ -1,7 +1,7 @@
-import { BoundingBox, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
+import { BoundingBox, Color, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
-import { ImageLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
+import { ImageLayer, IsoTileLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
@@ -38,6 +38,11 @@ export interface TiledResourceOptions {
     * Read more at excaliburjs.com!
     */
    useExcaliburWiring?: boolean;
+
+   /**
+    * Sets excalibur's background color to match the Tiled map
+    */
+   useMapBackgroundColor?: boolean;
 
 
    /**
@@ -173,7 +178,8 @@ export class TiledResource implements Loadable<any> {
 
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
-   public readonly useTilemapCameraStrategy: boolean = true;
+   public readonly useMapBackgroundColor: boolean = false;
+   public readonly useTilemapCameraStrategy: boolean = false;
    public readonly headless: boolean = false;
 
    private _imageLoader = new LoaderCache(ImageSource);
@@ -186,6 +192,7 @@ export class TiledResource implements Loadable<any> {
          entityClassNameFactories,
          useExcaliburWiring,
          useTilemapCameraStrategy,
+         useMapBackgroundColor,
          pathMap,
          fileLoader,
          strict,
@@ -195,6 +202,7 @@ export class TiledResource implements Loadable<any> {
       this.headless = headless ?? this.headless;
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.useTilemapCameraStrategy = useTilemapCameraStrategy ?? this.useTilemapCameraStrategy;
+      this.useMapBackgroundColor = useMapBackgroundColor ?? this.useMapBackgroundColor;
       this.textQuality = textQuality ?? this.textQuality;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.pathMap = pathMap;
@@ -485,8 +493,14 @@ export class TiledResource implements Loadable<any> {
       // TODO order/zindex properties
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
-            const tilelayer = new TileLayer(layer, this);
-            friendlyLayers.push(tilelayer);
+            if (this.map.orientation === 'isometric') {
+               const isolayer = new IsoTileLayer(layer, this);
+               friendlyLayers.push(isolayer);
+            }
+            if (this.map.orientation === 'orthogonal') {
+               const tilelayer = new TileLayer(layer, this);
+               friendlyLayers.push(tilelayer);
+            }
          }
          if (layer.type === 'objectgroup') {
             const objectlayer = new ObjectLayer(layer, this);
@@ -588,7 +602,11 @@ export class TiledResource implements Loadable<any> {
             layer.tilemap.pos = layer.tilemap.pos.add(pos);
             scene.add(layer.tilemap);
          }
+         if (layer instanceof IsoTileLayer) {
+            scene.add(layer.isometricMap);
+         }
          if (layer instanceof ObjectLayer) {
+            // TODO does not account for Isometric coordinates
             for (const entity of layer.entities) {
                const tx = entity.get(TransformComponent);
                if (tx) {
@@ -614,7 +632,9 @@ export class TiledResource implements Loadable<any> {
             if (zoomProp && typeof zoomProp === 'number') {
                zoom = zoomProp;
             }
-            scene.camera.pos = vec(cameraObject.x, cameraObject.y);
+            
+            // TODO coordinate mapping for iso :( 
+            scene.camera.pos = this.isometricTiledCoordToWorld(cameraObject.x, cameraObject.y);//vec(cameraObject.x, cameraObject.y);
             scene.camera.zoom = zoom;
          }
       }
@@ -629,6 +649,26 @@ export class TiledResource implements Loadable<any> {
             scene.camera.strategy.limitCameraBounds(mapBounds);
          }
       }
+
+      if (this.useMapBackgroundColor) {
+         // FIXME scene specific background color eventually
+         if (this.map.backgroundcolor) {
+            scene.engine.backgroundColor = Color.fromHex(this.map.backgroundcolor);
+         }
+      }
+   }
+
+   isometricTiledCoordToWorld(x: number, y: number): Vector {
+      // Transformation sourced from:
+      // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
+      const tileWidth = this.map.tilewidth;
+      const tileHeight = this.map.tileheight;
+      const originX = 0; // TODO actual origin x
+      const tileY = y / tileHeight;
+      const tileX = x / tileHeight;
+      return vec(
+         (tileX - tileY) * tileWidth / 2 + originX,
+         (tileX + tileY) * tileHeight / 2);
    }
 
    isLoaded(): boolean {

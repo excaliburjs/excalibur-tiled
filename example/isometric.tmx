@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="0" backgroundcolor="#22b2b2" nextlayerid="4" nextobjectid="2">
+ <tileset firstgid="1" name="iso-fantasy" tilewidth="16" tileheight="17" tilecount="110" columns="11">
+  <grid orientation="orthogonal" width="17" height="8"/>
+  <image source="assets/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
+  <tile id="8">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="4" y="7" width="8" height="7"/>
+   </objectgroup>
+  </tile>
+  <tile id="15">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0.181818" y="12.0909">
+     <polygon points="0,0 8.09091,-4.36364 15.8182,-0.545455 7.36364,4.36364"/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="19">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="4" y="6" width="8" height="8"/>
+   </objectgroup>
+  </tile>
+  <tile id="42">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="4.45455" y="13.9091">
+     <polygon points="0,0 3.63636,-2 6.90909,-0.0909091 3.45455,1.90909"/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="98">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="11.7273" y="16.9091">
+     <polygon points="0,0 2.72727,-1.72727 -7.63636,-7.45455 -10.5455,-5.54545"/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="109">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="1.09091" y="14.9091">
+     <polygon points="0,0 10.7273,-6.18182 14,-4.63636 3.36364,1.45455"/>
+    </object>
+   </objectgroup>
+  </tile>
+ </tileset>
+ <layer id="1" name="Ground" width="10" height="10">
+  <data encoding="csv">
+2,46,2,2,2,2,2,2,2,2,
+2,46,2,2,2,2,2,2,2,13,
+2,46,2,2,2,2,2,13,13,13,
+2,46,2,2,2,2,13,13,13,16,
+2,46,2,2,2,2,13,13,13,16,
+2,46,2,2,2,2,13,13,13,16,
+2,46,2,2,2,13,13,13,13,16,
+2,46,2,2,13,13,13,13,16,16,
+2,46,2,13,13,13,16,16,16,16,
+2,46,2,13,16,16,16,16,16,16
+</data>
+ </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="1" x="26.8182" y="27.7273">
+   <properties>
+    <property name="camera" type="bool" value="true"/>
+    <property name="zoom" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <layer id="2" name="Above" width="10" height="10" offsetx="0" offsety="-8">
+  <data encoding="csv">
+0,0,0,0,0,110,0,0,0,0,
+0,0,0,99,99,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,43,0,0,0,0,0,0,0,
+9,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>
