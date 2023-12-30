@@ -1,4 +1,4 @@
-import { Actor, Color, ParallaxComponent, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, Entity, ImageSource, Logger, AnimationStrategy, CollisionType, IsometricMap, PolygonCollider, CircleCollider, IsometricEntityComponent, IsometricTile } from "excalibur";
+import { Actor, Color, ParallaxComponent, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, Entity, ImageSource, Logger, AnimationStrategy, CollisionType, IsometricMap, PolygonCollider, CircleCollider, IsometricEntityComponent, IsometricTile, TransformComponent } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledImageLayer, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -657,7 +657,8 @@ export class IsoTileLayer implements Layer {
          tileWidth: this.resource.map.tilewidth,
          tileHeight: this.resource.map.tileheight,
          columns: layer.width,
-         rows: layer.height
+         rows: layer.height,
+         elevation: this.order
       });
       this.isometricMap.addComponent(new TiledLayerDataComponent({ tiledTileLayer: layer }));
       const graphics = this.isometricMap.get(GraphicsComponent);
@@ -697,7 +698,7 @@ export class IsoTileLayer implements Layer {
             for (let collider of colliders) {
                if (collider instanceof PolygonCollider) {
                   if (tileset.orientation === 'orthogonal') {
-                     // TODO subtraction is needed when the tileset is in orthogonal but the map is isometric
+                     // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
                      collider.points = collider.points.map(p => p.add(tile.pos).sub(vec(halfWidth, height)));
                      collider = collider.triangulate();
                   } else {
@@ -707,7 +708,7 @@ export class IsoTileLayer implements Layer {
 
                if (collider instanceof CircleCollider) {
                   if (tileset.orientation === 'orthogonal') {
-                     // TODO this does not make sense to me... why is the collider so off relative to the entity
+                     // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
                      collider.offset = collider.worldPos.sub(vec(halfWidth, height));
                   } else {
                      collider.offset = collider.worldPos.add(tile.pos);

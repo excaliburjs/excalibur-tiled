@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="0" backgroundcolor="#22b2b2" nextlayerid="6" nextobjectid="22">
+<map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="0" backgroundcolor="#22b2b2" nextlayerid="8" nextobjectid="24">
  <tileset firstgid="1" name="iso-fantasy" tilewidth="16" tileheight="17" tilecount="110" columns="11">
   <grid orientation="isometric" width="17" height="8"/>
   <image source="assets/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
@@ -93,6 +93,7 @@
    </objectgroup>
   </tile>
  </tileset>
+ <tileset firstgid="221" source="external-iso-fantasy.tsx"/>
  <layer id="1" name="Ground" width="10" height="10">
   <data encoding="csv">
 2,46,2,2,2,2,2,2,2,2,
@@ -163,5 +164,23 @@
   <object id="19" gid="120" x="1.72727" y="65.7273" width="16" height="17"/>
   <object id="20" gid="142" x="-0.454545" y="31.9091" width="16" height="17"/>
   <object id="21" gid="142" x="13.9091" y="-1" width="16" height="17"/>
+ </objectgroup>
+ <layer id="6" name="Above (External)" width="10" height="10" tintcolor="#ff0000" offsetx="0" offsety="-8">
+  <data encoding="csv">
+0,0,0,0,0,0,251,0,0,0,
+0,263,263,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,231,231,0,0,0,0,264,0,0,
+0,231,231,0,0,0,263,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="7" name="Objects (External)" tintcolor="#00ff00">
+  <object id="22" template="isometric-template.tx" x="15.1818" y="55.1818"/>
+  <object id="23" gid="251" x="71.8182" y="0" width="16" height="17"/>
  </objectgroup>
 </map>
