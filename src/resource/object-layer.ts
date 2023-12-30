@@ -180,7 +180,6 @@ export class ObjectLayer implements Layer {
 
          newActor.anchor = vec(0, 1);
          newActor.pos = pos;
-         // TODO draw this optionally?
          const polygon = Shape.Polygon(points, Vector.Zero, true).triangulate();
          newActor.collider.set(polygon);
       }
