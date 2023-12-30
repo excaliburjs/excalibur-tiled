@@ -131,36 +131,25 @@ export class ObjectLayer implements Layer {
             newActor.graphics.offset = tileset.tileOffset;
          }
 
-         const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale });
-         if (colliders) {
-            // insertable tiles have an x, y, width, height, gid
-            // by default they pivot from the bottom left (0, 1)
-            const width = (object.tiledObject.width ?? 0);
-            const height = (object.tiledObject.height ?? 0);
-            const offsetx = -width * anchor.x;
-            const offsety = -height * anchor.y;
-            const offset = vec(offsetx, offsety);
-            const tileWidth = this.resource.map.tilewidth;
-            const halfTileWidth = this.resource.map.tilewidth / 2;
-            const tileHeight = this.resource.map.tileheight;
-            for (let collider of colliders) {
-               if (this.resource.map.orientation === 'orthogonal') {
-                  collider.offset = offset;
-               } else if (this.resource.map.orientation === 'isometric') {
-                  collider.offset = vec(offsetx + halfTileWidth, offsety + tileHeight);
-                  if (tileset.orientation === 'orthogonal') {
-                     // Handling odd case where the tileset is orthogonal but the map is isometric
-                     collider.offset = vec(offsetx, offsety);
-                     if (collider instanceof CircleCollider) {
-                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(halfTileWidth, -tileHeight/2));
-                     }
-
-                     if (collider instanceof PolygonCollider) {
-                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(tileWidth, tileHeight/2));
-                     }
-                  }
-               }
+         // insertable tiles have an x, y, width, height, gid
+         // by default they pivot from the bottom left (0, 1)
+         const width = (object.tiledObject.width ?? 0);
+         const height = (object.tiledObject.height ?? 0);
+         const offsetx = -width * anchor.x;
+         const offsety = -height * anchor.y;
+         const halfTileWidth = this.resource.map.tilewidth / 2;
+         const tileHeight = this.resource.map.tileheight;
+         let offset = vec(offsetx, offsety);
+         if (this.resource.map.orientation === 'isometric') {
+            offset = vec(offsetx + halfTileWidth, offsety + tileHeight);
+            if (tileset.orientation === 'orthogonal') {
+               // Handling odd case where the tileset is orthogonal but the map is isometric
+               offset = offset.sub(vec(halfTileWidth, tileHeight));
             }
+         }
+
+         const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale, offset });
+         if (colliders) {
             newActor.collider.useCompositeCollider(colliders);
          }
       }
@@ -180,8 +169,12 @@ export class ObjectLayer implements Layer {
 
          newActor.anchor = vec(0, 1);
          newActor.pos = pos;
-         const polygon = Shape.Polygon(points, Vector.Zero, true).triangulate();
-         newActor.collider.set(polygon);
+         const polygon = Shape.Polygon(points, Vector.Zero, true);
+         if (!polygon.isConvex()) {
+            newActor.collider.set(polygon.triangulate());
+         } else {
+            newActor.collider.set(polygon);
+         }
       }
 
       if (object instanceof Rectangle) {

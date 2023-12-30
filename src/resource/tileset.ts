@@ -268,10 +268,11 @@ export class Tileset implements Properties {
     * - Note: Ellipses can only be circles, the minimum dimension will be used to make a circle.
     * @param gid
     */
-   getCollidersForGid(gid: number, options?: { anchor?: Vector, scale?: Vector, orientationOverride?: 'isometric' | 'orthogonal' }): Collider[] {
-      let { anchor, scale, orientationOverride } = {
+   getCollidersForGid(gid: number, options?: { anchor?: Vector, scale?: Vector, orientationOverride?: 'isometric' | 'orthogonal', offset?: Vector }): Collider[] {
+      let { anchor, scale, orientationOverride, offset } = {
          anchor: Vector.Zero,
          scale: Vector.One,
+         offset: Vector.Zero,
          orientationOverride: 'orthogonal',
          ...options
       };
@@ -286,8 +287,13 @@ export class Tileset implements Properties {
                if (this.orientation === 'isometric' || orientationOverride === 'isometric') {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }
-               const poly = Shape.Polygon(points, Vector.Zero, true); // TODO we should triangulate here probably
-               result.push(poly);
+               points = points.map(p => p.add(offset));
+               let poly = Shape.Polygon(points, Vector.Zero, true);
+               if (!poly.isConvex()) {
+                  result.push(poly.triangulate());
+               } else {
+                  result.push(poly);
+               }
             }
             if (object instanceof Rectangle) {
                const bb = BoundingBox.fromDimension(
@@ -299,6 +305,7 @@ export class Tileset implements Properties {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }
                points = this._applyFlipsToPoints(points, gid);
+               points = points.map(p => p.add(offset));
                const box = Shape.Polygon(points);
                result.push(box);
             }
@@ -308,6 +315,7 @@ export class Tileset implements Properties {
                if (this.orientation === 'isometric'  || orientationOverride === 'isometric') {
                   offsetPoint = this._isometricTiledCoordToWorld(offsetPoint);
                }
+               offsetPoint = offsetPoint.add(offset);
                const radius = Math.min(object.width / 2, object.height / 2);
                const circle = Shape.Circle(radius, offsetPoint.scale(scale));
                result.push(circle);

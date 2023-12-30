@@ -32,28 +32,28 @@ const game = new ex.Engine({
 });
 game.toggleDebug();
 
-const newResource = new TiledResource('./orthogonal.tmx', {
-   headless: false,
-   pathMap: [
-      // special [match] in output string that is replaced with the first match from the regex
-      { path: /(.*\..*$)/, output: './[match]'}
-   ],
-   entityClassNameFactories: {
-      'player-start': (props) => {
-         return new Player({
-            pos: props.worldPos,
-            width: 16,
-            height: 16,
-            color: ex.Color.Blue,
-            collisionType: ex.CollisionType.Active
-         });
-      }
-   }
-});
-
-// const newResource = new TiledResource('./isometric.tmx', {
-//    useMapBackgroundColor: true
+// const newResource = new TiledResource('./orthogonal.tmx', {
+//    headless: false,
+//    pathMap: [
+//       // special [match] in output string that is replaced with the first match from the regex
+//       { path: /(.*\..*$)/, output: './[match]'}
+//    ],
+//    entityClassNameFactories: {
+//       'player-start': (props) => {
+//          return new Player({
+//             pos: props.worldPos,
+//             width: 16,
+//             height: 16,
+//             color: ex.Color.Blue,
+//             collisionType: ex.CollisionType.Active
+//          });
+//       }
+//    }
 // });
+
+const newResource = new TiledResource('./isometric.tmx', {
+   useMapBackgroundColor: true
+});
 const loader = new ex.Loader([newResource]);
 
 let currentPointer!: ex.Vector;

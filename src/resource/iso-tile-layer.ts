@@ -129,31 +129,18 @@ export class IsoTileLayer implements Layer {
             }
             tile.addGraphic(sprite, { offset: tileset.tileOffset });
 
+            let offset = tile.pos;
+            if (tileset.orientation === 'orthogonal') {
+               // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
+               const halfWidth = this.resource.map.tilewidth / 2;
+               const height = this.resource.map.tileheight;
+               offset = offset.sub(vec(halfWidth, height));
+            }
 
             // the whole tilemap uses a giant composite collider relative to the Tilemap
             // not individual tiles
-            const colliders = tileset.getCollidersForGid(gid);
-            const halfWidth = this.resource.map.tilewidth / 2;
-            const height = this.resource.map.tileheight;
+            const colliders = tileset.getCollidersForGid(gid, {offset});
             for (let collider of colliders) {
-               if (collider instanceof PolygonCollider) {
-                  if (tileset.orientation === 'orthogonal') {
-                     // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
-                     collider.points = collider.points.map(p => p.add(tile.pos).sub(vec(halfWidth, height)));
-                     collider = collider.triangulate(); // TODO remove triangulate in tileset
-                  } else {
-                     collider.points = collider.points.map(p => p.add(tile.pos));
-                  }
-               }
-
-               if (collider instanceof CircleCollider) {
-                  if (tileset.orientation === 'orthogonal') {
-                     // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
-                     collider.offset = collider.worldPos.sub(vec(halfWidth, height));
-                  } else {
-                     collider.offset = collider.worldPos.add(tile.pos);
-                  }
-               }
                tile.addCollider(collider);
             }
 
