@@ -9,6 +9,9 @@ import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
 
+/**
+ * Tile information for both excalibur and tiled tile representations
+ */
 export interface TileInfo {
    /**
     * Tiled based information for the tile
@@ -130,6 +133,7 @@ export class TileLayer implements Layer {
 
       const graphics = this.tilemap.get(GraphicsComponent);
       if (graphics) {
+         graphics.visible = this.tiledTileLayer.visible;
          graphics.opacity = opacity;
       }
       if (layer.parallaxx || layer.parallaxy) {
@@ -206,9 +210,7 @@ export class TileLayer implements Layer {
       }
    }
 }
-/**
- * Tile information for both excalibur and tiled tile representations
- */
+
 
 
 

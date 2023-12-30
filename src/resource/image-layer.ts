@@ -36,6 +36,7 @@ export class ImageLayer implements Layer {
          // FIXME when excalibur supports tiling we should use it here for repeatx/repeaty!
          const sprite = this.image.toSprite();
          this.imageActor.graphics.use(sprite);
+         this.imageActor.graphics.visible = this.tiledImageLayer.visible;
          this.imageActor.graphics.opacity = opacity;
          if (hasTint) {
             sprite.tint = tint;

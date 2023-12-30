@@ -2,9 +2,9 @@ import { BoundingBox, Color, Entity, ImageSource, Loadable, Logger, Scene, Trans
 import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { Layer } from "./layer";
-import { IsometricTileInfo } from "./Iso-tile-layer";
+import { IsometricTileInfo } from "./iso-tile-layer";
 import { TileInfo } from "./tile-layer";
-import { IsoTileLayer } from "./Iso-tile-layer";
+import { IsoTileLayer } from "./iso-tile-layer";
 import { TileLayer } from "./tile-layer";
 import { ObjectLayer } from './object-layer';
 import { Template } from "./template";
@@ -607,7 +607,6 @@ export class TiledResource implements Loadable<any> {
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
-      // TODO support Tiled visibility
       if (!this.isLoaded()) {
          this.logger.warn(`TiledResource ${this.path} is not loaded! Nothing will be wired into excalibur!`);
          return;

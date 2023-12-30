@@ -101,13 +101,10 @@ export class IsoTileLayer implements Layer {
          rows: layer.height,
          elevation: order
       });
-
+      // TODO make these optional params in the ctor
+      this.isometricMap.visible = this.tiledTileLayer.visible;
+      this.isometricMap.opacity = this.tiledTileLayer.opacity;
       this.isometricMap.addComponent(new TiledLayerDataComponent({ tiledTileLayer: layer }));
-      const graphics = this.isometricMap.get(GraphicsComponent);
-      if (graphics) {
-         graphics.visible = this.tiledTileLayer.visible;
-         graphics.opacity = opacity;
-      }
       if (layer.parallaxx || layer.parallaxy) {
          const factor = vec(layer.parallaxx ?? 1, layer.parallaxy ?? 1);
          this.isometricMap.addComponent(new ParallaxComponent(factor));

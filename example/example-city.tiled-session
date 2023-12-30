@@ -85,7 +85,7 @@
         "external-kenny.tsx",
         "example-city.tmx"
     ],
-    "tileset.embedInMap": true,
+    "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
         "height": 17,
