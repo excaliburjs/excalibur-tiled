@@ -160,7 +160,7 @@
 154,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="5" name="Objects (Non-Iso)">
+ <objectgroup id="5" name="Objects (Non-Iso)" tintcolor="#0055ff">
   <object id="19" gid="120" x="1.72727" y="65.7273" width="16" height="17"/>
   <object id="20" gid="142" x="-0.454545" y="31.9091" width="16" height="17"/>
   <object id="21" gid="142" x="13.9091" y="-1" width="16" height="17"/>

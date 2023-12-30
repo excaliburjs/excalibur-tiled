@@ -140,7 +140,7 @@ export class IsoTileLayer implements Layer {
                   if (tileset.orientation === 'orthogonal') {
                      // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
                      collider.points = collider.points.map(p => p.add(tile.pos).sub(vec(halfWidth, height)));
-                     collider = collider.triangulate();
+                     collider = collider.triangulate(); // TODO remove triangulate in tileset
                   } else {
                      collider.points = collider.points.map(p => p.add(tile.pos));
                   }

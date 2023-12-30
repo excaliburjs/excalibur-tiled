@@ -100,8 +100,9 @@ export class ObjectLayer implements Layer {
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
 
       if (object instanceof InsertedTile && tileset) {
-         // const overrideAlignment = this.resource.map.orientation === 'isometric' && tileset.orientation === 'orthogonal' ? 'bottom' : undefined;
-         const anchor = tileset.getTilesetAlignmentAnchor();
+         // handle case where we have isometric map but orthogonal tileset!s
+         const overrideAlignment = this.resource.map.orientation === 'isometric' && tileset.orientation === 'orthogonal' ? 'bottom' : undefined;
+         const anchor = tileset.getTilesetAlignmentAnchor(overrideAlignment);
          // Inserted tiles pivot from the bottom left in Tiled
          newActor.anchor = anchor;
          const scaleX = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
@@ -149,11 +150,11 @@ export class ObjectLayer implements Layer {
                      // Handling odd case where the tileset is orthogonal but the map is isometric
                      collider.offset = vec(offsetx, offsety);
                      if (collider instanceof CircleCollider) {
-                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(halfTileWidth, 0));
+                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(halfTileWidth, -tileHeight/2));
                      }
 
                      if (collider instanceof PolygonCollider) {
-                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(tileWidth, tileHeight));
+                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(tileWidth, tileHeight/2));
                      }
                   }
                }

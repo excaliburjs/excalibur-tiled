@@ -13,11 +13,14 @@
             "scaleInEditor": 5.5
         },
         "C:/projects/excalibur-tiled/test/v2/integration/maps/embedded.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
             "scale": 4,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 44.375,
-                "y": 30.25
+                "x": 89.625,
+                "y": 30
             }
         },
         "C:/projects/excalibur-tiled/test/v2/integration/maps/embedded.tmx#tiny-town": {
@@ -54,14 +57,21 @@
             "scaleInEditor": 2
         },
         "isometric.tmx": {
-            "scale": 4,
-            "selectedLayer": 1,
+            "expandedObjectLayers": [
+                5,
+                7
+            ],
+            "scale": 5.5,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 103.5,
-                "y": 41.5
+                "x": 89.18181818181817,
+                "y": 43.81818181818182
             }
         },
         "isometric.tmx#iso-fantasy": {
+            "scaleInDock": 3
+        },
+        "isometric.tmx#non-iso-fantasy": {
             "scaleInDock": 3
         }
     },
