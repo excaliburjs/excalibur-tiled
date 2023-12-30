@@ -61,8 +61,7 @@ export interface TilesetOptions {
  * Friendly plugin representation of Tiled tilesets
  */
 export class Tileset implements Properties {
-   // TODO fill mode
-   // TODO grid width/height
+   // FIXME fill mode
    // TODO drawing offset!
    name: string;
    class?: string;

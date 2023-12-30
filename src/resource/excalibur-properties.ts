@@ -3,6 +3,12 @@
  * Special excalibur properties
  */
 export const ExcaliburTiledProperties = {
+   ZIndex: {
+      /**
+       * Override the default z-index based on the ordering in Tiled
+       */
+      ZIndex: 'zindex'
+   },
    Camera: {
       /**
        * Boolean property on an object to treat as the excalibur camera if truthy

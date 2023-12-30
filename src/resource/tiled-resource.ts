@@ -1,7 +1,12 @@
 import { BoundingBox, Color, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
-import { ImageLayer, IsoTileLayer, IsometricTileInfo, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
+import { Layer } from "./layer";
+import { IsometricTileInfo } from "./Iso-tile-layer";
+import { TileInfo } from "./tile-layer";
+import { IsoTileLayer } from "./Iso-tile-layer";
+import { TileLayer } from "./tile-layer";
+import { ObjectLayer } from './object-layer';
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
@@ -13,6 +18,7 @@ import { FetchLoader, FileLoader } from './file-loader';
 import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
 import { LoaderCache } from "./loader-cache";
 import { TemplateResource, TemplateResourceOptions } from "./template-resource";
+import { ImageLayer } from "./image-layer";
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -501,7 +507,6 @@ export class TiledResource implements Loadable<any> {
 
       // Layers
       let friendlyLayers: Layer[] = [];
-      // TODO zindex configuration properties
       let order = 0;
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
