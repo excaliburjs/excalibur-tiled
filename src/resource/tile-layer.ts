@@ -158,7 +158,7 @@ export class TileLayer implements Layer {
                sprite = sprite.clone();
                sprite.tint = tint;
             }
-            tile.addGraphic(sprite);
+            tile.addGraphic(sprite, { offset: tileset.tileOffset });
 
 
             // the whole tilemap uses a giant composite collider relative to the Tilemap
@@ -175,7 +175,7 @@ export class TileLayer implements Layer {
                   animation.tint = tint;
                }
                tile.clearGraphics();
-               tile.addGraphic(animation);
+               tile.addGraphic(animation, { offset: tileset.tileOffset });
                if (this.resource.useExcaliburWiring) {
                   const tileObj = tileset.getTileByGid(gid);
                   const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);

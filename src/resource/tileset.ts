@@ -62,7 +62,6 @@ export interface TilesetOptions {
  */
 export class Tileset implements Properties {
    // FIXME fill mode
-   // TODO drawing offset!
    name: string;
    class?: string;
    firstGid = -1;
@@ -70,6 +69,7 @@ export class Tileset implements Properties {
    tiledTileset: TiledTileset;
    tileWidth: number = 0;
    tileHeight: number = 0;
+   tileOffset: Vector = vec(0, 0);
    spritesheet!: SpriteSheet;
    tiles: Tile[] = [];
    objectalignment: string = 'bottomleft';
@@ -119,6 +119,9 @@ export class Tileset implements Properties {
          this.tileCount = tiledTileset.tilecount;
          this.tileWidth = tiledTileset.tilewidth;
          this.tileHeight = tiledTileset.tileheight;
+         if (tiledTileset.tileoffset) {
+            this.tileOffset = vec(tiledTileset.tileoffset.x, tiledTileset.tileoffset.y);
+         }
          for (const tile of tiledTileset.tiles) {
             this.tiles.push(new Tile({
                id: tile.id,
@@ -136,6 +139,9 @@ export class Tileset implements Properties {
          this.tileCount = tiledTileset.tilecount;
          this.tileWidth = tiledTileset.tilewidth;
          this.tileHeight = tiledTileset.tileheight;
+         if (tiledTileset.tileoffset) {
+            this.tileOffset = vec(tiledTileset.tileoffset.x, tiledTileset.tileoffset.y);
+         }
          let sprites: Sprite[] = []
          for (const tile of tiledTileset.tiles) {
             const image = tileToImage.get(tile);

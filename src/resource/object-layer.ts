@@ -118,6 +118,7 @@ export class ObjectLayer implements Layer {
          }
 
          newActor.graphics.use(sprite);
+         newActor.graphics.offset = tileset.tileOffset;
 
          const animation = tileset.getAnimationForGid(object.gid);
          if (animation) {
@@ -127,6 +128,7 @@ export class ObjectLayer implements Layer {
                animationScaled.tint = tint;
             }
             newActor.graphics.use(animationScaled);
+            newActor.graphics.offset = tileset.tileOffset;
          }
 
          const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale });
