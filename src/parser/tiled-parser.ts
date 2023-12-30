@@ -268,7 +268,7 @@ const TiledTilesetEmbedded = z.object({
    grid: z.object({
       height: z.number(),
       width: z.number(),
-      orientation: z.literal('isometric')
+      orientation: z.union([z.literal('isometric'), z.literal('orthogonal')])
    }).optional(),
    // Can specify a drawing offset
    tileoffset: TiledPoint.optional(),
