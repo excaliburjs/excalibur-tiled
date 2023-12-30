@@ -62,16 +62,19 @@ export interface TilesetOptions {
  */
 export class Tileset implements Properties {
    // TODO fill mode
-   // TODO orientation
    // TODO grid width/height
+   // TODO drawing offset!
    name: string;
    class?: string;
    firstGid = -1;
    tileCount: number = 0;
    tiledTileset: TiledTileset;
+   tileWidth: number = 0;
+   tileHeight: number = 0;
    spritesheet!: SpriteSheet;
    tiles: Tile[] = [];
    objectalignment: string = 'bottomleft';
+   orientation: 'isometric' | 'orthogonal' = 'orthogonal';
    properties = new Map<string, string | number | boolean>();
 
    horizontalFlipTransform!: AffineMatrix;
@@ -90,10 +93,11 @@ export class Tileset implements Properties {
          const columns = Math.floor((tiledTileset.imagewidth + spacing) / (tiledTileset.tilewidth + spacing));
          const rows = Math.floor((tiledTileset.imageheight + spacing) / (tiledTileset.tileheight + spacing));
          this.class = tiledTileset.class;
+         this.orientation = tiledTileset.grid?.orientation ?? 'orthogonal';
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
-         this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
+         this.objectalignment = tiledTileset.objectalignment ?? (this.orientation === 'orthogonal' ? 'bottomleft' : 'bottom');
          this.spritesheet =  SpriteSheet.fromImageSource({
             image,
             grid: {
@@ -114,6 +118,8 @@ export class Tileset implements Properties {
             }
          });
          this.tileCount = tiledTileset.tilecount;
+         this.tileWidth = tiledTileset.tilewidth;
+         this.tileHeight = tiledTileset.tileheight;
          for (const tile of tiledTileset.tiles) {
             this.tiles.push(new Tile({
                id: tile.id,
@@ -126,8 +132,11 @@ export class Tileset implements Properties {
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
-         this.objectalignment = tiledTileset.objectalignment ?? 'bottomleft';
+         this.objectalignment = tiledTileset.objectalignment ?? (this.orientation === 'orthogonal' ? 'bottomleft' : 'bottom');
+         this.orientation = tiledTileset.grid?.orientation ?? 'orthogonal';
          this.tileCount = tiledTileset.tilecount;
+         this.tileWidth = tiledTileset.tilewidth;
+         this.tileHeight = tiledTileset.tileheight;
          let sprites: Sprite[] = []
          for (const tile of tiledTileset.tiles) {
             const image = tileToImage.get(tile);
@@ -145,10 +154,9 @@ export class Tileset implements Properties {
       }
    }
 
-   getTilesetAlignmentAnchor() {
-      // TODO if isometric this is bottom
+   getTilesetAlignmentAnchor(overrideAlignment?: string) {
       // https://doc.mapeditor.org/en/stable/manual/editing-tilesets/#tileset-properties
-      switch(this.objectalignment) {
+      switch(overrideAlignment ?? this.objectalignment) {
          case 'topleft' : {
             return vec(0, 0);
          }
@@ -230,6 +238,21 @@ export class Tileset implements Properties {
       throw new Error(`Tileset: [${this.name}] Could not find sprite for gid: [${gid}] normalized gid: [${normalizedGid}]`);
    }
 
+   private _isometricTiledCoordToWorld(isoCoord: Vector): Vector {
+      // Transformation sourced from:
+      // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
+      const originX = 0;
+      const tileWidth = this.tileWidth;
+      // This is slightly different in tilesets because the grid aligns with actual image rectangles
+      // Tiled Resource DOES not, and aligns with the "logical" height
+      const halftileHeight = this.tileHeight / 2; 
+      const tileY = isoCoord.y / halftileHeight;
+      const tileX = isoCoord.x / halftileHeight;
+      return vec(
+         (tileX - tileY) * tileWidth / 2 + originX,
+         (tileX + tileY) * halftileHeight / 2);
+   }
+
    /**
     * Returns any excalibur colliders setup for a Tile by gid
     * 
@@ -240,10 +263,11 @@ export class Tileset implements Properties {
     * - Note: Ellipses can only be circles, the minimum dimension will be used to make a circle.
     * @param gid
     */
-   getCollidersForGid(gid: number, options?: { anchor?: Vector, scale?: Vector }): Collider[] {
-      let { anchor, scale } = {
+   getCollidersForGid(gid: number, options?: { anchor?: Vector, scale?: Vector, orientationOverride?: 'isometric' | 'orthogonal' }): Collider[] {
+      let { anchor, scale, orientationOverride } = {
          anchor: Vector.Zero,
          scale: Vector.One,
+         orientationOverride: 'orthogonal',
          ...options
       };
       const tile = this.getTileByGid(gid);
@@ -254,7 +278,10 @@ export class Tileset implements Properties {
                // This is the offset into the first point (local space)
                let points = object.points.map(p => p.scale(scale));
                points = this._applyFlipsToPoints(points, gid);
-               const poly = Shape.Polygon(points);
+               if (this.orientation === 'isometric' || orientationOverride === 'isometric') {
+                  points = points.map(p => this._isometricTiledCoordToWorld(p));
+               }
+               const poly = Shape.Polygon(points, Vector.Zero, true); // TODO we should triangulate here probably
                result.push(poly);
             }
             if (object instanceof Rectangle) {
@@ -263,6 +290,9 @@ export class Tileset implements Properties {
                   object.height * scale.y,
                   anchor);
                let points = bb.getPoints().map(p => p.add(vec(object.x, object.y)));
+               if (this.orientation === 'isometric'  || orientationOverride === 'isometric') {
+                  points = points.map(p => this._isometricTiledCoordToWorld(p));
+               }
                points = this._applyFlipsToPoints(points, gid);
                const box = Shape.Polygon(points);
                result.push(box);
@@ -270,6 +300,9 @@ export class Tileset implements Properties {
             if (object instanceof Ellipse) {
                // This is the offset into the first point (local space)
                let offsetPoint = vec(object.x, object.y);
+               if (this.orientation === 'isometric'  || orientationOverride === 'isometric') {
+                  offsetPoint = this._isometricTiledCoordToWorld(offsetPoint);
+               }
                const radius = Math.min(object.width / 2, object.height / 2);
                const circle = Shape.Circle(radius, offsetPoint.scale(scale));
                result.push(circle);

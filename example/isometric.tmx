@@ -1,43 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="0" backgroundcolor="#22b2b2" nextlayerid="4" nextobjectid="2">
+<map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="0" backgroundcolor="#22b2b2" nextlayerid="6" nextobjectid="22">
  <tileset firstgid="1" name="iso-fantasy" tilewidth="16" tileheight="17" tilecount="110" columns="11">
-  <grid orientation="orthogonal" width="17" height="8"/>
+  <grid orientation="isometric" width="17" height="8"/>
   <image source="assets/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
-  <tile id="8">
+  <tile id="0" type="Ground"/>
+  <tile id="1" type="Ground"/>
+  <tile id="7">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="4" y="7" width="8" height="7"/>
+    <object id="1" x="-5.90909" y="-5.81818" width="8.1016" height="8"/>
    </objectgroup>
   </tile>
-  <tile id="15">
+  <tile id="8">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="0.181818" y="12.0909">
-     <polygon points="0,0 8.09091,-4.36364 15.8182,-0.545455 7.36364,4.36364"/>
+    <object id="1" x="1.2246" y="1.22995" width="4.83422" height="4.58824"/>
+   </objectgroup>
+  </tile>
+  <tile id="9">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="-3.86096" y="-3.91444" width="6.86631" height="6.86631">
+     <ellipse/>
     </object>
+   </objectgroup>
+  </tile>
+  <tile id="11" type="Ground"/>
+  <tile id="12" type="Ground"/>
+  <tile id="15" type="Water">
+   <objectgroup draworder="index" id="2">
+    <object id="2" x="-0.673797" y="-2.14439" width="8.27807" height="10"/>
+   </objectgroup>
+  </tile>
+  <tile id="16" type="Water"/>
+  <tile id="17" type="Water"/>
+  <tile id="18" type="Water">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="-0.925134" y="-1.71123" width="7.44385" height="8"/>
    </objectgroup>
   </tile>
   <tile id="19">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="4" y="6" width="8" height="8"/>
+    <object id="1" x="1.20856" y="1.15508" width="4.47594" height="4.49733"/>
    </objectgroup>
   </tile>
-  <tile id="42">
+  <tile id="42" type="Cactus">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="4.45455" y="13.9091">
-     <polygon points="0,0 3.63636,-2 6.90909,-0.0909091 3.45455,1.90909"/>
+    <object id="2" x="3.04278" y="2.95722" width="3.90909" height="3.90909"/>
+   </objectgroup>
+  </tile>
+  <tile id="98" type="Fence">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="-0.486631" y="2.41176" width="9.98396" height="3.55615"/>
+   </objectgroup>
+  </tile>
+  <tile id="109" type="Fence">
+   <objectgroup draworder="index" id="2">
+    <object id="4" x="2.71123" y="-0.71123" width="3.42781" height="11.2513"/>
+   </objectgroup>
+  </tile>
+ </tileset>
+ <tileset firstgid="111" name="non-iso-fantasy" tilewidth="16" tileheight="17" tilecount="110" columns="11">
+  <image source="assets/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
+  <tile id="7">
+   <objectgroup draworder="index" id="3">
+    <object id="3" x="0.272727" y="7.54545">
+     <polygon points="0,0 7.81818,-4.18182 15.5455,-0.363636 7.72727,3.72727"/>
     </object>
    </objectgroup>
   </tile>
-  <tile id="98">
+  <tile id="9">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="11.7273" y="16.9091">
-     <polygon points="0,0 2.72727,-1.72727 -7.63636,-7.45455 -10.5455,-5.54545"/>
+    <object id="1" x="3.27273" y="4.81818" width="8.72727" height="8.72727">
+     <ellipse/>
     </object>
    </objectgroup>
   </tile>
-  <tile id="109">
+  <tile id="18">
    <objectgroup draworder="index" id="2">
-    <object id="1" x="1.09091" y="14.9091">
-     <polygon points="0,0 10.7273,-6.18182 14,-4.63636 3.36364,1.45455"/>
+    <object id="1" x="0.272727" y="11.3636">
+     <polygon points="0,0 7.63636,-3.81818 15.8182,-0.272727 7.90909,3.90909"/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="31">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="3.27273" y="7.09091" width="9.63636" height="7"/>
+   </objectgroup>
+  </tile>
+  <tile id="43">
+   <objectgroup draworder="index" id="2">
+    <object id="2" name="Spike" x="3" y="13.1818">
+     <polygon points="0,0 4.45455,-10.0909 9.63636,-0.181818 4.90909,2.45455"/>
     </object>
    </objectgroup>
   </tile>
@@ -57,12 +108,27 @@
 </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" x="26.8182" y="27.7273">
+  <object id="1" name="player" x="26.8182" y="27.7273">
    <properties>
     <property name="camera" type="bool" value="true"/>
     <property name="zoom" type="float" value="5"/>
    </properties>
    <point/>
+  </object>
+  <object id="2" name="Orb" gid="10" x="0.875" y="-0.375" width="16" height="17"/>
+  <object id="3" name="Orb2" gid="10" x="28.9375" y="77.3125" width="16" height="17"/>
+  <object id="6" name="hello world" x="-21.6875" y="58.6875" width="80" height="17" rotation="24">
+   <text wrap="1">Hello World</text>
+  </object>
+  <object id="12" name="circle" x="49.75" y="26" width="7.625" height="7.625">
+   <ellipse/>
+  </object>
+  <object id="14" name="rect" x="28.4375" y="16.8125" width="10.125" height="8.875"/>
+  <object id="16" name="Tetrimino" x="56" y="16">
+   <polygon points="0,0 0,-8 0,-16 8,-16 8,-8 16,-8 16,0 8,0 8,8 0,8"/>
+  </object>
+  <object id="18" name="Star" x="28.6364" y="92.4545">
+   <polygon points="0,0 -9.90909,-14.8182 1.81818,-5.09091 7.45455,-10.3636 9.81818,1.81818 21.7273,9.18182 10.8182,8.09091 11.6364,16.7273 4.90909,7.09091 -6.81818,3.90909"/>
   </object>
  </objectgroup>
  <layer id="2" name="Above" width="10" height="10" offsetx="0" offsety="-8">
@@ -70,7 +136,7 @@
 0,0,0,0,0,110,0,0,0,0,
 0,0,0,99,99,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,
+0,10,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
 0,0,43,0,0,0,0,0,0,0,
 9,0,0,0,0,0,0,0,0,0,
@@ -79,4 +145,23 @@
 0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <layer id="4" name="Above (Non-Iso)" width="10" height="10" offsetx="0" offsety="-8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+142,0,0,0,0,0,0,0,0,0,
+154,0,0,0,0,0,0,0,0,0,
+154,0,0,0,0,0,0,0,0,0,
+154,0,154,0,0,0,0,0,0,0,
+154,0,0,0,0,154,0,0,0,0,
+0,0,0,0,142,0,0,0,0,0,
+154,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+154,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="5" name="Objects (Non-Iso)">
+  <object id="19" gid="120" x="1.72727" y="65.7273" width="16" height="17"/>
+  <object id="20" gid="142" x="-0.454545" y="31.9091" width="16" height="17"/>
+  <object id="21" gid="142" x="13.9091" y="-1" width="16" height="17"/>
+ </objectgroup>
 </map>

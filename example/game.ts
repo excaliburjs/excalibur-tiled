@@ -27,8 +27,10 @@ const game = new ex.Engine({
    height: 600, 
    canvasElementId: 'game',
    pointerScope: ex.PointerScope.Canvas,
-   antialiasing: false
+   antialiasing: false,
+   suppressPlayButton: true,
 });
+game.toggleDebug();
 
 // const newResource = new TiledResource('./example-city.tmx', {
 //    headless: false,
@@ -59,6 +61,13 @@ game.input.pointers.primary.on('down', (moveEvent) => {
       currentPointer = moveEvent.worldPos;
       game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
 });
+
+game.input.pointers.primary.on('move', (moveEvent) => {
+   const tile = newResource.getTileByPoint('ground', moveEvent.worldPos);
+   if (tile) {
+      console.log(tile);
+   }
+})
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
    // wheel up

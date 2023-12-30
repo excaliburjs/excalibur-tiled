@@ -818,6 +818,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
       if (tilemap) {
 
          const tile = tilemap.getTileByPoint(worldPos);
+         if (!tile) return null;
          return this._lookupTile(tilemap, tile, layerName);
       }
       return null;

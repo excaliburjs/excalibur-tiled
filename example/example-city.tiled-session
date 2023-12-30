@@ -9,7 +9,19 @@
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
-            "scaleInEditor": 1.5
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "C:/projects/excalibur-tiled/test/v2/integration/maps/embedded.tmx": {
+            "scale": 4,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 44.375,
+                "y": 30.25
+            }
+        },
+        "C:/projects/excalibur-tiled/test/v2/integration/maps/embedded.tmx#tiny-town": {
+            "scaleInDock": 4
         },
         "example-city.tmx": {
             "scale": 3,
@@ -40,22 +52,35 @@
             "dynamicWrapping": false,
             "scaleInDock": 3,
             "scaleInEditor": 2
+        },
+        "isometric.tmx": {
+            "scale": 4,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 103.5,
+                "y": 41.5
+            }
+        },
+        "isometric.tmx#iso-fantasy": {
+            "scaleInDock": 3
         }
     },
     "last.exportedFilePath": "C:/projects/excalibur-tiled/test/v2/integration/maps",
-    "last.imagePath": "C:/projects/excalibur-tiled/test/v2/integration/maps/kenney_tiny-town/Tilemap",
+    "last.imagePath": "C:/projects/excalibur-tiled/example/assets",
     "last.objectTemplatePath": "C:/projects/excalibur-tiled/example",
-    "map.height": 5,
+    "map.height": 10,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
-    "map.tileHeight": 16,
-    "map.tileWidth": 16,
-    "map.width": 5,
+    "map.orientation": null,
+    "map.tileHeight": 20,
+    "map.tileWidth": 15,
+    "map.width": 10,
     "openFiles": [
     ],
     "project": "example-city.tiled-project",
-    "property.type": "bool",
+    "property.type": "float",
     "recentFiles": [
+        "isometric.tmx",
         "external-collection.tsx",
         "external-kenny.tsx",
         "example-city.tmx"
@@ -63,7 +88,7 @@
     "tileset.embedInMap": true,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 16,
+        "height": 17,
         "width": 16
     }
 }

@@ -1,4 +1,4 @@
-import { Actor, Color, ParallaxComponent, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, Entity, ImageSource, Logger, AnimationStrategy, CollisionType, IsometricMap } from "excalibur";
+import { Actor, Color, ParallaxComponent, Shape, TileMap, Tile as ExTile, Vector, toRadians, vec, GraphicsComponent, Entity, ImageSource, Logger, AnimationStrategy, CollisionType, IsometricMap, PolygonCollider, CircleCollider, IsometricEntityComponent, IsometricTile } from "excalibur";
 import { Properties, mapProps } from "./properties";
 import { TiledImageLayer, TiledObjectLayer, TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -15,8 +15,22 @@ import { TiledLayerDataComponent } from "./tiled-layer-component";
 export type LayerTypes = ObjectLayer | TileLayer;
 
 export interface Layer extends Properties {
+   /**
+    * Name from Tiled
+    */
    name: string;
+   /**
+    * Original ordering from Tiled
+    */
+   order: number;
+   /**
+    * Class name from Tiled
+    */
    class?: string;
+   /**
+    * Loads friendly datastructure (called by the plugin)
+    * @internal
+    */
    load(): Promise<void>;
 }
 
@@ -26,7 +40,7 @@ export class ImageLayer implements Layer {
    properties = new Map<string, string | number | boolean>();
    image: ImageSource | null = null;
    imageActor: Actor | null = null;
-   constructor(public tiledImageLayer: TiledImageLayer, public resource: TiledResource) {
+   constructor(public tiledImageLayer: TiledImageLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledImageLayer.name;
       this.class = tiledImageLayer.class;
       mapProps(this, tiledImageLayer.properties);
@@ -70,7 +84,7 @@ export class ObjectLayer implements Layer {
    private _objectToEntity = new Map<PluginObject, Entity>();
    private _entityToObject = new Map<Entity, PluginObject>();
    private _loaded = false;
-   constructor(public tiledObjectLayer: TiledObjectLayer, public resource: TiledResource) {
+   constructor(public tiledObjectLayer: TiledObjectLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledObjectLayer.name;
       this.class = tiledObjectLayer.class;
 
@@ -150,7 +164,7 @@ export class ObjectLayer implements Layer {
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
 
       if (object instanceof InsertedTile && tileset) {
-
+         // const overrideAlignment = this.resource.map.orientation === 'isometric' && tileset.orientation === 'orthogonal' ? 'bottom' : undefined;
          const anchor = tileset.getTilesetAlignmentAnchor();
          // Inserted tiles pivot from the bottom left in Tiled
          newActor.anchor = anchor;
@@ -187,8 +201,26 @@ export class ObjectLayer implements Layer {
             const offsetx = -width * anchor.x;
             const offsety = -height * anchor.y;
             const offset = vec(offsetx, offsety);
+            const tileWidth = this.resource.map.tilewidth;
+            const halfTileWidth = this.resource.map.tilewidth / 2;
+            const tileHeight = this.resource.map.tileheight;
             for (let collider of colliders) {
-               collider.offset = offset;
+               if (this.resource.map.orientation === 'orthogonal') {
+                  collider.offset = offset;
+               } else if (this.resource.map.orientation === 'isometric') {
+                  collider.offset = vec(offsetx + halfTileWidth, offsety + tileHeight);
+                  if (tileset.orientation === 'orthogonal') {
+                     // TODO weirdly handling odd case where the tileset is orthogonal but the map is isometric
+                     collider.offset = vec(offsetx, offsety);
+                     if (collider instanceof CircleCollider) {
+                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(halfTileWidth, 0));
+                     }
+
+                     if (collider instanceof PolygonCollider ) {
+                        collider.offset = this.resource.isometricTiledCoordToWorld(collider.offset.x, collider.offset.y).sub(vec(tileWidth, tileHeight));
+                     }
+                  }
+               }
             }
             newActor.collider.useCompositeCollider(colliders);
          }
@@ -199,18 +231,32 @@ export class ObjectLayer implements Layer {
       }
 
       if (object instanceof Polygon) {
+         let pos = vec(object.x, object.y);
+         let points = object.localPoints;
+
+         if (this.resource.map.orientation === 'isometric') {
+            pos = this.resource.isometricTiledCoordToWorld(pos.x, pos.y);
+            points = points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
+         }
+
          newActor.anchor = vec(0, 1);
-         newActor.pos = vec(object.x, object.y);
-         const polygon = Shape.Polygon(object.localPoints).triangulate();
+         newActor.pos = pos;
+         // TODO draw this optionally?
+         const polygon = Shape.Polygon(points, Vector.Zero, true).triangulate();
          newActor.collider.set(polygon);
       }
 
       if (object instanceof Rectangle) {
          newActor.anchor = object.anchor;
-         newActor.collider.useBoxCollider(object.width, object.height, object.anchor);
+         let boxCollider = Shape.Box(object.width, object.height, object.anchor);
+         if (this.resource.map.orientation === 'isometric') {
+            boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
+         }
+         newActor.collider.set(boxCollider);
       }
 
       if (object instanceof Ellipse) {
+         // FIXME: Circles are positioned differently in isometric as ellipses and currently arent supported
          // FIXME: Excalibur doesn't support ellipses :( fallback to circle
          // pick the smallest dimension and that's our radius
          newActor.collider.useCircleCollider(Math.min(object.width, object.height) / 2);
@@ -225,6 +271,12 @@ export class ObjectLayer implements Layer {
 
       for (let object of objects) {
          let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
+
+         // When isometric, Tiled positions are in isometric coordinates
+         if (this.resource.map.orientation === 'isometric') {
+            worldPos = this.resource.isometricTiledCoordToWorld(worldPos.x, worldPos.y);
+         }
+
          let objectType = object.class;
          if (object instanceof TemplateObject) {
             objectType = objectType ? objectType : object.template.object.class;
@@ -249,14 +301,24 @@ export class ObjectLayer implements Layer {
 
          const newActor = new Actor({
             name: object.tiledObject.name,
-            x: (object.x ?? 0) + offset.x,
-            y: (object.y ?? 0) + offset.y,
+            pos: worldPos,
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0),
          });
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
             graphics.opacity = opacity;
+         }
+
+         if (this.resource.map.orientation === 'isometric') {
+            const iso = new IsometricEntityComponent({
+               rows: this.resource.map.height,
+               columns: this.resource.map.width,
+               tileWidth: this.resource.map.tilewidth,
+               tileHeight: this.resource.map.tileheight
+            });
+            iso.elevation = this.order;
+            newActor.addComponent(iso);
          }
 
          if (this.resource.useExcaliburWiring) {
@@ -333,6 +395,17 @@ export interface TileInfo {
    exTile: ExTile;
 }
 
+export interface IsometricTileInfo {
+   /**
+    * Tiled based information for the tile
+    */
+   tiledTile?: Tile;
+   /**
+    * Excalibur tile abstraction
+    */
+   exTile: IsometricTile;
+}
+
 export class TileLayer implements Layer {
    private logger = Logger.getInstance();
    public readonly name: string;
@@ -366,6 +439,7 @@ export class TileLayer implements Layer {
       }
       if (this.tilemap) {
          const exTile = this.tilemap.getTileByPoint(worldPos);
+         if (!exTile) return null;
          const tileIndex = this.tilemap.tiles.indexOf(exTile);
          const gid = getCanonicalGid(this.data[tileIndex])
 
@@ -403,7 +477,7 @@ export class TileLayer implements Layer {
       return null;
    }
 
-   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
+   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledTileLayer.name;
       this.class = tiledTileLayer.class;
       this.width = tiledTileLayer.width;
@@ -421,8 +495,6 @@ export class TileLayer implements Layer {
          this.data = this.tiledTileLayer.data;
       }
 
-      // TODO isometric support different tile maps besides orthogonal
-      // this.data.orientation === "orthogonal"
       const layer = this.tiledTileLayer;
       this.tilemap = new TileMap({
          name: this.name,
@@ -536,12 +608,35 @@ export class IsoTileLayer implements Layer {
     * Excalibur IsometricMap structure for drawing in excalibur
     */
    isometricMap!: IsometricMap;
-   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource) {
+   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledTileLayer.name;
       this.class = tiledTileLayer.class;
       this.width = tiledTileLayer.width;
       this.height = tiledTileLayer.height;
       mapProps(this, tiledTileLayer.properties);
+   }
+
+   getTileByPoint(worldPos: Vector): IsometricTileInfo | null {
+      if (!this.isometricMap) {
+         this.logger.warn('IsometricMap has not yet been loaded! getTileByPoint() will only return null');
+         return null;
+      }
+      if (this.isometricMap) {
+         const exTile = this.isometricMap.getTileByPoint(worldPos);
+         if (!exTile) return null;
+         const tileIndex = this.isometricMap.tiles.indexOf(exTile);
+         const gid = getCanonicalGid(this.data[tileIndex])
+
+         if (gid <= 0) {
+            return null;
+         }
+
+         const tileset = this.resource.getTilesetForTileGid(gid);
+         const tiledTile = tileset.getTileByGid(gid);
+
+         return { tiledTile, exTile };
+      }
+      return null;
    }
 
    async load(): Promise<void> {
@@ -597,7 +692,27 @@ export class IsoTileLayer implements Layer {
             // the whole tilemap uses a giant composite collider relative to the Tilemap
             // not individual tiles
             const colliders = tileset.getCollidersForGid(gid);
+            const halfWidth = this.resource.map.tilewidth / 2;
+            const height = this.resource.map.tileheight;
             for (let collider of colliders) {
+               if (collider instanceof PolygonCollider) {
+                  if (tileset.orientation === 'orthogonal') {
+                     // TODO subtraction is needed when the tileset is in orthogonal but the map is isometric
+                     collider.points = collider.points.map(p => p.add(tile.pos).sub(vec(halfWidth, height)));
+                     collider = collider.triangulate();
+                  } else {
+                     collider.points = collider.points.map(p => p.add(tile.pos))
+                  }
+               }
+
+               if (collider instanceof CircleCollider) {
+                  if (tileset.orientation === 'orthogonal') {
+                     // TODO this does not make sense to me... why is the collider so off relative to the entity
+                     collider.offset = collider.worldPos.sub(vec(halfWidth, height));
+                  } else {
+                     collider.offset = collider.worldPos.add(tile.pos);
+                  }
+               }
                tile.addCollider(collider);
             }
 

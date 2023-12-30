@@ -1,7 +1,7 @@
 import { BoundingBox, Color, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
-import { ImageLayer, IsoTileLayer, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
+import { ImageLayer, IsoTileLayer, IsometricTileInfo, Layer, ObjectLayer, TileInfo, TileLayer } from "./layer";
 import { Template } from "./template";
 import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
@@ -303,10 +303,17 @@ export class TiledResource implements Loadable<any> {
     * @param worldPos 
     * @returns 
     */
-   getTileByPoint(layerName: string, worldPos: Vector): TileInfo | null {
-      const layer = this.getTileLayers().find(byNameCaseInsensitive(layerName));
-      if (layer) {
-         return layer.getTileByPoint(worldPos);
+   getTileByPoint(layerName: string, worldPos: Vector): TileInfo | IsometricTileInfo | null {
+      if (this.map.orientation === 'isometric') {
+         const layer = this.getIsoTileLayers().find(byNameCaseInsensitive(layerName));
+         if (layer) {
+            return layer.getTileByPoint(worldPos);
+         }
+      } else {
+         const layer = this.getTileLayers().find(byNameCaseInsensitive(layerName));
+         if (layer) {
+            return layer.getTileByPoint(worldPos);
+         }
       }
 
       return null;
@@ -427,6 +434,10 @@ export class TiledResource implements Loadable<any> {
       return this.layers.filter(l => l instanceof TileLayer) as TileLayer[];
    }
 
+   getIsoTileLayers(): IsoTileLayer[] {
+      return this.layers.filter(l => l instanceof IsoTileLayer) as IsoTileLayer[];
+   }
+
    getObjectLayers(): ObjectLayer[] {
       return this.layers.filter(l => l instanceof ObjectLayer) as ObjectLayer[];
    }
@@ -490,26 +501,28 @@ export class TiledResource implements Loadable<any> {
 
       // Layers
       let friendlyLayers: Layer[] = [];
-      // TODO order/zindex properties
+      // TODO zindex configuration properties
+      let order = 0;
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
             if (this.map.orientation === 'isometric') {
-               const isolayer = new IsoTileLayer(layer, this);
+               const isolayer = new IsoTileLayer(layer, this, order);
                friendlyLayers.push(isolayer);
             }
             if (this.map.orientation === 'orthogonal') {
-               const tilelayer = new TileLayer(layer, this);
+               const tilelayer = new TileLayer(layer, this, order);
                friendlyLayers.push(tilelayer);
             }
          }
          if (layer.type === 'objectgroup') {
-            const objectlayer = new ObjectLayer(layer, this);
+            const objectlayer = new ObjectLayer(layer, this, order);
             friendlyLayers.push(objectlayer);
          }
          if (layer.type === 'imagelayer') {
-            const imagelayer = new ImageLayer(layer, this);
+            const imagelayer = new ImageLayer(layer, this, order);
             friendlyLayers.push(imagelayer);
          }
+         order++;
       }
       // Layer loading depends on data from previous load step
       await Promise.all(friendlyLayers.map(layer => layer.load()));
@@ -589,6 +602,7 @@ export class TiledResource implements Loadable<any> {
    }
 
    addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
+      // TODO support Tiled visibility
       if (!this.isLoaded()) {
          this.logger.warn(`TiledResource ${this.path} is not loaded! Nothing will be wired into excalibur!`);
          return;
@@ -606,7 +620,6 @@ export class TiledResource implements Loadable<any> {
             scene.add(layer.isometricMap);
          }
          if (layer instanceof ObjectLayer) {
-            // TODO does not account for Isometric coordinates
             for (const entity of layer.entities) {
                const tx = entity.get(TransformComponent);
                if (tx) {
@@ -632,9 +645,12 @@ export class TiledResource implements Loadable<any> {
             if (zoomProp && typeof zoomProp === 'number') {
                zoom = zoomProp;
             }
-            
-            // TODO coordinate mapping for iso :( 
-            scene.camera.pos = this.isometricTiledCoordToWorld(cameraObject.x, cameraObject.y);//vec(cameraObject.x, cameraObject.y);
+
+            if (this.map.orientation === 'isometric') {
+               scene.camera.pos = this.isometricTiledCoordToWorld(cameraObject.x, cameraObject.y);
+            } else {
+               scene.camera.pos = vec(cameraObject.x, cameraObject.y);
+            }
             scene.camera.zoom = zoom;
          }
       }
@@ -661,9 +677,9 @@ export class TiledResource implements Loadable<any> {
    isometricTiledCoordToWorld(x: number, y: number): Vector {
       // Transformation sourced from:
       // https://discourse.mapeditor.org/t/how-to-get-cartesian-coords-of-objects-from-tileds-isometric-map/4623/3
+      const originX = 0;
       const tileWidth = this.map.tilewidth;
       const tileHeight = this.map.tileheight;
-      const originX = 0; // TODO actual origin x
       const tileY = y / tileHeight;
       const tileX = x / tileHeight;
       return vec(
