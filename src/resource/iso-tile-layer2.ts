@@ -105,6 +105,7 @@ export class IsoTileLayer implements Layer {
       this.isometricMap.addComponent(new TiledLayerDataComponent({ tiledTileLayer: layer }));
       const graphics = this.isometricMap.get(GraphicsComponent);
       if (graphics) {
+         graphics.visible = this.tiledTileLayer.visible;
          graphics.opacity = opacity;
       }
       if (layer.parallaxx || layer.parallaxy) {
