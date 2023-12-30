@@ -251,7 +251,7 @@ export class ObjectLayer implements Layer {
          });
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
-            graphics.visible = this.tiledObjectLayer.visible && (!!object.tiledObject.visible);
+            graphics.visible = this.tiledObjectLayer.visible && (object.tiledObject.visible === undefined ? true : !!object.tiledObject.visible);
             graphics.opacity = opacity;
          }
 
