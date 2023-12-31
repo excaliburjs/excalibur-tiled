@@ -2,7 +2,7 @@
    "compilerOptions": {
       "moduleResolution": "node",
       "strict": true,
-      "target": "es2015",
+      "target": "es2018",
       "lib": ["DOM", "DOM.Iterable", "ES2019.Array"],
       "declaration": true,
       "outDir": "./dist",
