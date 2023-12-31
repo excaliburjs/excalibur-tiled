@@ -1,6 +1,6 @@
 {
   "name": "@excaliburjs/plugin-tiled",
-  "version": "0.28.0",
+  "version": "0.29.0-alpha.1",
   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
   "main": "dist/excalibur-tiled.min.js",
   "typings": "dist/src/index.d.ts",
