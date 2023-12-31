@@ -432,20 +432,36 @@ export class TiledResource implements Loadable<any> {
       return null;
    }
 
-   getImageLayers(): ImageLayer[] {
-      return this.layers.filter(l => l instanceof ImageLayer) as ImageLayer[];
+   getImageLayers(name?: string): ImageLayer[] {
+      const layers = this.layers.filter(l => l instanceof ImageLayer) as ImageLayer[];
+      if (name) {
+         return layers.filter(byNameCaseInsensitive(name));
+      }
+      return layers;
    }
 
-   getTileLayers(): TileLayer[] {
-      return this.layers.filter(l => l instanceof TileLayer) as TileLayer[];
+   getTileLayers(name?: string): TileLayer[] {
+      const layers = this.layers.filter(l => l instanceof TileLayer) as TileLayer[];
+      if (name) {
+         return layers.filter(byNameCaseInsensitive(name));
+      }
+      return layers;
    }
 
-   getIsoTileLayers(): IsoTileLayer[] {
-      return this.layers.filter(l => l instanceof IsoTileLayer) as IsoTileLayer[];
+   getIsoTileLayers(name?: string): IsoTileLayer[] {
+      const layers = this.layers.filter(l => l instanceof IsoTileLayer) as IsoTileLayer[];
+      if (name) {
+         return layers.filter(byNameCaseInsensitive(name));
+      }
+      return layers;
    }
 
-   getObjectLayers(): ObjectLayer[] {
-      return this.layers.filter(l => l instanceof ObjectLayer) as ObjectLayer[];
+   getObjectLayers(name?: string): ObjectLayer[] {
+      const layers = this.layers.filter(l => l instanceof ObjectLayer) as ObjectLayer[];
+      if (name) {
+         return layers.filter(byNameCaseInsensitive(name));
+      }
+      return layers;
    }
 
    getLayersByName(name: string): Layer[] {
