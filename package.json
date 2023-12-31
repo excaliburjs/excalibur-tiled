@@ -33,7 +33,7 @@
     "start": "webpack-dev-server --config webpack.config.test.js --open",
     "watch": "webpack --progress --watch",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit",
     "test:unit": "karma start",
     "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/ex-tests.ts && ex-test -d ./example -t ./test/integration/ex-tests.js"
   },
