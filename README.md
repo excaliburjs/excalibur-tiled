@@ -6,6 +6,26 @@ The current Tiled plugin aims to support *parsing all data* in the Map (.tmx/.tm
 
 The plugin officially supports the latest version of Tiled that has been published and will warn if you are using an older version. This is because there have been many breaking changes to the Tiled map format over time that are difficult to reconcile.
 
+## Installation
+
+```sh
+npm install --save-exact @excaliburjs/plugin-tiled@next
+```
+
+Create your resource, load it, then add it to your scene!
+
+```typescript
+const game = new ex.Engine({...});
+
+const tiledMap = new TiledResource('./path/to/map.tmx');
+
+const loader = new ex.Loader([tiledMap]);
+
+game.start(loader).then(() => {
+    tiledMap.addToScene(game.currentScene);
+});
+
+```
 
 ## Documentation
 
