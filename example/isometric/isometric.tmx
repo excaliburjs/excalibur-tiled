@@ -118,7 +118,7 @@
   </object>
   <object id="2" name="Orb" gid="10" x="0.875" y="-0.375" width="16" height="17"/>
   <object id="3" name="Orb2" gid="10" x="28.9375" y="77.3125" width="16" height="17"/>
-  <object id="6" name="hello world" x="-21.6875" y="58.6875" width="80" height="17" rotation="24">
+  <object id="6" name="hello world" x="-21.6875" y="58.6875" width="80" height="17" rotation="24" visible="0">
    <text wrap="1">Hello World</text>
   </object>
   <object id="12" name="circle" x="49.75" y="26" width="7.625" height="7.625">
