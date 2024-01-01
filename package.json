@@ -1,70 +1,79 @@
 {
-  "name": "@excaliburjs/plugin-tiled",
-  "version": "0.29.0-alpha.1",
-  "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
-  "main": "dist/excalibur-tiled.min.js",
-  "typings": "dist/src/index.d.ts",
-  "author": {
-    "name": "Excalibur.js Team",
-    "email": "excaliburjs@gmail.com",
-    "url": "http://excaliburjs.com"
-  },
-  "homepage": "https://github.com/excaliburjs/excalibur-tiled",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/excaliburjs/excalibur-tiled.git"
-  },
-  "bugs": {
-    "url": "https://github.com/excaliburjs/excalibur-tiled/issues"
-  },
-  "license": "BSD-2-Clause",
-  "keywords": [
-    "excalibur",
-    "game",
-    "engine",
-    "tiled",
-    "maps",
-    "map",
-    "typescript",
-    "javascript",
-    "simple"
-  ],
-  "scripts": {
-    "start": "webpack-dev-server --config webpack.config.test.js --open",
-    "watch": "webpack --progress --watch",
-    "build": "cross-env NODE_ENV=production webpack",
-    "test": "npm run test:unit",
-    "test:unit": "karma start",
-    "test:integration": "webpack --config webpack.config.test.js && tsc ./test/integration/ex-tests.ts && ex-test -d ./example -t ./test/integration/ex-tests.js"
-  },
-  "devDependencies": {
-    "@excaliburjs/testing": "0.25.1",
-    "@types/jasmine": "5.1.4",
-    "@types/pako": "1.0.6",
-    "@types/webpack-env": "1.18.4",
-    "cross-env": "7.0.3",
-    "excalibur": "0.29.0-alpha.814",
-    "jasmine-core": "5.1.1",
-    "karma": "6.4.2",
-    "karma-chrome-launcher": "3.2.0",
-    "karma-jasmine": "5.1.0",
-    "karma-webpack": "5.0.0",
-    "raw-loader": "4.0.2",
-    "ts-loader": "9.5.1",
-    "typescript": "5.3.3",
-    "webpack": "5.89.0",
-    "webpack-bundle-analyzer": "4.10.1",
-    "webpack-cli": "5.1.4",
-    "webpack-dev-server": "4.15.1"
-  },
-  "dependencies": {
-    "compare-versions": "6.1.0",
-    "fast-xml-parser": "3.21.1",
-    "pako": "1.0.11",
-    "zod": "3.22.4",
-    "zstddec": "0.1.0"
-  },
-  "peerDependencies": {
-    "excalibur": "0.29.0-alpha.814"
-  }
+   "name": "@excaliburjs/plugin-tiled",
+   "version": "0.29.0-alpha.1",
+   "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
+   "main": "dist/excalibur-tiled.min.js",
+   "typings": "dist/src/index.d.ts",
+   "author": {
+      "name": "Excalibur.js Team",
+      "email": "excaliburjs@gmail.com",
+      "url": "http://excaliburjs.com"
+   },
+   "homepage": "https://github.com/excaliburjs/excalibur-tiled",
+   "repository": {
+      "type": "git",
+      "url": "git://github.com/excaliburjs/excalibur-tiled.git"
+   },
+   "bugs": {
+      "url": "https://github.com/excaliburjs/excalibur-tiled/issues"
+   },
+   "license": "BSD-2-Clause",
+   "keywords": [
+      "excalibur",
+      "game",
+      "engine",
+      "tiled",
+      "maps",
+      "map",
+      "typescript",
+      "javascript",
+      "simple"
+   ],
+   "scripts": {
+      "start": "webpack-dev-server --config webpack.config.test.js --open",
+      "start:no-open": "webpack-dev-server --config webpack.config.test.js",
+      "watch": "webpack --progress --watch",
+      "build": "cross-env NODE_ENV=production webpack",
+      "test": "npm run test:unit && npm run test:integration",
+      "test:unit": "karma start",
+      "test:integration": "npx playwright test",
+      "test:integration-update": "npx playwright test --update-snapshots"
+   },
+   "devDependencies": {
+      "@playwright/test": "^1.40.1",
+      "@types/jasmine": "5.1.4",
+      "@types/node": "20.10.6",
+      "@types/pako": "1.0.6",
+      "@types/webpack-env": "1.18.4",
+      "cross-env": "7.0.3",
+      "excalibur": "0.29.0-alpha.814",
+      "jasmine-core": "5.1.1",
+      "karma": "6.4.2",
+      "karma-chrome-launcher": "3.2.0",
+      "karma-jasmine": "5.1.0",
+      "karma-webpack": "5.0.0",
+      "raw-loader": "4.0.2",
+      "ts-loader": "9.5.1",
+      "typescript": "5.3.3",
+      "webpack": "5.89.0",
+      "webpack-bundle-analyzer": "4.10.1",
+      "webpack-cli": "5.1.4",
+      "webpack-dev-server": "4.15.1",
+      "webpack-dev-middleware": "7.0.0"
+   },
+   "dependencies": {
+      "compare-versions": "6.1.0",
+      "fast-xml-parser": "3.21.1",
+      "pako": "1.0.11",
+      "zod": "3.22.4",
+      "zstddec": "0.1.0"
+   },
+   "peerDependencies": {
+      "excalibur": "0.29.0-alpha.814"
+   },
+   "overrides": {
+      "webpack-dev-server": {
+         "webpack-dev-middleware": "7.0.0"
+      }
+   }
 }

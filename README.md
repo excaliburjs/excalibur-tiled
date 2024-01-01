@@ -51,3 +51,22 @@ To compile only:
 To run tests:
 
     npm test
+
+To update snapshots
+
+* Windows
+
+   ```powershell
+   npx playwright test --update-snapshots
+   ```
+
+* Linux for CI
+
+   ```powershell
+   docker run --rm --network host -v C:\projects\excalibur-tiled:/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.40.0-jammy /bin/bash
+   npm install
+   npx playwright test --update-snapshots
+   ```
+   
+
+

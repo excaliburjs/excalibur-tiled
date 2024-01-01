@@ -556,7 +556,8 @@ export class TiledResource implements Loadable<any> {
          // Embedded are technically already loaded
          if (isTiledTilesetEmbedded(tileset)) {
             if (isTiledTilesetSingleImage(tileset)) {
-               const image = this._imageLoader.getOrAdd(tileset.image);
+               const imagePath = pathRelativeToBase(this.path, tileset.image, this.pathMap);
+               const image = this._imageLoader.getOrAdd(imagePath);
                const friendlyTileset = new Tileset({
                   name: tileset.name,
                   tiledTileset: tileset,
@@ -584,7 +585,8 @@ export class TiledResource implements Loadable<any> {
             }
          }
          if (isTiledTilesetExternal(tileset)) {
-            this._tilesetLoader.getOrAdd(tileset.source, tileset.firstgid,
+            const sourcePath = pathRelativeToBase(this.path, tileset.source, this.pathMap);
+            this._tilesetLoader.getOrAdd(sourcePath, tileset.firstgid,
                {
                   headless: this.headless,
                   parser: this.parser,
@@ -612,7 +614,8 @@ export class TiledResource implements Loadable<any> {
 
       // Load Friendly templates
       for (const templatePath of uniqueTemplatePaths) {
-         this._templateLoader.getOrAdd(templatePath, {
+         const mappedPath = pathRelativeToBase(this.path, templatePath, this.pathMap);
+         this._templateLoader.getOrAdd(mappedPath, {
             headless: this.headless,
             parser: this.parser,
             fileLoader: this.fileLoader,

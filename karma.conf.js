@@ -14,7 +14,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
 
     proxies: {
       // smooths over loading files because karma prepends '/base/' to everything
@@ -34,8 +34,10 @@ module.exports = function(config) {
       { pattern: './example/**/*.png', included: false, served: true },
       { pattern: './test/**/*.tmx', included: false, served: true },
       { pattern: './test/**/*.tsx', included: false, served: true },
+      { pattern: './test/**/*.tx', included: false, served: true },
       { pattern: './test/**/*.tmj', included: false, served: true },
       { pattern: './test/**/*.tsj', included: false, served: true },
+      { pattern: './test/**/*.tj', included: false, served: true },
       { pattern: './test/**/*.png', included: false, served: true }
     ],
 

@@ -3,6 +3,7 @@ import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
 import { Properties, mapProps } from "./properties";
 import { Template } from "./template";
+import { filenameFromPath } from "./path-util";
 
 export interface PluginObjectProps {
    tiledObject: TiledObject;
@@ -169,7 +170,8 @@ export function parseObject(object: TiledObject, templates: Template[], textQual
    } else if (object.gid) {
       newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
    } else if (object.template) {
-      const template = templates.find(t => t.templatePath === object.template);
+      // FIXME This is problematic if you have files with the same name but different paths
+      const template = templates.find(t => filenameFromPath(t.templatePath) === filenameFromPath(object.template!));
       if (template) {
          newObject = new TemplateObject(object, template);
       } else {

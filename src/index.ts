@@ -14,6 +14,7 @@ export * from './resource/template';
 export * from './resource/tiled-data-component';
 export * from './resource/tiled-layer-component';
 export * from './resource/tiled-resource';
+export * from './resource/tileset-resource';
 export * from './resource/tileset';
 
 
