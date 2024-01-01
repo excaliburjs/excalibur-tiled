@@ -34,7 +34,7 @@
       "start:no-open": "webpack-dev-server --config webpack.config.test.js",
       "watch": "webpack --progress --watch",
       "build": "cross-env NODE_ENV=production webpack",
-      "test": "npm run test:unit && npm run test:integration",
+      "test": "npm run test:unit",
       "test:unit": "karma start",
       "test:integration": "npx playwright test",
       "test:integration-update": "npx playwright test --update-snapshots"

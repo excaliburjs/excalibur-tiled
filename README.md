@@ -50,6 +50,7 @@ To compile only:
 
 To run tests:
 
+    npx playwright install
     npm test
 
 To update snapshots
