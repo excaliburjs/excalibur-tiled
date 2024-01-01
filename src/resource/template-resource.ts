@@ -61,7 +61,7 @@ export class TemplateResource implements Loadable<Template> {
             }
          }
          const tiledTemplate = template;
-         const object = parseObject(template.object, []);
+         const object = parseObject(template.object);
          let tileset: Tileset | undefined = undefined;
          if (template.tileset) {
             // Template tilesets are not included in the TiledResource list because their gids can collide with map tilesets

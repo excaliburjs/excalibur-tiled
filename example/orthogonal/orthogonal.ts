@@ -72,4 +72,6 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
 game.start(loader).then(() => {
    tiledMap.addToScene(game.currentScene);
    currentPointer = game.currentScene.camera.pos;
+
+   (window as any).tiledMap = tiledMap;
 });

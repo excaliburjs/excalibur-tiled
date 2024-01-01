@@ -198,7 +198,7 @@ export class ObjectLayer implements Layer {
       const opacity = this.tiledObjectLayer.opacity;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
 
-      const objects = parseObjects(this.tiledObjectLayer, this.resource.templates, this.resource.textQuality);
+      const objects = parseObjects(this.tiledObjectLayer, this.resource);
 
       for (let object of objects) {
          let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);

@@ -37,9 +37,7 @@ export class Tile implements Properties {
       mapProps(this, tiledTile.properties);
 
       if (tiledTile.objectgroup && tiledTile.objectgroup.objects) {
-         // templates are not possibel at the moment insed a tile so []
-         // text isn't possible at the moment inside a tile so -1
-         this.objects = parseObjects(tiledTile.objectgroup, [], -1); 
+         this.objects = parseObjects(tiledTile.objectgroup);
       }
 
       if (tiledTile.animation) {
