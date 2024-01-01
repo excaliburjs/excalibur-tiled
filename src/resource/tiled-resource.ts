@@ -690,9 +690,8 @@ export class TiledResource implements Loadable<any> {
       }
 
       if (this.useMapBackgroundColor) {
-         // FIXME scene specific background color eventually
          if (this.map.backgroundcolor) {
-            scene.engine.backgroundColor = Color.fromHex(this.map.backgroundcolor);
+            scene.backgroundColor = Color.fromHex(this.map.backgroundcolor);
          }
       }
    }
