@@ -35,6 +35,13 @@ export interface TiledResourceOptions {
    headless?: boolean;
 
    /**
+    * Add a starting z index for the layers to use. By default the layers count up from 0.
+    *
+    * If you'd like to manually override a z-index on a layer use the 'zindex' custom property on a layer.
+    */
+   startZIndex?: number;
+
+   /**
     * Default true. If false, only tilemap will be parsed and displayed, it's up to you to wire up any excalibur behavior.
     * Automatically wires excalibur to the following
     * * Wire up current scene camera
@@ -182,6 +189,7 @@ export class TiledResource implements Loadable<any> {
 
    public pathMap: PathMap | undefined;
 
+   public readonly startZIndex: number = 0;
    public readonly textQuality: number = 4;
    public readonly useExcaliburWiring: boolean = true;
    public readonly useMapBackgroundColor: boolean = false;
@@ -202,7 +210,8 @@ export class TiledResource implements Loadable<any> {
          pathMap,
          fileLoader,
          strict,
-         headless
+         headless,
+         startZIndex
       } = { ...options };
       this.strict = strict ?? this.strict;
       this.headless = headless ?? this.headless;
@@ -210,6 +219,7 @@ export class TiledResource implements Loadable<any> {
       this.useTilemapCameraStrategy = useTilemapCameraStrategy ?? this.useTilemapCameraStrategy;
       this.useMapBackgroundColor = useMapBackgroundColor ?? this.useMapBackgroundColor;
       this.textQuality = textQuality ?? this.textQuality;
+      this.startZIndex = startZIndex ?? this.startZIndex;
       this.fileLoader = fileLoader ?? this.fileLoader;
       this.pathMap = pathMap;
       for (const key in entityClassNameFactories) {
@@ -523,7 +533,7 @@ export class TiledResource implements Loadable<any> {
 
       // Layers
       let friendlyLayers: Layer[] = [];
-      let order = 0;
+      let order = this.startZIndex;
       for (const layer of this.map.layers) {
          if (layer.type === 'tilelayer') {
             if (this.map.orientation === 'isometric') {
