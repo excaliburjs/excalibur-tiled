@@ -13,7 +13,7 @@ export default defineConfig({
   testDir: './test/integration/',
   webServer: {
    command: 'npm run start:no-open',
-   timeout: 120 * 1000,
+   timeout: 240 * 1000, // linux takes a long time
    url: 'http://localhost:8080',
    reuseExistingServer: !process.env.CI,
    stdout: 'ignore',
