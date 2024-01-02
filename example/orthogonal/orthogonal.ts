@@ -29,22 +29,7 @@ const game = new ex.Engine({
 });
 game.toggleDebug();
 
-// const tiledMap = new TiledResource('./orthogonal.tmx', {
-//    useMapBackgroundColor: true,
-//    entityClassNameFactories: {
-//       'player-start': (props) => {
-//          return new Player({
-//             pos: props.worldPos,
-//             width: 16,
-//             height: 16,
-//             color: ex.Color.Blue,
-//             collisionType: ex.CollisionType.Active
-//          });
-//       }
-//    }
-// });
-
-const tiledMap = new TiledResource('../../test/unit/tiled/parser-spec/orthogonal-infinite.tmx', {
+const tiledMap = new TiledResource('./orthogonal.tmx', {
    useMapBackgroundColor: true,
    entityClassNameFactories: {
       'player-start': (props) => {
@@ -58,6 +43,21 @@ const tiledMap = new TiledResource('../../test/unit/tiled/parser-spec/orthogonal
       }
    }
 });
+
+// const tiledMap = new TiledResource('../../test/unit/tiled/parser-spec/orthogonal-infinite.tmx', {
+//    useMapBackgroundColor: true,
+//    entityClassNameFactories: {
+//       'player-start': (props) => {
+//          return new Player({
+//             pos: props.worldPos,
+//             width: 16,
+//             height: 16,
+//             color: ex.Color.Blue,
+//             collisionType: ex.CollisionType.Active
+//          });
+//       }
+//    }
+// });
 
 const loader = new ex.Loader([tiledMap]);
 
