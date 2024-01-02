@@ -23,6 +23,7 @@ module.exports = {
       orthogonal: './example/orthogonal/orthogonal.ts',
       'orthogonal-infinite': './example/orthogonal-infinite/orthogonal-infinite.ts',
       isometric: './example/isometric/isometric.ts',
+      'isometric-infinite': './example/isometric-infinite/isometric-infinite.ts',
    },
    output: {
       filename: 'example/[name]/[name].js',

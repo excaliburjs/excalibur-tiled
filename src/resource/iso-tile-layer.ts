@@ -1,6 +1,6 @@
 import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile } from "excalibur";
 import { mapProps } from "./properties";
-import { TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
 import { getCanonicalGid } from "./gid-util";
@@ -75,10 +75,81 @@ export class IsoTileLayer implements Layer {
       return null;
    }
 
+   private updateTile(tile: IsometricTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
+      if (this.resource.useExcaliburWiring && isSolidLayer) {
+         tile.solid = true;
+      }
+
+      const tileset = this.resource.getTilesetForTileGid(gid);
+      let sprite = tileset.getSpriteForGid(gid);
+      if (hasTint) {
+         sprite = sprite.clone();
+         sprite.tint = tint;
+      }
+      tile.addGraphic(sprite, { offset: tileset.tileOffset });
+
+      let offset = tile.pos;
+      if (tileset.orientation === 'orthogonal') {
+         // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
+         const halfWidth = this.resource.map.tilewidth / 2;
+         const height = this.resource.map.tileheight;
+         offset = offset.sub(vec(halfWidth, height));
+      }
+
+      // the whole tilemap uses a giant composite collider relative to the Tilemap
+      // not individual tiles
+      const colliders = tileset.getCollidersForGid(gid, {offset});
+      for (let collider of colliders) {
+         tile.addCollider(collider);
+      }
+
+      let animation = tileset.getAnimationForGid(gid);
+      if (animation) {
+         if (hasTint) {
+            animation = animation.clone();
+            animation.tint = tint;
+         }
+         tile.clearGraphics();
+         tile.addGraphic(animation, { offset: tileset.tileOffset });
+         if (this.resource.useExcaliburWiring) {
+            const tileObj = tileset.getTileByGid(gid);
+            const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);
+            if (strategy && typeof strategy === 'string') {
+               switch (strategy.toLowerCase()) {
+                  case AnimationStrategy.End.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.End;
+                     break;
+                  }
+                  case AnimationStrategy.Freeze.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.Freeze;
+                     break;
+                  }
+                  case AnimationStrategy.Loop.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.Loop;
+                     break;
+                  }
+                  case AnimationStrategy.PingPong.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.PingPong;
+                     break;
+                  }
+                  default: {
+                     // unknown animation strategy
+                     this.logger.warn(`Unknown animation strategy in tileset ${tileset.name} on tile gid ${gid}: ${strategy}`);
+                     break;
+                  }
+               }
+            }
+         }
+      }
+   }
+
    async load(): Promise<void> {
+      const layer = this.tiledTileLayer;
+      const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
       const opacity = this.tiledTileLayer.opacity;
       const hasTint = !!this.tiledTileLayer.tintcolor;
       const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
+      const pos = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
       if (needsDecoding(this.tiledTileLayer)) {
          this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
       } else if (isCSV(this.tiledTileLayer)) {
@@ -90,17 +161,35 @@ export class IsoTileLayer implements Layer {
       if (typeof zoverride === 'number') {
          order = zoverride;
       }
+      
 
-      const layer = this.tiledTileLayer;
-      this.isometricMap = new IsometricMap({
-         name: this.name,
-         pos: vec(layer.offsetx ?? 0, layer.offsety ?? 0),
-         tileWidth: this.resource.map.tilewidth,
-         tileHeight: this.resource.map.tileheight,
-         columns: layer.width,
-         rows: layer.height,
-         elevation: order
-      });
+
+      if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
+         const start = this.resource.isometricTiledCoordToWorld(this.tiledTileLayer.startx, this.tiledTileLayer.starty);
+         const infiniteStartPos = vec(
+            start.x * this.resource.map.tilewidth,
+            start.y * this.resource.map.tileheight);
+         this.isometricMap = new IsometricMap({
+            name: this.name,
+            pos: pos.add(infiniteStartPos),
+            tileHeight: this.resource.map.tileheight,
+            tileWidth: this.resource.map.tilewidth,
+            columns: layer.width,
+            rows: layer.height,
+            elevation: order
+         });
+      } else {
+         this.isometricMap = new IsometricMap({
+            name: this.name,
+            pos,
+            tileWidth: this.resource.map.tilewidth,
+            tileHeight: this.resource.map.tileheight,
+            columns: layer.width,
+            rows: layer.height,
+            elevation: order
+         });
+      }
+
       // TODO make these optional params in the ctor
       this.isometricMap.visible = this.tiledTileLayer.visible;
       this.isometricMap.opacity = this.tiledTileLayer.opacity;
@@ -110,77 +199,26 @@ export class IsoTileLayer implements Layer {
          this.isometricMap.addComponent(new ParallaxComponent(factor));
       }
 
-      const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
-
-      // Read tiled data into Excalibur's tilemap type
-      for (let i = 0; i < this.data.length; i++) {
-         let gid = this.data[i];
-         if (gid !== 0) {
-            const tile = this.isometricMap.tiles[i];
-            if (this.resource.useExcaliburWiring && isSolidLayer) {
-               tile.solid = true;
-            }
-
-            const tileset = this.resource.getTilesetForTileGid(gid);
-            let sprite = tileset.getSpriteForGid(gid);
-            if (hasTint) {
-               sprite = sprite.clone();
-               sprite.tint = tint;
-            }
-            tile.addGraphic(sprite, { offset: tileset.tileOffset });
-
-            let offset = tile.pos;
-            if (tileset.orientation === 'orthogonal') {
-               // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
-               const halfWidth = this.resource.map.tilewidth / 2;
-               const height = this.resource.map.tileheight;
-               offset = offset.sub(vec(halfWidth, height));
-            }
-
-            // the whole tilemap uses a giant composite collider relative to the Tilemap
-            // not individual tiles
-            const colliders = tileset.getCollidersForGid(gid, {offset});
-            for (let collider of colliders) {
-               tile.addCollider(collider);
-            }
-
-            let animation = tileset.getAnimationForGid(gid);
-            if (animation) {
-               if (hasTint) {
-                  animation = animation.clone();
-                  animation.tint = tint;
+      if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
+         for (let chunk of this.tiledTileLayer.chunks) {
+            for (let i = 0; i < chunk.data.length; i++) {
+               const gid = chunk.data[i];
+               if (gid != 0) {
+                  // Map from chunk to big tile map
+                  const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
+                  const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
+                  const tile = this.isometricMap.tiles[tileX + tileY * layer.width];
+                  this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
                }
-               tile.clearGraphics();
-               tile.addGraphic(animation, { offset: tileset.tileOffset });
-               if (this.resource.useExcaliburWiring) {
-                  const tileObj = tileset.getTileByGid(gid);
-                  const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);
-                  if (strategy && typeof strategy === 'string') {
-                     switch (strategy.toLowerCase()) {
-                        case AnimationStrategy.End.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.End;
-                           break;
-                        }
-                        case AnimationStrategy.Freeze.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.Freeze;
-                           break;
-                        }
-                        case AnimationStrategy.Loop.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.Loop;
-                           break;
-                        }
-                        case AnimationStrategy.PingPong.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.PingPong;
-                           break;
-                        }
-                        default: {
-                           // unknown animation strategy
-                           this.logger.warn(`Unknown animation strategy in tileset ${tileset.name} on tile gid ${gid}: ${strategy}`);
-                           break;
-                        }
-                     }
-                  }
-               }
+            }
+         }
+      } else {
+         // Read tiled data into Excalibur's tilemap type
+         for (let i = 0; i < this.data.length; i++) {
+            let gid = this.data[i];
+            if (gid !== 0) {
+               const tile = this.isometricMap.tiles[i];
+               this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
             }
          }
       }
