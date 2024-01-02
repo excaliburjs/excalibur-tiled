@@ -1,6 +1,6 @@
 import { Color, ParallaxComponent, TileMap, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, TransformComponent, Tile as ExTile } from "excalibur";
 import { mapProps } from "./properties";
-import { TiledTileLayer, isCSV, needsDecoding } from "../parser/tiled-parser";
+import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
 import { getCanonicalGid } from "./gid-util";
@@ -102,25 +102,105 @@ export class TileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
+   private updateTile(tile: ExTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
+      if (this.resource.useExcaliburWiring && isSolidLayer) {
+         tile.solid = true;
+      }
+
+      const tileset = this.resource.getTilesetForTileGid(gid);
+      let sprite = tileset.getSpriteForGid(gid);
+      if (hasTint) {
+         sprite = sprite.clone();
+         sprite.tint = tint;
+      }
+      tile.addGraphic(sprite, { offset: tileset.tileOffset });
+
+
+      // the whole tilemap uses a giant composite collider relative to the Tilemap
+      // not individual tiles
+      const colliders = tileset.getCollidersForGid(gid);
+      for (let collider of colliders) {
+         tile.addCollider(collider);
+      }
+
+      let animation = tileset.getAnimationForGid(gid);
+      if (animation) {
+         if (hasTint) {
+            animation = animation.clone();
+            animation.tint = tint;
+         }
+         tile.clearGraphics();
+         tile.addGraphic(animation, { offset: tileset.tileOffset });
+         if (this.resource.useExcaliburWiring) {
+            const tileObj = tileset.getTileByGid(gid);
+            const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);
+            if (strategy && typeof strategy === 'string') {
+               switch (strategy.toLowerCase()) {
+                  case AnimationStrategy.End.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.End;
+                     break;
+                  }
+                  case AnimationStrategy.Freeze.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.Freeze;
+                     break;
+                  }
+                  case AnimationStrategy.Loop.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.Loop;
+                     break;
+                  }
+                  case AnimationStrategy.PingPong.toLowerCase(): {
+                     animation.strategy = AnimationStrategy.PingPong;
+                     break;
+                  }
+                  default: {
+                     // unknown animation strategy
+                     this.logger.warn(`Unknown animation strategy in tileset ${tileset.name} on tile gid ${gid}: ${strategy}`);
+                     break;
+                  }
+               }
+            }
+         }
+      }
+   }
+
    async load() {
       const opacity = this.tiledTileLayer.opacity;
       const hasTint = !!this.tiledTileLayer.tintcolor;
       const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
+      const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
+      const layer = this.tiledTileLayer;
+      const pos = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
       if (needsDecoding(this.tiledTileLayer)) {
          this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
       } else if (isCSV(this.tiledTileLayer)) {
          this.data = this.tiledTileLayer.data;
       }
 
-      const layer = this.tiledTileLayer;
-      this.tilemap = new TileMap({
-         name: this.name,
-         pos: vec(layer.offsetx ?? 0, layer.offsety ?? 0),
-         tileWidth: this.resource.map.tilewidth,
-         tileHeight: this.resource.map.tileheight,
-         columns: layer.width,
-         rows: layer.height,
-      });
+      // Create tilemap infinite or not
+      if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
+         const infiniteStartPos = vec(
+            this.tiledTileLayer.startx * this.resource.map.tilewidth,
+            this.tiledTileLayer.starty * this.resource.map.tileheight);
+         this.tilemap = new TileMap({
+            name: this.name,
+            pos: pos.add(infiniteStartPos),
+            tileHeight: this.resource.map.tileheight,
+            tileWidth: this.resource.map.tilewidth,
+            columns: layer.width,
+            rows: layer.height
+         });
+      } else {
+         this.tilemap = new TileMap({
+            name: this.name,
+            pos,
+            tileWidth: this.resource.map.tilewidth,
+            tileHeight: this.resource.map.tileheight,
+            columns: layer.width,
+            rows: layer.height,
+         });
+      }
+
+      // Common tilemap props
       this.tilemap.addComponent(new TiledLayerDataComponent({ tiledTileLayer: layer }));
       const tx = this.tilemap.get(TransformComponent);
       if (tx) {
@@ -130,7 +210,6 @@ export class TileLayer implements Layer {
             tx.z = zoverride;
          }
       }
-
       const graphics = this.tilemap.get(GraphicsComponent);
       if (graphics) {
          graphics.visible = this.tiledTileLayer.visible;
@@ -141,70 +220,27 @@ export class TileLayer implements Layer {
          this.tilemap.addComponent(new ParallaxComponent(factor));
       }
 
-      const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
-
-      // Read tiled data into Excalibur's tilemap type
-      for (let i = 0; i < this.data.length; i++) {
-         let gid = this.data[i];
-         if (gid !== 0) {
-            const tile = this.tilemap.tiles[i];
-            if (this.resource.useExcaliburWiring && isSolidLayer) {
-               tile.solid = true;
-            }
-
-            const tileset = this.resource.getTilesetForTileGid(gid);
-            let sprite = tileset.getSpriteForGid(gid);
-            if (hasTint) {
-               sprite = sprite.clone();
-               sprite.tint = tint;
-            }
-            tile.addGraphic(sprite, { offset: tileset.tileOffset });
-
-
-            // the whole tilemap uses a giant composite collider relative to the Tilemap
-            // not individual tiles
-            const colliders = tileset.getCollidersForGid(gid);
-            for (let collider of colliders) {
-               tile.addCollider(collider);
-            }
-
-            let animation = tileset.getAnimationForGid(gid);
-            if (animation) {
-               if (hasTint) {
-                  animation = animation.clone();
-                  animation.tint = tint;
+      // Parse tilemap data infinit or not
+      if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
+         for (let chunk of this.tiledTileLayer.chunks) {
+            for (let i = 0; i < chunk.data.length; i++) {
+               const gid = chunk.data[i];
+               if (gid != 0) {
+                  // Map from chunk to big tile map
+                  const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
+                  const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
+                  const tile = this.tilemap.tiles[tileX + tileY * layer.width];
+                  this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
                }
-               tile.clearGraphics();
-               tile.addGraphic(animation, { offset: tileset.tileOffset });
-               if (this.resource.useExcaliburWiring) {
-                  const tileObj = tileset.getTileByGid(gid);
-                  const strategy = tileObj?.properties.get(ExcaliburTiledProperties.Animation.Strategy);
-                  if (strategy && typeof strategy === 'string') {
-                     switch (strategy.toLowerCase()) {
-                        case AnimationStrategy.End.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.End;
-                           break;
-                        }
-                        case AnimationStrategy.Freeze.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.Freeze;
-                           break;
-                        }
-                        case AnimationStrategy.Loop.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.Loop;
-                           break;
-                        }
-                        case AnimationStrategy.PingPong.toLowerCase(): {
-                           animation.strategy = AnimationStrategy.PingPong;
-                           break;
-                        }
-                        default: {
-                           // unknown animation strategy
-                           this.logger.warn(`Unknown animation strategy in tileset ${tileset.name} on tile gid ${gid}: ${strategy}`);
-                           break;
-                        }
-                     }
-                  }
-               }
+            }
+         }
+      } else {
+         // Read tiled data into Excalibur's tilemap type
+         for (let i = 0; i < this.data.length; i++) {
+            let gid = this.data[i];
+            if (gid !== 0) {
+               const tile = this.tilemap.tiles[i];
+               this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
             }
          }
       }

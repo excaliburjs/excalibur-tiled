@@ -107,7 +107,7 @@ const TiledTileLayerChunk = z.object({
    data: z.array(z.number()) // infinite chunks are only csv!
 });
 
-const TiledTileLayerInfinite = TiledTileLayerBase.extend({
+export const TiledTileLayerInfinite = TiledTileLayerBase.extend({
    startx: z.number(),
    starty: z.number(),
    chunks: z.array(TiledTileLayerChunk)
@@ -353,11 +353,16 @@ export type TiledTemplate = z.infer<typeof TiledTemplate>;
 
 export type TiledMap = z.infer<typeof TiledMap>;
 export type TiledTileLayer = z.infer<typeof TiledTileLayer>;
+export type TiledTileLayerInfinite = z.infer<typeof TiledTileLayerInfinite>;
 export type TiledObjectLayer = z.infer<typeof TiledObjectLayer>;
 export type TiledImageLayer = z.infer<typeof TiledImageLayer>;
 export type TiledLayer = z.infer<typeof TiledLayer>;
 export type TiledProperty = z.infer<typeof TiledProperty>;
 export type TiledPropertyTypes = Pick<TiledProperty, 'type'>['type'];
+
+export function isInfiniteLayer(tileLayer: TiledTileLayer): tileLayer is TiledTileLayerInfinite {
+   return !!(tileLayer as TiledTileLayerInfinite).chunks;
+}
 
 export function isTiledTilesetEmbedded(ts: TiledTileset): ts is TiledTilesetEmbedded {
    return !!!(ts as TiledTilesetExternal).source;
