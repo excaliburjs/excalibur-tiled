@@ -120,12 +120,14 @@ export class Tileset implements Properties {
          if (tiledTileset.tileoffset) {
             this.tileOffset = vec(tiledTileset.tileoffset.x, tiledTileset.tileoffset.y);
          }
-         for (const tile of tiledTileset.tiles) {
-            this.tiles.push(new Tile({
-               id: tile.id,
-               tileset: this,
-               tiledTile: tile
-            }))
+         if (tiledTileset.tiles) {
+            for (const tile of tiledTileset.tiles) {
+               this.tiles.push(new Tile({
+                  id: tile.id,
+                  tileset: this,
+                  tiledTile: tile
+               }))
+            }
          }
       }
       if (isTiledTilesetCollectionOfImages(tiledTileset) && tiledTileset.firstgid !== undefined && tileToImage) {
@@ -141,16 +143,18 @@ export class Tileset implements Properties {
             this.tileOffset = vec(tiledTileset.tileoffset.x, tiledTileset.tileoffset.y);
          }
          let sprites: Sprite[] = []
-         for (const tile of tiledTileset.tiles) {
-            const image = tileToImage.get(tile);
-            if (image) {
-               this.tiles.push(new Tile({
-                  id: tile.id,
-                  tileset: this,
-                  tiledTile: tile,
-                  image
-               }))
-               sprites.push(image.toSprite())
+         if (tiledTileset.tiles) {
+            for (const tile of tiledTileset.tiles) {
+               const image = tileToImage.get(tile);
+               if (image) {
+                  this.tiles.push(new Tile({
+                     id: tile.id,
+                     tileset: this,
+                     tiledTile: tile,
+                     image
+                  }))
+                  sprites.push(image.toSprite())
+               }
             }
          }
          this.spritesheet = new SpriteSheet({ sprites });

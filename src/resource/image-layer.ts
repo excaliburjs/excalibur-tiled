@@ -1,4 +1,4 @@
-import { Actor, Color, ImageSource, Vector, vec } from "excalibur";
+import { Actor, Color, ImageSource, ParallaxComponent, Vector, vec } from "excalibur";
 import { Layer } from "./layer";
 import { TiledImageLayer } from "../parser/tiled-parser";
 import { TiledResource } from "./tiled-resource";
@@ -24,6 +24,8 @@ export class ImageLayer implements Layer {
       const hasTint = !!this.tiledImageLayer.tintcolor;
       const tint = this.tiledImageLayer.tintcolor ? Color.fromHex(this.tiledImageLayer.tintcolor) : Color.White;
       const offset = vec(this.tiledImageLayer.offsetx ?? 0, this.tiledImageLayer.offsety ?? 0);
+      const parallaxx = this.tiledImageLayer.parallaxx ?? 1;
+      const parallaxy = this.tiledImageLayer.parallaxy ?? 1;
       if (this.image) {
          if (!this.resource.headless) {
             await this.image.load();
@@ -31,8 +33,10 @@ export class ImageLayer implements Layer {
          this.imageActor = new Actor({
             name: this.tiledImageLayer.name,
             pos: offset,
-            anchor: Vector.Zero
+            anchor: Vector.Zero,
+            z: this.order
          });
+         this.imageActor.addComponent(new ParallaxComponent(vec(parallaxx, parallaxy)))
          // FIXME when excalibur supports tiling we should use it here for repeatx/repeaty!
          const sprite = this.image.toSprite();
          this.imageActor.graphics.use(sprite);

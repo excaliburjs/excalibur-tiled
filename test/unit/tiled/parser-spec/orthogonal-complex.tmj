@@ -1,0 +1,501 @@
+{ "backgroundcolor":"#22b2b2",
+ "class":"map-class",
+ "compressionlevel":-1,
+ "height":10,
+ "infinite":false,
+ "layers":[
+        {
+         "class":"ground-class",
+         "data":[2, 3, 3, 2, 2, 3, 1, 3, 2, 1,
+            3, 2, 1, 1, 1, 2, 2, 3, 3, 3,
+            2, 1, 2, 1, 1, 2, 3, 1, 2, 2,
+            3, 1, 3, 3, 2, 1, 2, 2, 3, 3,
+            1, 3, 1, 1, 2, 1, 3, 3, 3, 2,
+            3, 1, 2, 1, 2, 3, 2, 2, 2, 1,
+            2, 1, 2, 3, 2, 1, 2, 1, 1, 3,
+            2, 1, 13, 14, 14, 14, 14, 15, 2, 1,
+            3, 2, 25, 26, 26, 26, 26, 27, 2, 1,
+            3, 2, 37, 38, 38, 38, 38, 39, 3, 2],
+         "height":10,
+         "id":1,
+         "name":"Ground",
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"boolean",
+                 "type":"bool",
+                 "value":false
+                }, 
+                {
+                 "name":"file-prop",
+                 "type":"file",
+                 "value":"Cloud.png"
+                }, 
+                {
+                 "name":"float-prop",
+                 "type":"float",
+                 "value":123
+                }, 
+                {
+                 "name":"int-prop",
+                 "type":"int",
+                 "value":14
+                }, 
+                {
+                 "name":"multiline",
+                 "type":"string",
+                 "value":"Multiline string\nshould\nnot break\nthe \nparser\n\n!!!"
+                }, 
+                {
+                 "name":"obj",
+                 "type":"object",
+                 "value":1
+                }, 
+                {
+                 "name":"some-color",
+                 "type":"color",
+                 "value":"#ff55aa00"
+                }, 
+                {
+                 "name":"string-prop",
+                 "type":"string",
+                 "value":"some-string"
+                }],
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[58, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 45, 46, 46, 46, 46, 46, 47, 0, 0,
+            0, 57, 0, 0, 0, 0, 0, 59, 0, 0,
+            0, 57, 0, 49, 50, 50, 52, 51, 0, 0,
+            0, 57, 0, 61, 62, 62, 64, 63, 0, 0,
+            0, 57, 0, 73, 74, 86, 74, 76, 0, 0,
+            0, 69, 83, 0, 0, 0, 0, 30, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            17, 0, 0, 0, 0, 0, 0, 0, 105, 0,
+            29, 29, 0, 94, 0, 0, 0, 0, 0, 129],
+         "height":10,
+         "id":2,
+         "name":"PlayerLayer",
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"solid",
+                 "type":"bool",
+                 "value":true
+                }],
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            5, 0, 0, 0, 0, 0, 0, 0, 93, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":10,
+         "id":3,
+         "name":"Above",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 130, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":10,
+         "id":5,
+         "name":"InvisibleLayer",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":false,
+         "width":10,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "class":"object",
+         "draworder":"topdown",
+         "id":4,
+         "name":"Objects",
+         "objects":[
+                {
+                 "height":0,
+                 "id":1,
+                 "name":"Camera",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"camera",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"zoom",
+                         "type":"float",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":87.3333333333333,
+                 "y":102.666666666667
+                }, 
+                {
+                 "height":18,
+                 "id":3,
+                 "name":"Rectangle",
+                 "properties":[
+                        {
+                         "name":"other property",
+                         "type":"string",
+                         "value":"prop"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":71.3333333333333,
+                 "x":47.3333333333333,
+                 "y":125.333333333333
+                }, 
+                {
+                 "gid":3221225578,
+                 "height":16,
+                 "id":4,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"string prop",
+                         "type":"string",
+                         "value":"struing"
+                        }],
+                 "rotation":-59,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":27.6666666666667,
+                 "y":138.333333333333
+                }, 
+                {
+                 "height":17,
+                 "id":5,
+                 "name":"",
+                 "rotation":0,
+                 "text":
+                    {
+                     "text":"Hello World",
+                     "wrap":true
+                    },
+                 "type":"",
+                 "visible":true,
+                 "width":80,
+                 "x":40.6666666666667,
+                 "y":0.833333333333332
+                }, 
+                {
+                 "gid":129,
+                 "height":16,
+                 "id":6,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":143.666666666667,
+                 "y":112
+                }],
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"props",
+                 "type":"string",
+                 "value":"stuff"
+                }],
+         "tintcolor":"#ff0000",
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "class":"OtherClouds",
+         "id":7,
+         "image":"Cloud.png",
+         "name":"Clouds 2",
+         "offsetx":177,
+         "offsety":-17,
+         "opacity":0.5,
+         "parallaxx":1.9,
+         "parallaxy":1.4,
+         "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "class":"SomeClouds",
+         "id":6,
+         "image":"Cloud.png",
+         "name":"Clouds",
+         "offsetx":-103,
+         "offsety":38,
+         "opacity":0.6,
+         "parallaxx":0.5,
+         "parallaxy":0.5,
+         "properties":[
+                {
+                 "name":"someprop",
+                 "type":"string",
+                 "value":"a prop"
+                }],
+         "transparentcolor":"#ffffff",
+         "type":"imagelayer",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":9,
+ "nextobjectid":7,
+ "orientation":"orthogonal",
+ "parallaxoriginx":94,
+ "parallaxoriginy":58,
+ "renderorder":"right-down",
+ "tiledversion":"1.10.2",
+ "tileheight":16,
+ "tilesets":[
+        {
+         "class":"TilesetClass",
+         "columns":12,
+         "firstgid":1,
+         "image":"tilemap_packed.png",
+         "imageheight":176,
+         "imagewidth":192,
+         "margin":0,
+         "name":"Embedded",
+         "properties":[
+                {
+                 "name":"tilesetprop",
+                 "type":"string",
+                 "value":"some prop here"
+                }],
+         "spacing":0,
+         "tilecount":132,
+         "tileheight":16,
+         "tiles":[
+                {
+                 "id":29,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "ellipse":true,
+                             "height":7.25,
+                             "id":1,
+                             "name":"",
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":6.75,
+                             "x":8.5,
+                             "y":6.25
+                            }, 
+                            {
+                             "ellipse":true,
+                             "height":12.75,
+                             "id":2,
+                             "name":"",
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":11.5,
+                             "x":-1,
+                             "y":0.25
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    }
+                }, 
+                {
+                 "id":57,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "height":0,
+                             "id":1,
+                             "name":"",
+                             "point":true,
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":2.75,
+                             "y":3
+                            }, 
+                            {
+                             "height":0,
+                             "id":2,
+                             "name":"",
+                             "point":true,
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":12,
+                             "y":1.5
+                            }, 
+                            {
+                             "height":0,
+                             "id":3,
+                             "name":"",
+                             "point":true,
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":4.75,
+                             "y":9.5
+                            }, 
+                            {
+                             "height":0,
+                             "id":4,
+                             "name":"",
+                             "point":true,
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":10.5,
+                             "y":9.5
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    }
+                }, 
+                {
+                 "id":93,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "height":12,
+                             "id":1,
+                             "name":"",
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":10,
+                             "x":3,
+                             "y":2
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    },
+                 "properties":[
+                        {
+                         "name":"object prop",
+                         "type":"string",
+                         "value":"some prop"
+                        }],
+                 "type":"coin"
+                }, 
+                {
+                 "animation":[
+                        {
+                         "duration":500,
+                         "tileid":127
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":115
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":116
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":117
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":118
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":119
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":128
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":129
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":130
+                        }, 
+                        {
+                         "duration":500,
+                         "tileid":131
+                        }],
+                 "id":128,
+                 "probability":0.5,
+                 "properties":[
+                        {
+                         "name":"props",
+                         "type":"string",
+                         "value":"animation"
+                        }]
+                }],
+         "tilewidth":16
+        }],
+ "tilewidth":16,
+ "type":"map",
+ "version":"1.10",
+ "width":10
+}

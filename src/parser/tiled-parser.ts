@@ -35,13 +35,20 @@ const TiledColorProperty = z.object({
    value: z.string()
 })
 
+const TiledObjectProperty = z.object({
+   name: z.string(),
+   type: z.literal('object'),
+   value: z.number()
+})
+
 const TiledProperty = z.discriminatedUnion("type", [
    TiledIntProperty,
    TiledBoolProperty,
    TiledFloatProperty,
    TiledStringProperty,
    TiledFileProperty,
-   TiledColorProperty
+   TiledColorProperty,
+   TiledObjectProperty
 ]);
 
 const TiledTileLayerBase = z.object({
@@ -234,6 +241,7 @@ export const TiledTile = z.object({
    type: z.string().optional(),
    animation: z.array(TiledAnimation).optional(),
    objectgroup: TiledObjectGroup.optional(),
+   probability: z.number().optional(),
    properties: z.array(TiledProperty).optional(),
    // Tiles can be collections of images
    image: z.string().optional(),
@@ -274,7 +282,7 @@ const TiledTilesetEmbedded = z.object({
    tileoffset: TiledPoint.optional(),
    spacing: z.number(),
    margin: z.number(),
-   tiles: z.array(TiledTile),
+   tiles: z.array(TiledTile).optional(),
    properties: z.array(TiledProperty).optional()
 });
 
@@ -392,7 +400,12 @@ export class TiledParser {
       return +value;
    }
    _coerceBoolean(value: any) {
-      return value === "0" ? false : !!(Boolean(value));
+      switch(value) {
+         case "0": return false;
+         case "false": return false;
+         case "true": return true;
+         default: return !!(Boolean(value));
+      }
    }
 
    _coerceType(type: TiledPropertyTypes, value: string) {
@@ -403,6 +416,10 @@ export class TiledParser {
       if (type === 'int' || type === 'float') {
          return this._coerceNumber(value);
       }
+
+      if (type === 'object') {
+         return this._coerceNumber(value);
+      }
       return value;
    }
 
@@ -411,10 +428,14 @@ export class TiledParser {
       if (propertiesNode) {
          for (let prop of propertiesNode.children) {
             const type = prop.getAttribute('type') as TiledPropertyTypes ?? 'string'; // if no type is set it's string!
+            let value: any = prop.getAttribute('value');
+            if (!value) {
+               value = prop.innerHTML;
+            }
             properties.push({
                name: prop.getAttribute('name'),
                type: type,
-               value: this._coerceType(type, prop.getAttribute('value') as string)
+               value: this._coerceType(type, value as string)
             })
          }
       }
@@ -449,6 +470,7 @@ export class TiledParser {
          'x',
          'y',
          'rotation',
+         'probability'
       ];
 
       // attribute names to coerce into booleans
@@ -584,7 +606,6 @@ export class TiledParser {
       const tileset: any = {};
       tileset.spacing = 0;
       tileset.margin = 0;
-      tileset.tiles = [];
       this._parseAttributes(tilesetNode, tileset);
 
       if (tileset.source) {
@@ -620,6 +641,9 @@ export class TiledParser {
                break;
             }
             case 'tile': {
+               if (!tileset.tiles) {
+                  tileset.tiles = [];
+               }
                const tile: any = {};
                this._parseAttributes(tilesetChild, tile);
                for (let tileChild of tilesetChild.children) {
@@ -692,6 +716,7 @@ export class TiledParser {
       return tileset as TiledTileset;
    }
 
+   _largestBounds = new BoundingBox(0, 0, 0, 0);
    parseTileLayer(layerNode: Element, infinite: boolean, strict = true): TiledLayer {
       const layer: any = {};
       layer.type = 'tilelayer';
@@ -713,8 +738,7 @@ export class TiledParser {
                   layer.width = 0;
                   layer.height = 0;
                   layer.chunks = [];
-                  let minX = Infinity;
-                  let minY = Infinity;
+                  // Tiled appears to have an undocumented minimum bounds
                   let bounds: BoundingBox = new BoundingBox(0, 0, 0, 0);
                   for (let chunkTag of layerChild.children) {
                      if (chunkTag.tagName === 'chunk') {
@@ -724,10 +748,6 @@ export class TiledParser {
                         // If infinite there is no encoding other than CSV!
                         chunk.data = chunkTag.textContent?.split(',').map(id => +id);
 
-                        // accumulate width/height from chunks
-                        minX = Math.min(minX, chunk.x);
-                        minY = Math.min(minY, chunk.y);
-
                         // combining bounding boxes actually probably is easiest here
                         const chunkBounds = new BoundingBox(chunk.x, chunk.y, chunk.width, chunk.height);
 
@@ -736,10 +756,13 @@ export class TiledParser {
                         layer.chunks.push(chunk);
                      }
                   }
+
                   layer.width = bounds.width;
                   layer.height = bounds.height;
-                  layer.startx = minX;
-                  layer.starty = minY;
+                  layer.startx = bounds.x;
+                  layer.starty = bounds.y;
+
+                  this._largestBounds = this._largestBounds.combine(new BoundingBox(layer.startx, layer.starty, layer.width, layer.height));
 
                } else {
                   const encoding = layerChild.getAttribute('encoding');
@@ -821,6 +844,11 @@ export class TiledParser {
 
       const image = imageNode.querySelector('image');
       imageLayer.image = image?.getAttribute('source');
+
+      const properties = imageNode.querySelector('properties');
+      if (properties) {
+         this._parsePropertiesNode(properties, imageLayer);
+      }
 
       const transparentcolor = image?.getAttribute('trans');
       if (transparentcolor) {
@@ -926,6 +954,7 @@ export class TiledParser {
             case 'layer': {
                const layer = this.parseTileLayer(node, tiledMap.infinite, strict);
                tiledMap.layers.push(layer);
+               
                break;
             }
             case 'properties': {
@@ -950,9 +979,20 @@ export class TiledParser {
          }
       }
 
+      // Parse all layers
       for (let mapChild of mapElement.children) {
          parseHelper(mapChild);
       }
+
+      // Post process infinite layers
+      // if (tiledMap.infinite) {
+      //    for (let layer of tiledMap.layers) {
+      //       layer.startx = this._largestBounds.x;
+      //       // layer.starty = this._largestBounds.y;
+      //       layer.width = this._largestBounds.width;
+      //       // layer.height = this._largestBounds.height;
+      //    }
+      // }
 
       if (strict) {
          try {

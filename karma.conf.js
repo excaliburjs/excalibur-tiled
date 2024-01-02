@@ -2,6 +2,7 @@
 // Generated on Sun Jan 31 2021 14:58:28 GMT-0600 (Central Standard Time)
 
 const webpack = require('./webpack.config')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = function(config) {
   config.set({
@@ -9,7 +10,12 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
-    webpack: webpack,
+    webpack: {
+      ...webpack,
+      ...{ plugins: [
+         new NodePolyfillPlugin()
+      ]}
+    },
 
 
     // frameworks to use

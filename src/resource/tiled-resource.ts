@@ -568,11 +568,13 @@ export class TiledResource implements Loadable<any> {
             }
             if (isTiledTilesetCollectionOfImages(tileset)) {
                const tileToImage = new Map<TiledTile, ImageSource>();
-               for (let tile of tileset.tiles) {
-                  if (tile.image) {
-                     const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
-                     const image = this._imageLoader.getOrAdd(imagePath);
-                     tileToImage.set(tile, image);
+               if (tileset.tiles) {
+                  for (let tile of tileset.tiles) {
+                     if (tile.image) {
+                        const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
+                        const image = this._imageLoader.getOrAdd(imagePath);
+                        tileToImage.set(tile, image);
+                     }
                   }
                }
                const friendlyTileset = new Tileset({
