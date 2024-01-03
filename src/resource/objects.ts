@@ -218,11 +218,9 @@ export function parseObject(object: TiledObject, resource?: TiledResource): Plug
       const template = resource.templates.find(t => filenameFromPath(t.templatePath) === filenameFromPath(object.template!));
       if (template) {
          newObject = new TemplateObject(object, template);
-
-         // TODO check for inherited class/name/props
       } else {
          // This is truly an error situation
-         throw new Error(`Template object id ${object.id} with name ${object.name} is missing loaded template file, there should be one loaded from ${object.template}! Is your tiled map or template corrupted?`);
+         throw new Error(`Template object id ${object.id} with name ${object.name} is missing a loaded template file, there should be one loaded from ${object.template}! Is your tiled map or template corrupted?`);
       }
    } else { // rectangle
       if (object.width && object.height) {
