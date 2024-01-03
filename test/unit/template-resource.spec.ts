@@ -43,4 +43,20 @@ describe('A Tiled template resource', () => {
          ['item', 'coin']
       ]));
    });
+
+   it('can redirect loading with pathmap', async () => {
+      const templateResource = new TemplateResource('/test/unit/tiled/template-resource-spec/template.tx', {
+         pathMap: [
+            { path: 'tilemap_packed.png', output: '/test/unit/tiled/template-resource-spec/tilemap_packed.png' }
+         ]
+      });
+
+      spyOn((templateResource as any).imageLoader, 'getOrAdd').and.callThrough();
+
+      await templateResource.load();
+
+      const template = templateResource.data;
+      expect(template.tileset).toBeDefined();
+      expect((templateResource as any).imageLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/tilemap_packed.png');
+   });
 });

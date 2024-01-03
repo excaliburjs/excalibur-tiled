@@ -224,7 +224,7 @@ const TiledLayer = z.union([
 
 const TiledObjectGroup = z.object({
    draworder: z.string(),
-   id: z.number(),
+   id: z.number().optional(), // sometimes tiled doesn't put an id here :( inconsistent
    name: z.string(),
    x: z.number(),
    y: z.number(),
@@ -986,18 +986,8 @@ export class TiledParser {
 
       // Parse all layers
       for (let mapChild of mapElement.children) {
-         parseHelper(mapChild);
+         parseHelper(mapChild, strict);
       }
-
-      // Post process infinite layers
-      // if (tiledMap.infinite) {
-      //    for (let layer of tiledMap.layers) {
-      //       layer.startx = this._largestBounds.x;
-      //       // layer.starty = this._largestBounds.y;
-      //       layer.width = this._largestBounds.width;
-      //       // layer.height = this._largestBounds.height;
-      //    }
-      // }
 
       if (strict) {
          try {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" backgroundcolor="#2df6f9" nextlayerid="7" nextobjectid="9">
- <tileset firstgid="1" name="fantasy" tilewidth="16" tileheight="16" tilecount="132" columns="12">
+<map>
+ <tileset name="fantasy">
   <image source="tilemap_packed.png" width="192" height="176"/>
   <tile id="2" type="tileclass">
    <properties>
@@ -19,7 +19,7 @@
  </tileset>
  <tileset firstgid="133" source="external-fantasy.tsx"/>
  <tileset firstgid="265" source="external-fantasy.tsj"/>
- <layer id="1" name="Ground" width="10" height="10">
+ <layer id="1">
   <data encoding="csv">
 3,1,3,1,1,3,2,1,2,3,
 2,1,2,1,1,1,2,2,2,3,
@@ -94,7 +94,7 @@
   </object>
  </objectgroup>
  <objectgroup id="5" name="OtherObjects">
-  <object id="5" x="64.0351" y="0.125313" width="16.2907" height="16.0401"/>
+  <object/>
   <object id="6" x="7.64411" y="54.8872">
    <point/>
   </object>

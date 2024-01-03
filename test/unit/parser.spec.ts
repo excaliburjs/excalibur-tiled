@@ -21,6 +21,8 @@ import isometricTilesetTsj from './tiled/parser-spec/isometric.tsj';
 import isometricTilesetCollectionTsx from './tiled/parser-spec/iso-collection.tsx';
 import isometricTilesetCollectionTsj from './tiled/parser-spec/iso-collection.tsj';
 
+import invalidTmx from './tiled/tiled-resource-spec/invalid.tmx'
+
 import { diffString } from 'json-diff';
 
 describe('A Tiled xml parser', () => {
@@ -59,6 +61,12 @@ describe('A Tiled xml parser', () => {
          });
          expect(diff).toEqual('');
       });
+
+      it('should not throw on parse in non-strict', () => {
+         const parser = new TiledParser();
+         // should not throw on parse
+         parser.parse(invalidTmx, false);
+      })
    });
 
    describe('Tileset parser', () => {

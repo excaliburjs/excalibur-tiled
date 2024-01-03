@@ -28,7 +28,7 @@ export class TilesetResource implements Loadable<Tileset> {
    private parser: TiledParser;
 
    constructor(public path: string, firstGid: number, options?: TilesetResourceOptions) {
-      const { fileLoader, parser, pathMap, imageLoader, strict, headless, orientation } = {...options};
+      const { fileLoader, parser, pathMap, imageLoader, strict, headless, orientation } = { ...options };
       this.headless = headless ?? this.headless;
       this.orientation = orientation ?? this.orientation;
       this.strict = strict ?? this.strict;
@@ -41,66 +41,71 @@ export class TilesetResource implements Loadable<Tileset> {
 
    async load(): Promise<Tileset> {
       const tilesetType = this.path.includes('.tsx') ? 'xml' : 'json';
-      const tilesetData = await this.fileLoader(this.path, tilesetType);
-      let tileset: TiledTilesetFile;
+      try {
+         const tilesetData = await this.fileLoader(this.path, tilesetType);
+         let tileset: TiledTilesetFile;
 
-      if (tilesetType === 'json') {
-         // Verify TMJ is correct
-         if (this.strict) {
-            tileset = TiledTilesetFile.parse(tilesetData);
+         if (tilesetType === 'json') {
+            // Verify TMJ is correct
+            if (this.strict) {
+               tileset = TiledTilesetFile.parse(tilesetData);
+            } else {
+               tileset = tilesetData as TiledTilesetFile;
+            }
          } else {
-            tileset = tilesetData as TiledTilesetFile;
+            // Parse & Verify TMX tileset
+            tileset = this.parser.parseExternalTileset(tilesetData, this.strict);
          }
-      } else { 
-         // Parse & Verify TMX tileset
-         tileset = this.parser.parseExternalTileset(tilesetData, this.strict);
-      }
 
-      if (isTiledTilesetSingleImage(tileset)) {
-         const imagePath = pathRelativeToBase(this.path, tileset.image, this.pathMap);
-         const image = this.imageLoader.getOrAdd(imagePath);
-         if (image) {
+         if (isTiledTilesetSingleImage(tileset)) {
+            const imagePath = pathRelativeToBase(this.path, tileset.image, this.pathMap);
+            const image = this.imageLoader.getOrAdd(imagePath);
+            if (image) {
+               this.data = new Tileset({
+                  name: tileset.name,
+                  tiledTileset: tileset,
+                  firstGid: this.firstGid,
+                  image
+               });
+            }
+         }
+
+         if (isTiledTilesetCollectionOfImages(tileset)) {
+            const tileToImage = new Map<TiledTile, ImageSource>();
+            const images: ImageSource[] = [];
+            if (tileset.tiles) {
+               for (let tile of tileset.tiles) {
+                  if (tile.image) {
+                     const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
+                     const image = this.imageLoader.getOrAdd(imagePath);
+                     tileToImage.set(tile, image);
+                     images.push(image);
+                  }
+               }
+            }
+
+            tileset.firstgid = this.firstGid;
             this.data = new Tileset({
                name: tileset.name,
                tiledTileset: tileset,
                firstGid: this.firstGid,
-               image
+               tileToImage: tileToImage
             });
          }
-      }
 
-      if (isTiledTilesetCollectionOfImages(tileset)) {
-         const tileToImage = new Map<TiledTile, ImageSource>();
-         const images: ImageSource[] = [];
-         if (tileset.tiles) {
-            for (let tile of tileset.tiles) {
-               if (tile.image) {
-                  const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
-                  const image = this.imageLoader.getOrAdd(imagePath);
-                  tileToImage.set(tile, image);
-                  images.push(image);
-               }
-            }
+         if (!this.headless) {
+            await this.imageLoader.load();
          }
 
-         tileset.firstgid = this.firstGid;
-         this.data = new Tileset({
-            name: tileset.name,
-            tiledTileset: tileset,
-            firstGid: this.firstGid,
-            tileToImage: tileToImage
-         });
-      }
+         if (this.data) {
+            return this.data
+         }
 
-      if (!this.headless) {
-         await this.imageLoader.load();
+      } catch (e) {
+         console.error(`Could not load tileset at path ${this.path}`);
+         throw e;
       }
-
-      if (this.data) {
-         return this.data
-      }
-
-      throw new Error(`No tileset loaded for path ${this.path}`);
+      throw new Error(`No tileset at path ${this.path}`);
    }
 
    isLoaded(): boolean {

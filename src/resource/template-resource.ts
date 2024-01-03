@@ -91,7 +91,9 @@ export class TemplateResource implements Loadable<Template> {
          });
 
       } catch (e) {
-         throw new Error(`Could not load template at ${this.templatePath}, check to see if your pathMap is correct or if you're Tiled map is corrupted`);
+
+         console.error(`Could not load template at ${this.templatePath}, check to see if your pathMap is correct or if you're Tiled map is corrupted`);
+         throw e;
       }
    }
 }

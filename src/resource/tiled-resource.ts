@@ -515,7 +515,7 @@ export class TiledResource implements Loadable<any> {
          map = this._parseMap(data);
       }
 
-      if (compare(TiledResource.supportedTiledVersion, map.tiledversion, ">")) {
+      if (compare(TiledResource.supportedTiledVersion, map.tiledversion ?? '0.0.0', ">")) {
          console.warn(`The excalibur tiled plugin officially supports ${TiledResource.supportedTiledVersion}+, the current map has tiled version ${map.tiledversion}`)
       }
 
@@ -604,6 +604,7 @@ export class TiledResource implements Loadable<any> {
             const sourcePath = pathRelativeToBase(this.path, tileset.source, this.pathMap);
             this._tilesetLoader.getOrAdd(sourcePath, tileset.firstgid,
                {
+                  strict: this.strict,
                   headless: this.headless,
                   parser: this.parser,
                   fileLoader: this.fileLoader,
@@ -632,6 +633,7 @@ export class TiledResource implements Loadable<any> {
       for (const templatePath of uniqueTemplatePaths) {
          const mappedPath = pathRelativeToBase(this.path, templatePath, this.pathMap);
          this._templateLoader.getOrAdd(mappedPath, {
+            strict: this.strict,
             headless: this.headless,
             parser: this.parser,
             fileLoader: this.fileLoader,

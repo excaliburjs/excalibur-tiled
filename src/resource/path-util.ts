@@ -32,9 +32,26 @@ export function mapPath(inputPath: string, pathMap: PathMap): string {
    return inputPath;
 }
 
+export function pathInMap(inputPath: string, pathMap?: PathMap): boolean {
+   if (!pathMap) return false;
+   for (const { path, output } of pathMap) {
+      if (typeof path === 'string') {
+         if (inputPath.includes(path)) {
+            return true;
+         }
+      } else {
+         const match = inputPath.match(path);
+         if (match) {
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
 
 export function pathRelativeToBase(basePath: string, relativeToBase: string, pathMap?: PathMap) {
-   if (pathMap) {
+   if (pathInMap(relativeToBase, pathMap) && pathMap) {
       return mapPath(relativeToBase, pathMap);
    }
 

@@ -1,5 +1,5 @@
 import { FactoryProps, FetchLoader, TiledResource } from '@excalibur-tiled';
-import { Actor } from 'excalibur';
+import { Actor, vec } from 'excalibur';
 
 describe('A Tiled map resource parser', () => {
    it('should exist', () => {
@@ -22,7 +22,48 @@ describe('A Tiled map resource parser', () => {
 
       expect(tiledMap.getObjectLayers().length).toBe(2);
       expect(tiledMap.getTileLayers().length).toBe(3);
+      expect(tiledMap.getImageLayers().length).toBe(1);
       expect(tiledMap.getIsoTileLayers().length).toBe(0);
+   });
+
+   it('should warn on bad version', async () => {
+      spyOn(console, 'warn').and.callThrough();
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/badversion.tmx');
+
+      await tiledMap.load();
+
+      expect(console.warn).toHaveBeenCalledWith('The excalibur tiled plugin officially supports 1.10.1+, the current map has tiled version 1.1.0');
+   });
+
+   it('should not warn on newer version', async () => {
+      spyOn(console, 'warn').and.callThrough();
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/newversion.tmx');
+
+      await tiledMap.load();
+
+      expect(console.warn).not.toHaveBeenCalled();
+   });
+
+   it('can redirect loading with pathmap', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
+         pathMap: [
+            { path: 'tilemap_packed.png', output: '/test/unit/tiled/template-resource-spec/tilemap_packed.png' },
+            { path: 'coin.tx', output: '/test/unit/tiled/template-resource-spec/coin.tx'},
+            { path: 'external-fantasy.tsx', output: '/test/unit/tiled/template-resource-spec/external-fantasy.tsx'},
+         ]
+      });
+
+      spyOn((tiledMap as any)._imageLoader, 'getOrAdd').and.callThrough();
+      spyOn((tiledMap as any)._tilesetLoader, 'getOrAdd').and.callThrough();
+      spyOn((tiledMap as any)._templateLoader, 'getOrAdd').and.callThrough();
+
+      await tiledMap.load();
+
+      expect((tiledMap as any)._imageLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/tilemap_packed.png');
+      expect((tiledMap as any)._templateLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/coin.tx', jasmine.any(Object));
+      expect((tiledMap as any)._tilesetLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/external-fantasy.tsx', jasmine.any(Number), jasmine.any(Object));
    });
 
    it('can set a start z index', async () => {
@@ -255,11 +296,118 @@ describe('A Tiled map resource parser', () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
 
       await tiledMap.load();
+
+      const tileset = tiledMap.getTilesetByClassName('External');
+      expect(tileset[0].name).toBe('external-fantasy-tmj');
    });
+
    it('can get tilesets by property name/value (case insensitive)', async () => {
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
 
       await tiledMap.load();
+
+      const tileset = tiledMap.getTilesetByProperty('someprop', 'somevalue');
+      expect(tileset[0].name).toBe('external-fantasy-tmj');
+   });
+
+
+   it('can get tilesets by property name/value (case insensitive)', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const tileset = tiledMap.getTilesetByProperty('someprop', 'somevalue');
+      expect(tileset[0].name).toBe('external-fantasy-tmj');
+   });
+
+   it('can get tileset by gid', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const fantasy = tiledMap.getTilesetForTileGid(1);
+      expect(fantasy.name).toBe('fantasy');
+
+
+      const fantasyexternal = tiledMap.getTilesetForTileGid(133);
+      expect(fantasyexternal.name).toBe('external-fantasy');
+
+      const fantasyexternaltmj = tiledMap.getTilesetForTileGid(265);
+      expect(fantasyexternaltmj.name).toBe('external-fantasy-tmj');
+   });
+
+   it('can get tile by layer and coord', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByCoordinate('ground', 0, 0);
+
+      expect(tile?.exTile.x).toBe(0);
+      expect(tile?.exTile.y).toBe(0);
+
+      expect(tile?.tiledTile?.id).toBe(2);
+      expect(tile?.tiledTile?.properties.get('tileprop')).toBe('someprop');
+      expect(tile?.tiledTile?.class).toBe('tileclass');
+
+      const othertile = tiledMap.getTileByCoordinate('ground', 4, 0);
+
+      expect(othertile?.exTile.x).toBe(4);
+      expect(othertile?.exTile.y).toBe(0);
+      
+      expect(othertile?.tiledTile).toBe(undefined);
+   });
+
+   it('can get tile by layer and world pos', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByPoint('ground', vec(8, 8));
+
+      expect(tile?.exTile.x).toBe(0);
+      expect(tile?.exTile.y).toBe(0);
+
+      expect(tile?.tiledTile?.id).toBe(2);
+      expect(tile?.tiledTile?.properties.get('tileprop')).toBe('someprop');
+      expect(tile?.tiledTile?.class).toBe('tileclass');
+
+      const othertile = tiledMap.getTileByPoint('ground', vec(16*4 + 8, 8));
+
+      expect(othertile?.exTile.x).toBe(4);
+      expect(othertile?.exTile.y).toBe(0);
+      
+      expect(othertile?.tiledTile).toBe(undefined);
+   });
+
+   it('can get tile by class name', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTilesByClassName('tileclass');
+
+      expect(tile[0].id).toBe(2);
+      expect(tile[0].properties.get('tileprop')).toBe('someprop');
+      expect(tile[0].class).toBe('tileclass');
+   });
+
+   it('can get tile by class name', async () => {
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTilesByProperty('tileprop');
+
+      expect(tile[0].id).toBe(2);
+      expect(tile[0].properties.get('tileprop')).toBe('someprop');
+      expect(tile[0].class).toBe('tileclass');
    });
 });
