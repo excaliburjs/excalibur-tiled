@@ -8,7 +8,7 @@ module.exports = function(config) {
   config.set({
    client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
-      captureConsole: true,
+      captureConsole: false,
    },
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -17,7 +17,7 @@ module.exports = function(config) {
     webpack: {
       ...webpack,
       ...{ plugins: [
-         new NodePolyfillPlugin()
+         new NodePolyfillPlugin() // for json-diff tests in parser
       ]}
     },
 
