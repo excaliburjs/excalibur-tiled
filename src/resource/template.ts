@@ -20,7 +20,7 @@ export class Template {
    object: PluginObject;
    tileset?: Tileset;
 
-   constructor(public options: TemplateOptions) {
+   constructor(options: TemplateOptions) {
       const { templatePath, object, tiledTemplate, tileset } = options;
       this.templatePath = templatePath;
       this.object = object;
