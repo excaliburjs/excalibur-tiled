@@ -127,7 +127,7 @@ export function needsDecoding(x: TiledTileLayer): x is TiledTileLayer & { encodi
 }
 
 export function isCSV(x: TiledTileLayer): x is TiledTileLayer & { encoding: 'csv', data: number[] } {
-   return (x as any).encoding === 'csv';
+   return (x as any).encoding === 'csv' || Array.isArray((x as any).data);
 }
 
 const TiledPoint = z.object({
