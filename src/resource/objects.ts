@@ -10,6 +10,11 @@ import { TiledResource } from "./tiled-resource";
 export interface PluginObjectProps {
    tiledObject: TiledObject;
 }
+/**
+ * Plugin object represents the base class of a generic instance of an object used in a map.
+ *
+ * It could be more specific as well.
+ */
 export class PluginObject implements Properties {
    id: number;
    x: number;
@@ -30,6 +35,11 @@ export class PluginObject implements Properties {
    }
 }
 
+/**
+ * Represents a template instance in a map.
+ *
+ * Inherits properties, class, and name from template if not overridden.
+ */
 export class TemplateObject extends PluginObject {
    public source: string;
    public template: Template;
@@ -68,12 +78,24 @@ export class TemplateObject extends PluginObject {
       
    }
 }
+
+/**
+ * Represents an instance of an inserted tile object in a map.
+ */
 export class InsertedTile extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly gid: number, public readonly width: number, public readonly height: number) {
       super({tiledObject});
    }
 }
+
+/**
+ * Represents an instance of a point object in a map
+ */
 export class Point extends PluginObject {}
+
+/**
+ * Represents an instance of a Text object in a map
+ */
 export class Text extends PluginObject {
    text: ExText;
    font: Font;
@@ -137,19 +159,30 @@ export class Text extends PluginObject {
          }
       }
    }
-
 }
+
+/**
+ * Represents an instance of an ellipse object in a map.
+ */
 export class Ellipse extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number) {
       super({tiledObject});
    }
 }
+
+/**
+ * Represents an instance of a rectangle object in a map.
+ */
 export class Rectangle extends PluginObject {
 
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number, public readonly anchor: Vector) {
       super({tiledObject});
    }
 }
+
+/**
+ * Represents an instance of a polygon object in a map.
+ */
 export class Polygon extends PluginObject {
    /**
     * Transformed world space points
@@ -165,6 +198,10 @@ export class Polygon extends PluginObject {
       this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
    }
 }
+
+/**
+ * Represents an instance of a polyline object in a map
+ */
 export class Polyline extends PluginObject {
    public readonly points: Vector[] = []
    constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
@@ -174,6 +211,13 @@ export class Polyline extends PluginObject {
 }
 
 export type ObjectTypes = Polygon | Polyline | Rectangle | Ellipse | Text | Point | InsertedTile | PluginObject;
+
+/**
+ * Parses a TiledObject and returns a friendly plugin object.
+ * @param object 
+ * @param resource 
+ * @returns 
+ */
 export function parseObject(object: TiledObject, resource?: TiledResource): PluginObject {
    let newObject: PluginObject;
    if (object.point) {
@@ -235,6 +279,12 @@ export function parseObject(object: TiledObject, resource?: TiledResource): Plug
    return newObject;
 }
 
+/**
+ * Parses a Tiled Object Group and returns friendly plugin objects.
+ * @param tiledObjectGroup 
+ * @param resource 
+ * @returns 
+ */
 export function parseObjects(tiledObjectGroup: TiledObjectGroup, resource?: TiledResource) {
    const objects: PluginObject[] = [];
    for (const object of tiledObjectGroup.objects) {

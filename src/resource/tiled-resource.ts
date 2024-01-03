@@ -229,6 +229,10 @@ export class TiledResource implements Loadable<any> {
    }
 
    registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity | undefined): void {
+      if (this.isLoaded()) {
+         console.warn(`Tiled Resource has already loaded, register "${className}" factory before load has been called for it to function.`);
+      }
+
       if (this.factories.has(className)) {
          console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
       }

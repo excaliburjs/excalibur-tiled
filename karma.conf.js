@@ -6,6 +6,10 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = function(config) {
   config.set({
+   client: {
+      // Excalibur logs / console logs suppressed when captureConsole = false;
+      captureConsole: true,
+   },
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',

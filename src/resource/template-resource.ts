@@ -23,6 +23,11 @@ export interface TemplateResourceOptions {
  * They can be used to instance objects in ObjectLayers, or as part of Tile Collider definitions
  */
 export class TemplateResource implements Loadable<Template> {
+   /**
+    * [[Template]] is only accessible after .load()
+    * 
+    * Check .isLoaded() to know if it has been loaded
+    */
    data!: Template;
    public readonly headless: boolean = false;
    public readonly strict: boolean = true;
