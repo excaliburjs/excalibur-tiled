@@ -19,7 +19,7 @@ module.exports = {
       },
    },
    entry: {
-      test: './example/game.ts',
+      formats: './example/formats/formats.ts',
       orthogonal: './example/orthogonal/orthogonal.ts',
       'orthogonal-infinite': './example/orthogonal-infinite/orthogonal-infinite.ts',
       isometric: './example/isometric/isometric.ts',
