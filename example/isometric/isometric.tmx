@@ -175,6 +175,9 @@
   <object id="21" gid="142" x="13.9091" y="-1" width="16" height="17"/>
  </objectgroup>
  <layer id="6" name="Above (External)" width="10" height="10" opacity="0.3" tintcolor="#ff0000" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,251,0,0,0,
 0,263,263,0,0,0,0,0,0,0,
