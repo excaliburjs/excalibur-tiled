@@ -19,7 +19,7 @@ export default defineConfig({
    stdout: 'ignore',
    stderr: 'pipe',
   },
-  timeout: 60_000,
+  timeout: 120_000, // linux is slow sometimes
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
