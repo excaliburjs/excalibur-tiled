@@ -6,6 +6,7 @@ module.exports = {
       static: 'example/',
       compress: false,
       hot: false,
+      liveReload: false,
       allowedHosts: 'all',
       devMiddleware: {
          mimeTypeDefault: 'text/xml',
