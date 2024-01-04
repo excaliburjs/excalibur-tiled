@@ -95,6 +95,9 @@
  </tileset>
  <tileset firstgid="221" source="external-iso-fantasy.tsx"/>
  <layer id="1" name="Ground" width="10" height="10">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 2,46,2,2,2,2,2,2,2,2,
 2,46,2,2,2,2,2,2,2,13,
@@ -133,6 +136,9 @@
   </object>
  </objectgroup>
  <layer id="2" name="Above" width="10" height="10" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,110,0,0,0,0,
 0,0,0,99,99,0,0,0,0,0,
@@ -147,6 +153,9 @@
 </data>
  </layer>
  <layer id="4" name="Above (Non-Iso)" width="10" height="10" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,
 142,0,0,0,0,0,0,0,0,0,
