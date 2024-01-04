@@ -15,13 +15,17 @@ export interface Properties {
  * @param sourceProps 
  */
 export function mapProps<T extends Properties>(target: T, sourceProps?: TiledProperty[]) {
-   if (sourceProps) {
-      for (const prop of sourceProps) {
-         let value = prop.value;
-         if (typeof prop.value === 'string') {
-            value = prop.value.toLocaleLowerCase();
+   try {
+      if (sourceProps) {
+         for (const prop of sourceProps) {
+            let value = prop.value;
+            if (typeof prop.value === 'string') {
+               value = prop.value.toLocaleLowerCase();
+            }
+            target.properties.set(prop.name.toLocaleLowerCase(), value);
          }
-         target.properties.set(prop.name.toLocaleLowerCase(), value);
       }
+   } catch (e) {
+      console.error(`Unable to map properties onto ${target}`, e);
    }
 }

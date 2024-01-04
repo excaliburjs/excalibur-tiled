@@ -295,9 +295,9 @@ export function isTiledTilesetCollectionOfImages(x: TiledTileset): x is Omit<Til
 }
 
 export const TiledTilesetFile = TiledTilesetEmbedded.extend({
-   tiledversion: z.string(),
+   tiledversion: z.string().optional(),
    type: z.literal('tileset'),
-   version: z.string()
+   version: z.string().optional()
 });
 
 const TiledTilesetExternal = z.object({

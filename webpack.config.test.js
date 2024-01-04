@@ -3,8 +3,9 @@ module.exports = {
    mode: 'development',
    devtool: 'source-map',
    devServer: {
-      static: '.',
+      static: 'example/',
       compress: false,
+      hot: false,
       allowedHosts: 'all',
       devMiddleware: {
          mimeTypeDefault: 'text/xml',
@@ -26,7 +27,7 @@ module.exports = {
       'isometric-infinite': './example/isometric-infinite/isometric-infinite.ts',
    },
    output: {
-      filename: 'example/[name]/[name].js',
+      filename: '[name]/[name].js',
       path: __dirname,
       libraryTarget: "umd"
    },
