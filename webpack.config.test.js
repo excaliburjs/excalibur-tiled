@@ -5,8 +5,6 @@ module.exports = {
    devServer: {
       static: 'example/',
       compress: false,
-      hot: false,
-      liveReload: false,
       allowedHosts: 'all',
       devMiddleware: {
          mimeTypeDefault: 'text/xml',
@@ -29,7 +27,7 @@ module.exports = {
    },
    output: {
       filename: '[name]/[name].js',
-      path: __dirname,
+      path: path.resolve(__dirname, 'example'),
       libraryTarget: "umd"
    },
    module: {

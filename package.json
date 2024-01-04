@@ -32,6 +32,7 @@
    "scripts": {
       "start": "webpack-dev-server --config webpack.config.test.js --open",
       "start:no-open": "webpack-dev-server --config webpack.config.test.js",
+      "start:ci-server": "webpack --config webpack.config.test.js && http-server ./example --port 8080",
       "watch": "webpack --progress --watch",
       "build": "cross-env NODE_ENV=production webpack",
       "test": "npm run test:unit",
@@ -49,6 +50,7 @@
       "@types/webpack-env": "1.18.4",
       "cross-env": "7.0.3",
       "excalibur": "0.29.0-alpha.821",
+      "http-server": "14.1.1",
       "jasmine-core": "5.1.1",
       "json-diff": "1.0.6",
       "karma": "6.4.2",
