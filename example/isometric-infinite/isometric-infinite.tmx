@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="isometric" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="8" infinite="1" backgroundcolor="#22b2b2" nextlayerid="9" nextobjectid="25">
+ <properties>
+  <property name="solid" type="bool" value="true"/>
+ </properties>
  <tileset firstgid="1" name="iso-fantasy" tilewidth="16" tileheight="17" tilecount="110" columns="11">
   <grid orientation="isometric" width="17" height="8"/>
   <image source="assets/Isometric_MedievalFantasy_Tiles.png" width="176" height="170"/>
@@ -95,6 +98,9 @@
  </tileset>
  <tileset firstgid="221" source="external-iso-fantasy.tsx"/>
  <layer id="1" name="Ground" width="10" height="10">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
    <chunk x="-16" y="-16" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -180,6 +186,9 @@
   </object>
  </objectgroup>
  <layer id="2" name="Above" width="10" height="10" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
 0,0,0,0,0,110,0,0,0,0,0,0,0,0,0,0,
@@ -202,6 +211,9 @@
   </data>
  </layer>
  <layer id="4" name="Above (Non-Iso)" width="10" height="10" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
