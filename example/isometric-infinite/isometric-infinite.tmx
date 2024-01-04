@@ -236,6 +236,9 @@
   </data>
  </layer>
  <layer id="6" name="Above (External)" width="10" height="10" opacity="0.3" tintcolor="#ff0000" offsetx="0" offsety="-8">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
    <chunk x="0" y="0" width="16" height="16">
 0,0,0,0,0,0,251,0,0,0,0,0,0,0,0,0,
