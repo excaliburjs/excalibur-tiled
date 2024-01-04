@@ -1,4 +1,4 @@
-import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile } from "excalibur";
+import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile, IsometricEntityComponent } from "excalibur";
 import { mapProps } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -80,6 +80,11 @@ export class IsoTileLayer implements Layer {
          tile.solid = true;
       }
 
+      const iso = tile.get(IsometricEntityComponent);
+      if (iso) {
+         iso.elevation = this.order;
+      }
+
       const tileset = this.resource.getTilesetForTileGid(gid);
       let sprite = tileset.getSpriteForGid(gid);
       if (hasTint) {
@@ -91,9 +96,11 @@ export class IsoTileLayer implements Layer {
       let offset = tile.pos;
       if (tileset.orientation === 'orthogonal') {
          // Odd rendering case when mixing/matching iso maps with orthogonal tilesets
+         offset = vec(0, 0);
+      } else {
          const halfWidth = this.resource.map.tilewidth / 2;
          const height = this.resource.map.tileheight;
-         offset = offset.sub(vec(halfWidth, height));
+         offset = vec(halfWidth, height);
       }
 
       // the whole tilemap uses a giant composite collider relative to the Tilemap

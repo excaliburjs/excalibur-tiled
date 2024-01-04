@@ -9,9 +9,28 @@ const game = new ex.Engine({
    pointerScope: ex.PointerScope.Canvas,
    antialiasing: false
 });
+
+// game.toggleDebug();
+// game.debug.isometric.showGrid = true;
 game.input.keyboard.on("press", (evt) => {
    if (evt.key === Keys.D) {
       game.toggleDebug();
+   }
+});
+
+let currentPointer!: ex.Vector;
+game.input.pointers.primary.on('down', (moveEvent) => {
+   currentPointer = moveEvent.worldPos;
+   game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+});
+
+game.input.pointers.primary.on('wheel', (wheelEvent) => {
+   // wheel up
+   game.currentScene.camera.pos = currentPointer;
+   if (wheelEvent.deltaY < 0) {
+      game.currentScene.camera.zoom *= 1.2;
+   } else {
+      game.currentScene.camera.zoom /= 1.2;
    }
 });
 
@@ -101,8 +120,10 @@ const start = (mapFile: string) => {
             ex.vec( 110.639,-0.352914 +94.9975),
             ex.vec(55.584,31.7623+94.9975)
          ].map(p => p.sub(ex.vec(111/2, 64)))));
-         const iso = new IsometricEntityComponent(map.getIsoTileLayers()[0].isometricMap);
-         iso.elevation = 1;
+
+         const playerlevel = map.getIsoTileLayers('playerlevel')[0];
+         const iso = new IsometricEntityComponent(playerlevel.isometricMap);
+         iso.elevation = playerlevel.isometricMap.elevation;
          player.addComponent(iso);
       }
       const start = map.getObjectsByName('player-start')[0];
@@ -157,6 +178,7 @@ const start = (mapFile: string) => {
          }
       });
       map.addToScene(game.currentScene);
+      currentPointer = game.currentScene.camera.pos;
    });
 }
 
