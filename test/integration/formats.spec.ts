@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.only('example-city.tmx', async ({ page }) => {
+test('example-city.tmx', async ({ page }) => {
   await page.goto('http://localhost:8080/formats/#example-city.tmx');
   await page.click('#excalibur-play');
   await page.waitForTimeout(500);
