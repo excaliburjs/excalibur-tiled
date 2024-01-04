@@ -275,9 +275,10 @@ export class Tileset implements Properties {
          anchor: Vector.Zero,
          scale: Vector.One,
          offset: Vector.Zero,
-         orientationOverride: 'orthogonal',
+         orientationOverride: undefined,
          ...options
       };
+      const orientation = orientationOverride ?? this.orientation;
       const tile = this.getTileByGid(gid);
       const result: Collider[] = [];
       if (tile && tile.objects) {
@@ -286,7 +287,7 @@ export class Tileset implements Properties {
                // This is the offset into the first point (local space)
                let points = object.points.map(p => p.scale(scale));
                points = this._applyFlipsToPoints(points, gid);
-               if (this.orientation === 'isometric' || orientationOverride === 'isometric') {
+               if (orientation === 'isometric') {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }
                points = points.map(p => p.add(offset));
@@ -303,7 +304,7 @@ export class Tileset implements Properties {
                   object.height * scale.y,
                   anchor);
                let points = bb.getPoints().map(p => p.add(vec(object.x, object.y)));
-               if (this.orientation === 'isometric'  || orientationOverride === 'isometric') {
+               if (orientation === 'isometric') {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }
                points = this._applyFlipsToPoints(points, gid);
@@ -314,7 +315,7 @@ export class Tileset implements Properties {
             if (object instanceof Ellipse) {
                // This is the offset into the first point (local space)
                let offsetPoint = vec(object.x, object.y);
-               if (this.orientation === 'isometric'  || orientationOverride === 'isometric') {
+               if (orientation === 'isometric') {
                   offsetPoint = this._isometricTiledCoordToWorld(offsetPoint);
                }
                offsetPoint = offsetPoint.add(offset);
