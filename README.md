@@ -6,6 +6,8 @@ The current Tiled plugin aims to support *parsing all data* in the Map (.tmx/.tm
 
 The plugin officially supports the latest version of Tiled that has been published and will warn if you are using an older version. This is because there have been many breaking changes to the Tiled map format over time that are difficult to reconcile.
 
+![](./readme/example.gif)
+
 ## Installation
 
 ```sh
