@@ -8,7 +8,7 @@ node_cache/*
 test
 test-results
 playwright-report
-readme
+readme/*
 !dist/*
 **/webpack.config.js
 **/webpack.config.test.js
