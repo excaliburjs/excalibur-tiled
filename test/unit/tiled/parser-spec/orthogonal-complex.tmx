@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" class="map-class" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" parallaxoriginx="94" parallaxoriginy="58" backgroundcolor="#22b2b2" nextlayerid="9" nextobjectid="7">
+ <editorsettings>
+  <export target="orthogonal-complex.tmj" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Embedded" class="TilesetClass" tilewidth="16" tileheight="16" tilecount="132" columns="12">
+  <properties>
+   <property name="tilesetprop" value="some prop here"/>
+  </properties>
+  <image source="tilemap_packed.png" width="192" height="176"/>
+  <tile id="29">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="8.5" y="6.25" width="6.75" height="7.25">
+     <ellipse/>
+    </object>
+    <object id="2" x="-1" y="0.25" width="11.5" height="12.75">
+     <ellipse/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="57">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="2.75" y="3">
+     <point/>
+    </object>
+    <object id="2" x="12" y="1.5">
+     <point/>
+    </object>
+    <object id="3" x="4.75" y="9.5">
+     <point/>
+    </object>
+    <object id="4" x="10.5" y="9.5">
+     <point/>
+    </object>
+   </objectgroup>
+  </tile>
+  <tile id="93" type="coin">
+   <properties>
+    <property name="object prop" value="some prop"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="3" y="2" width="10" height="12"/>
+   </objectgroup>
+  </tile>
+  <tile id="128" probability="0.5">
+   <properties>
+    <property name="props" value="animation"/>
+   </properties>
+   <animation>
+    <frame tileid="127" duration="500"/>
+    <frame tileid="115" duration="500"/>
+    <frame tileid="116" duration="500"/>
+    <frame tileid="117" duration="500"/>
+    <frame tileid="118" duration="500"/>
+    <frame tileid="119" duration="500"/>
+    <frame tileid="128" duration="500"/>
+    <frame tileid="129" duration="500"/>
+    <frame tileid="130" duration="500"/>
+    <frame tileid="131" duration="500"/>
+   </animation>
+  </tile>
+ </tileset>
+ <layer id="1" name="Ground" class="ground-class" width="10" height="10">
+  <properties>
+   <property name="boolean" type="bool" value="false"/>
+   <property name="file-prop" type="file" value="Cloud.png"/>
+   <property name="float-prop" type="float" value="123"/>
+   <property name="int-prop" type="int" value="14"/>
+   <property name="multiline">Multiline string
+should
+not break
+the 
+parser
+
+!!!</property>
+   <property name="obj" type="object" value="1"/>
+   <property name="some-color" type="color" value="#ff55aa00"/>
+   <property name="string-prop" value="some-string"/>
+  </properties>
+  <data encoding="csv">
+2,3,3,2,2,3,1,3,2,1,
+3,2,1,1,1,2,2,3,3,3,
+2,1,2,1,1,2,3,1,2,2,
+3,1,3,3,2,1,2,2,3,3,
+1,3,1,1,2,1,3,3,3,2,
+3,1,2,1,2,3,2,2,2,1,
+2,1,2,3,2,1,2,1,1,3,
+2,1,13,14,14,14,14,15,2,1,
+3,2,25,26,26,26,26,27,2,1,
+3,2,37,38,38,38,38,39,3,2
+</data>
+ </layer>
+ <layer id="2" name="PlayerLayer" width="10" height="10">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+58,0,0,0,0,0,0,0,0,0,
+0,45,46,46,46,46,46,47,0,0,
+0,57,0,0,0,0,0,59,0,0,
+0,57,0,49,50,50,52,51,0,0,
+0,57,0,61,62,62,64,63,0,0,
+0,57,0,73,74,86,74,76,0,0,
+0,69,83,0,0,0,0,30,0,0,
+0,0,0,0,0,0,0,0,0,0,
+17,0,0,0,0,0,0,0,105,0,
+29,29,0,94,0,0,0,0,0,129
+</data>
+ </layer>
+ <layer id="3" name="Above" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+5,0,0,0,0,0,0,0,93,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="InvisibleLayer" width="10" height="10" visible="0">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,130,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="4" name="Objects" class="object" tintcolor="#ff0000">
+  <properties>
+   <property name="props" value="stuff"/>
+  </properties>
+  <object id="1" name="Camera" x="87.3333" y="102.667">
+   <properties>
+    <property name="camera" type="bool" value="true"/>
+    <property name="zoom" type="float" value="5"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="3" name="Rectangle" x="47.3333" y="125.333" width="71.3333" height="18">
+   <properties>
+    <property name="other property" value="prop"/>
+   </properties>
+  </object>
+  <object id="4" gid="3221225578" x="27.6667" y="138.333" width="16" height="16" rotation="-59">
+   <properties>
+    <property name="string prop" value="struing"/>
+   </properties>
+  </object>
+  <object id="5" x="40.6667" y="0.833333" width="80" height="17">
+   <text wrap="1">Hello World</text>
+  </object>
+  <object id="6" gid="129" x="143.667" y="112" width="16" height="16"/>
+ </objectgroup>
+ <imagelayer id="7" name="Clouds 2" class="OtherClouds" opacity="0.5" offsetx="177" offsety="-17" parallaxx="1.9" parallaxy="1.4">
+  <image source="Cloud.png" width="100" height="100"/>
+ </imagelayer>
+ <imagelayer id="6" name="Clouds" class="SomeClouds" opacity="0.6" offsetx="-103" offsety="38" parallaxx="0.5" parallaxy="0.5">
+  <image source="Cloud.png" trans="ffffff" width="100" height="100"/>
+  <properties>
+   <property name="someprop" value="a prop"/>
+  </properties>
+ </imagelayer>
+</map>

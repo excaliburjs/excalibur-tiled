@@ -2,19 +2,29 @@
 // Generated on Sun Jan 31 2021 14:58:28 GMT-0600 (Central Standard Time)
 
 const webpack = require('./webpack.config')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 module.exports = function(config) {
   config.set({
+   client: {
+      // Excalibur logs / console logs suppressed when captureConsole = false;
+      captureConsole: false,
+   },
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
-    webpack: webpack,
+    webpack: {
+      ...webpack,
+      ...{ plugins: [
+         new NodePolyfillPlugin() // for json-diff tests in parser
+      ]}
+    },
 
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
 
     proxies: {
       // smooths over loading files because karma prepends '/base/' to everything
@@ -34,8 +44,10 @@ module.exports = function(config) {
       { pattern: './example/**/*.png', included: false, served: true },
       { pattern: './test/**/*.tmx', included: false, served: true },
       { pattern: './test/**/*.tsx', included: false, served: true },
+      { pattern: './test/**/*.tx', included: false, served: true },
       { pattern: './test/**/*.tmj', included: false, served: true },
       { pattern: './test/**/*.tsj', included: false, served: true },
+      { pattern: './test/**/*.tj', included: false, served: true },
       { pattern: './test/**/*.png', included: false, served: true }
     ],
 

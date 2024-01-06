@@ -6,6 +6,9 @@ coverage
 example
 node_cache/*
 test
+test-results
+playwright-report
+readme/*
 !dist/*
 **/webpack.config.js
 **/webpack.config.test.js

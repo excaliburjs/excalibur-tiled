@@ -9,3 +9,8 @@ diff-*.png
 coverage/
 !files.d.ts
 !karma.conf.js
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+*.tiled-session

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="6">
+ <editorsettings>
+  <export format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Kenny RPG Urban Pack" tilewidth="16" tileheight="16" tilecount="486" columns="27">
+  <image source="assets/kenny-rpg-urban-pack/tilemap_packed.png" width="432" height="288"/>
+ </tileset>
+ <layer id="1" name="Ground" width="100" height="100" locked="1">
+  <data encoding="base64" compression="zstd">
+   KLUv/WBAmyULALJHGSOAS9IBRQwtdjrv4/v4gYsGq0zIhEzcaO2zDCfSaEAhYyAkUw6EmMthippk3AmBLQX5RmrwCwIDXkTypeye9CweKbYLQS4zfRXtvq87nfY338fX8W38CUSMJzP86wu/lm/lL/wZaKBB3gW17B1gAiNDJMRtSSl2XpBXZi/D3JFVGVWEqh46KVVYCjUSargfuUimSVZnhFO+o8SiSVVrhIWqqKqFES0aCeW8N0ZpVQRUNBIaKy5EFu/hZ5JGQuVycvT72HZtjbp9pf5G6USj/MWYuiJXYyan7hoZavC7clVXOfKnAZOrHs5zwW34nmRwDhJ0lVPsSrrqgsh3MscydNWpnFaClbggflt/w/aUHeguvnOWKflKPKVpB1O79xj2ATtk8GfKHxj0AVZm95kb1DPNDUkudmWPylfCU5x2f4f57br1SA0slZ8uymU4ksRH5g+VKlianCg/j/rb9b2s+qn8
+  </data>
+ </layer>
+ <layer id="4" name="Ground Level 2" width="100" height="100">
+  <data encoding="base64" compression="zstd">
+   KLUv/WBAm50BAKAAAQAAAAMAHAAAAB4ALAE3AAAAOQkgkEO7A8X6Do0qZACiql/Pj5OYcKiWQ6qFNPTtCg==
+  </data>
+ </layer>
+ <layer id="2" name="Solid" width="100" height="100" locked="1">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zstd">
+   KLUv/WBAmy0OADKPKCxAd2kMRv8LSrmj7m6l6lWoPKuAaPh8VkTdt3/Rti+zFZXP02b1H+TUhlxApqTTTls9lvPYvOYxq69c5YLCE0TuUSPjGCN5I4eEHmR6c0fnOWFezupqAb0XznO5vJYVtHbyUn/u8x4L1CvSfOYyz6BUGun1kIP848HhpqNG7+KhHsJBw1OOchXBwAUCWB3n+EbK5CWPYQCnovjEJU4Rh1h0onygAIskqmQ5sAIkEySUtAOh+A0G7tRtn3dxr1BlchJfBaiCwlA5KA6SUjNskuovLOiSmWDfD/u46u8KY/UMB8Eqv6snn3qAih8DmR/P9a7aSRVFmwocxyLlnTd1VBe8p+HvdMSe1JQDVNzETy9NZoDOg2biRCZwvN10BelfYfMEP09WTz79AFW9GCuxRE86zVRqQ+TZDzZiyYtIxD74KQeouONXRbhTCbEnmbKFYM2mhIloEK2Kk0hFcYx6EFqLpSAtXbWn1W3OypakQB0mlb4DRG1zfrEalTuyDoh6UtOiW0etaW6b7vI8NaZBLy5H7GBwvNIaHBaFeBylzeWNsWQjZ977S4hJVXnc8e3Oik3O9I2YA6v0lOPafWNDcXS0Yg==
+  </data>
+ </layer>
+ <layer id="3" name="Solid Level 2" width="100" height="100" locked="1">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zstd">
+   KLUv/WBAmxUHADQDAE4BTwf1CGwBgEkBAABKAQAASwEAAB4BHU/s7QC+AQcBSU4BTrwB1wGhAaG9Ab1NTQcBTaBAz2UO8AKjTE06HSf2LOoQ/x6j4yyqqHPWaamKUwxVa+c19Y9oCVePNlwFbvgnOzk+HY8ecNVV/k9hsO4UOxIjcCa4L8qrvCd894NjGZcE1ZGXmQLmFmpqkgM1XFtLbRbRqHM4FyHqSDgv0lA14h67FcL1iUMkyytWh/0Jz7Smjgn8e4VcSdW8bIOM+4SK3hDXKa8WPB+hyqdhjlXnaSyo0s1TScVGnDDMJGI=
+  </data>
+ </layer>
+ <objectgroup id="5" name="Objects" locked="1">
+  <properties>
+   <property name="excalibur" type="bool" value="true"/>
+  </properties>
+  <object id="1" gid="409" x="304" y="112" width="16" height="16">
+   <properties>
+    <property name="ZIndex" type="float" value="3"/>
+   </properties>
+  </object>
+  <object id="2" name="player-start" type="player-start" x="375" y="104">
+   <point/>
+  </object>
+  <object id="3" name="Camera" type="Camera" x="444.5" y="404.5">
+   <properties>
+    <property name="Zoom" type="float" value="4"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="4" gid="1073741992" x="640" y="176" width="16" height="16"/>
+  <object id="5" gid="2147484058" x="592" y="176" width="16" height="16"/>
+  <object id="9" gid="252" x="383.636" y="128.182" width="32" height="32"/>
+ </objectgroup>
+</map>

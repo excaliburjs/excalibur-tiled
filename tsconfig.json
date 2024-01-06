@@ -2,13 +2,14 @@
    "compilerOptions": {
       "moduleResolution": "node",
       "strict": true,
-      "target": "es2015",
-      "lib": ["DOM", "ES2019.Array"],
+      "target": "es2018",
+      "lib": ["DOM", "DOM.Iterable", "ES2019.Array"],
       "declaration": true,
       "outDir": "./dist",
       "sourceMap": true,
       "paths": {
-         "@excalibur-tiled": ["./src/"]
+         "@excalibur-tiled": ["./src/"],
+         "@excalibur-tiled/deprecated": ["./src/deprecated"]
       }
    },
    "include": ["example/**/*.ts", "./src/**/*.ts", "./test/unit/*.spec.ts", "files.d.ts"],
