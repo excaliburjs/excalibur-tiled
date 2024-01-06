@@ -44,6 +44,9 @@ import { RawTilesetTile } from './raw-tileset-tile';
 import { TiledLayer } from './tiled-layer';
 import { TiledObjectGroup } from './tiled-object';
 
+/**
+ * @deprecated
+ */
 export enum TiledMapFormat {
 
    /**
@@ -57,6 +60,9 @@ export enum TiledMapFormat {
    JSON = 'JSON'
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledMapOptions {
    /**
     * By default files ending in .tmx are treated as TMX format, otherwise treated as JSON format
@@ -69,6 +75,9 @@ export interface TiledMapOptions {
    startingLayerZIndex?: number;
 }
 
+/**
+ * @deprecated
+ */
 export class TiledMapResource implements Loadable<TiledMap> {
    private _resource: Resource<string | RawTiledMap>;
    public data!: TiledMap;

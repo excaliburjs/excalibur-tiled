@@ -12,6 +12,7 @@ export const FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
 /**
  * Inspects gid for horizontal flag
  * @param gid 
+ * @deprecated
  */
 export const isFlippedHorizontally = (gid: number): boolean => {
    return !!(gid & FLIPPED_HORIZONTALLY_FLAG);
@@ -20,6 +21,7 @@ export const isFlippedHorizontally = (gid: number): boolean => {
 /**
  * Inspects gid for vertical flag
  * @param gid 
+ * @deprecated
  */
 export const isFlippedVertically = (gid: number): boolean => {
    return !!(gid & FLIPPED_VERTICALLY_FLAG);
@@ -28,6 +30,7 @@ export const isFlippedVertically = (gid: number): boolean => {
 /**
  * Inspects gid for diagonal flag (anti-diagonal flip enables tile rotation)
  * @param gid 
+ * @deprecated
  */
 export const isFlippedDiagonally = (gid: number): boolean => {
    return !!(gid & FLIPPED_DIAGONALLY_FLAG);
@@ -37,6 +40,7 @@ export const isFlippedDiagonally = (gid: number): boolean => {
 /**
  * Removes bit flags from gid
  * @param gid 
+ * @deprecated
  */
 export const getCanonicalGid = (gid: number): number => {
    return gid & ~(FLIPPED_HORIZONTALLY_FLAG |
@@ -45,7 +49,9 @@ export const getCanonicalGid = (gid: number): number => {
 
 }
 
-
+/**
+ * @deprecated
+ */
 export class TiledLayer extends TiledEntity {
    /**
     * Array of gid's (global Tiled identifiers) that point to a unique tile

@@ -7,6 +7,7 @@ import { RawTiledLayer } from "./raw-tiled-layer";
  *
  * Represents the interface for the Tiled exported data structure (JSON). Used
  * when loading resources via Resource loader.
+ * @deprecated
  */
 
 export interface RawTiledMap {

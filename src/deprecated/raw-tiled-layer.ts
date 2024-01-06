@@ -1,7 +1,9 @@
 import { TiledChunk, TiledProperty, TiledEncoding, TiledCompression } from './tiled-types';
 import { RawTiledObject } from "./raw-tiled-object";
 
-
+/**
+ * @deprecated
+ */
 export interface RawTiledLayer {
    /**
     * Incremental ID - unique across all layers

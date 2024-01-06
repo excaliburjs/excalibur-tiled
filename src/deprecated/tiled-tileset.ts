@@ -8,7 +8,9 @@ import { RawTiledTileset } from "./raw-tiled-tileset";
 import { RawTilesetTile } from "./raw-tileset-tile";
 import { TiledMapResource } from './tiled-map-resource';
 import { getProperty } from './tiled-entity';
-
+/**
+ * @deprecated
+ */
 export class TiledTileset {
    /**
     * The JSON format version
@@ -146,6 +148,9 @@ export class TiledTileset {
    }
 }
 
+/**
+ * @deprecated
+ */
 export class TiledTilesetTile {
    id!: number;
    tileset!: TiledTileset;
@@ -215,6 +220,9 @@ export class TiledTilesetTile {
    }
 }
 // TODO merge this with the other parser
+/**
+ * @deprecated
+ */
 export const parseExternalTsx = (tsxData: string, firstGid: number, source: string): TiledTileset => {
    const _convertToArray = (obj: any, prop: string, plurlalize = false) => {
       if (!obj[prop]) {
@@ -291,6 +299,9 @@ export const parseExternalTsx = (tsxData: string, firstGid: number, source: stri
    return result;
 }
 
+/**
+ * @deprecated
+ */
 export const parseExternalJson = (rawTileset: RawTiledTileset, firstGid: number, source: string): TiledTileset => {
    let tiles: TiledTilesetTile[] = [];
 

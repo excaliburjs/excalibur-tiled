@@ -2,6 +2,9 @@ import { RawTilesetTile } from './raw-tileset-tile';
 import { TiledGrid, TiledProperty, TiledTileOffset, TiledMapTerrain, TiledWangSet } from './tiled-types';
 
 
+/**
+ * @deprecated
+ */
 export interface RawTiledTileset {
    type: 'tileset';
    /**

@@ -4,6 +4,9 @@ import { RawTiledLayer } from "./raw-tiled-layer";
 import { RawTiledObject } from "./raw-tiled-object";
 import { toRadians } from "excalibur";
 
+/**
+ * @deprecated
+ */
 export interface Polygon {
    x: number;
    y: number;
@@ -12,6 +15,9 @@ export interface Polygon {
    }
 }
 
+/**
+ * @deprecated
+ */
 export interface Box {
    x: number;
    y: number;
@@ -19,6 +25,9 @@ export interface Box {
    height: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface Ellipse {
    x: number;
    y: number;
@@ -28,6 +37,7 @@ export interface Ellipse {
 
 /**
  * Tiled Object Layer
+ * @deprecated
  */
 export class TiledObjectGroup extends TiledEntity {
    public objects: TiledObject[] = [];
@@ -120,6 +130,9 @@ export class TiledObjectGroup extends TiledEntity {
    }
 }
 
+/**
+ * @deprecated
+ */
 export class TiledObject extends TiledEntity {
    public type?: string;
    public class?: string;
@@ -189,6 +202,9 @@ export class TiledObject extends TiledEntity {
    }
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledText {
    text: string;
    color?: string;
@@ -201,6 +217,9 @@ export interface TiledText {
    kerning: boolean;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledInsertedTile extends TiledObject {
    gid: number;
 }

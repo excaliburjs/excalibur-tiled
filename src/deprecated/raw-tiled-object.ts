@@ -1,7 +1,9 @@
 import { RawTiledText } from './raw-tiled-text';
 import { TiledProperty, TiledPoint } from './tiled-types';
 
-
+/**
+ * @deprecated
+ */
 export interface RawTiledObject {
    id: number;
 

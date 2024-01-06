@@ -1,4 +1,6 @@
-
+/**
+ * @deprecated
+ */
 export interface RawTiledText {
    text: string;
    /**

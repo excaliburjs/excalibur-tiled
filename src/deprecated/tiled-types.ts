@@ -3,17 +3,26 @@ import {
 } from 'excalibur';
 import { TiledObject } from './tiled-object';
 
+/**
+ * @deprecated
+ */
 export interface ExcaliburData {
    camera?: ExcaliburCamera;
    colliders?: ExcaliburCollider[];
 }
 
+/**
+ * @deprecated
+ */
 export interface ExcaliburCamera {
    x: number;
    y: number;
    zoom: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface ExcaliburCollider {
    type: 'box' | 'circle';
    collisionType: CollisionType;
@@ -27,6 +36,9 @@ export interface ExcaliburCollider {
    name?: string;
    tiled: TiledObject;
 }
+/**
+ * @deprecated
+ */
 export interface TiledProperty<T = unknown> {
    /**
     * Name of the property
@@ -42,9 +54,18 @@ export interface TiledProperty<T = unknown> {
    value: T;
 }
 
+/**
+ * @deprecated
+ */
 export type TiledEncoding = 'csv' | 'base64';
+/**
+ * @deprecated
+ */
 export type TiledCompression = 'zlib' | 'gzip' | 'zstd';
 
+/**
+ * @deprecated
+ */
 export interface TiledChunk {
    /**
     * Array of unsigned int (GIDs) or base64-encoded data
@@ -68,6 +89,9 @@ export interface TiledChunk {
    y: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledTileOffset {
    /**
     * Horizontal offset in pixels
@@ -79,6 +103,9 @@ export interface TiledTileOffset {
    y: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledWangSet {
    /**
     * Array of Wang colors
@@ -97,6 +124,9 @@ export interface TiledWangSet {
    wangtiles: TiledWangTile[];
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledWangTile {
    /**
     * Array of Wang color indexes (uchar[8]
@@ -120,6 +150,9 @@ export interface TiledWangTile {
    vflip: boolean;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledWangColor {
    /**
     * Hex-formatted color (#RRGGBB or #AARRGGBB)
@@ -139,6 +172,9 @@ export interface TiledWangColor {
    tile: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledGrid {
    /**
     *	orthogonal (default) or isometric
@@ -154,6 +190,9 @@ export interface TiledGrid {
    height: number;
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledFrame {
    /**
     * Frame duration in milliseconds
@@ -164,6 +203,10 @@ export interface TiledFrame {
     */
    tileid: number;
 }
+
+/**
+ * @deprecated
+ */
 export interface TiledMapTerrain {
    name: string;
    /**
@@ -173,6 +216,9 @@ export interface TiledMapTerrain {
    properties: TiledProperty[];
 }
 
+/**
+ * @deprecated
+ */
 export interface TiledPoint {
    x: number;
    y: number;

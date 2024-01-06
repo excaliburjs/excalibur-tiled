@@ -12,6 +12,7 @@ import { TiledTileset } from './tiled-tileset';
 
 /**
  * Responsible for representing the Tiled TileMap in total and parsing from the source Tiled files (tmx)
+ * @deprecated
  */
 export class TiledMap {
    /**
@@ -268,6 +269,9 @@ export class TiledMap {
    }
 }
 
+/**
+ * @deprecated
+ */
 const tagLayerWithOriginalOrder = (rawMap: RawTiledMap) => {
    let order = 0; 
    for (let layer of rawMap.layers) {
@@ -277,6 +281,7 @@ const tagLayerWithOriginalOrder = (rawMap: RawTiledMap) => {
 
 /**
  * Decompression implementations
+ * @deprecated
  */
 const decompressors = {
 

@@ -5,6 +5,7 @@ import { TiledProperty } from "./tiled-types";
  * @param properties 
  * @param prop 
  * @returns 
+ * @deprecated
  */
 export const getProperty = <T = unknown>(properties: TiledProperty[], prop: string): TiledProperty<T> | undefined => {
    if (Array.isArray(properties)) {
@@ -12,6 +13,9 @@ export const getProperty = <T = unknown>(properties: TiledProperty[], prop: stri
    }
 }
 
+/**
+ * @deprecated
+ */
 export class TiledEntity {
    public id!: number;
    public name?: string;
