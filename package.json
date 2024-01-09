@@ -44,7 +44,7 @@
    "devDependencies": {
       "@playwright/test": "1.40.1",
       "@types/jasmine": "5.1.4",
-      "@types/json-diff": "1.0.2",
+      "@types/json-diff": "1.0.3",
       "@types/node": "20.10.6",
       "@types/pako": "1.0.7",
       "@types/webpack-env": "1.18.4",
