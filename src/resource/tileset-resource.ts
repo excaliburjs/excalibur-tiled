@@ -59,27 +59,27 @@ export class TilesetResource implements Loadable<Tileset> {
 
          if (isTiledTilesetSingleImage(tileset)) {
             const imagePath = pathRelativeToBase(this.path, tileset.image, this.pathMap);
-            const image = this.imageLoader.getOrAdd(imagePath);
-            if (image) {
-               this.data = new Tileset({
-                  name: tileset.name,
-                  tiledTileset: tileset,
-                  firstGid: this.firstGid,
-                  image
-               });
-            }
+            const image = this.headless ? undefined : this.imageLoader.getOrAdd(imagePath);
+            this.data = new Tileset({
+               name: tileset.name,
+               tiledTileset: tileset,
+               firstGid: this.firstGid,
+               ...({ image }),
+            });
          }
 
          if (isTiledTilesetCollectionOfImages(tileset)) {
-            const tileToImage = new Map<TiledTile, ImageSource>();
-            const images: ImageSource[] = [];
-            if (tileset.tiles) {
-               for (let tile of tileset.tiles) {
-                  if (tile.image) {
-                     const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
-                     const image = this.imageLoader.getOrAdd(imagePath);
-                     tileToImage.set(tile, image);
-                     images.push(image);
+            const tileToImage = this.headless ? undefined : new Map<TiledTile, ImageSource>();
+            if (tileToImage) {
+               const images: ImageSource[] = [];
+               if (tileset.tiles) {
+                  for (let tile of tileset.tiles) {
+                     if (tile.image) {
+                        const imagePath = pathRelativeToBase(this.path, tile.image, this.pathMap);
+                        const image = this.imageLoader.getOrAdd(imagePath);
+                        tileToImage.set(tile, image);
+                        images.push(image);
+                     }
                   }
                }
             }
@@ -89,7 +89,7 @@ export class TilesetResource implements Loadable<Tileset> {
                name: tileset.name,
                tiledTileset: tileset,
                firstGid: this.firstGid,
-               tileToImage: tileToImage
+               ...({ tileToImage }),
             });
          }
 

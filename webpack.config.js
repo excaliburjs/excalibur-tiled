@@ -48,6 +48,12 @@ module.exports = {
        commonjs2: "excalibur",
        amd: "excalibur",
        root: "ex"
+   },
+   "jsdom": {
+       commonjs: "JSDOM",
+       commonjs2: "JSDOM",
+       amd: "JSDOM",
+       root: "JSDOM"
    }
  },
  plugins: [
