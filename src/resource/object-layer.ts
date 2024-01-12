@@ -95,6 +95,44 @@ export class ObjectLayer implements Layer {
       return this.objects.filter(o => o instanceof TemplateObject) as TemplateObject[];
    }
 
+   /**
+    * Runs or re-runs a specific registered factory given a class name on this object layer
+    * @param className
+    */
+   runFactory(className: string) {
+      const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
+      for (let object of this.objects) {
+         let objectType = object.class;
+         if (object instanceof TemplateObject) {
+            objectType = objectType ? objectType : object.template.object.class;
+         }
+
+         if (className !== objectType) continue;
+
+         let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
+
+         // When isometric, Tiled positions are in isometric coordinates
+         if (this.resource.map.orientation === 'isometric') {
+            worldPos = this.resource.isometricTiledCoordToWorld(worldPos.x, worldPos.y);
+         }
+
+         const factory = this.resource.factories.get(className);
+         if (factory) {
+            const entity = factory({
+               worldPos,
+               name: object.name,
+               class: objectType,
+               layer: this,
+               object,
+               properties: object.properties
+            } satisfies FactoryProps);
+            if (entity) {
+               this._recordObjectEntityMapping(object, entity);
+            }
+         }
+      }
+   }
+
    _actorFromObject(object: PluginObject, newActor: Actor, tileset?: Tileset): void {
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;

@@ -228,15 +228,21 @@ export class TiledResource implements Loadable<any> {
       this.mapFormat = mapFormatOverride ?? (path.includes('.tmx') ? 'TMX' : 'TMJ');
    }
 
+   /**
+    * Registers an entity factory to run on load, if added after load it will be run immediately
+    * @param className 
+    * @param factory 
+    */
    registerEntityFactory(className: string, factory: (props: FactoryProps) => Entity | undefined): void {
-      if (this.isLoaded()) {
-         console.warn(`Tiled Resource has already loaded, register "${className}" factory before load has been called for it to function.`);
-      }
-
       if (this.factories.has(className)) {
          console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
       }
       this.factories.set(className, factory);
+      if (this.isLoaded()) {
+         for (let objectLayer of this.getObjectLayers()) {
+            objectLayer.runFactory(className);
+         }
+      }
    }
 
    unregisterEntityFactory(className: string) {
