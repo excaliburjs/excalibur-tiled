@@ -330,12 +330,19 @@ export class TiledResource implements Loadable<any> {
     * @returns 
     */
    getTilesByGid(gid: number): TileInfo[] | IsometricTileInfo[] {
-      let results: TileInfo[] = [];
-      for (let layer of this.getTileLayers()) {
-         results = results.concat(layer.getTilesByGid(gid));
+      if (this.map.orientation === 'orthogonal') {
+         let results: TileInfo[] = [];
+         for (let layer of this.getTileLayers()) {
+            results = results.concat(layer.getTilesByGid(gid));
+         }
+         return results;
+      } else {
+         let results: IsometricTileInfo[] = [];
+         for (let layer of this.getIsoTileLayers()) {
+            results = results.concat(layer.getTilesByGid(gid));
+         }
+         return results;
       }
-      // TODO iso tile layers
-      return results;
    }
 
    /**
@@ -344,12 +351,19 @@ export class TiledResource implements Loadable<any> {
     * @returns 
     */
    getTilesByClassName(className: string): TileInfo[] | IsometricTileInfo[] {
-      let results: TileInfo[] = [];
-      for (let layer of this.getTileLayers()) {
-         results = results.concat(layer.getTilesByClassName(className));
+      if (this.map.orientation === 'orthogonal') {
+         let results: TileInfo[] = [];
+         for (let layer of this.getTileLayers()) {
+            results = results.concat(layer.getTilesByClassName(className));
+         }
+         return results;
+      } else {
+         let results: IsometricTileInfo[] = [];
+         for (let layer of this.getIsoTileLayers()) {
+            results = results.concat(layer.getTilesByClassName(className));
+         }
+         return results;
       }
-      // TODO iso tile layers
-      return results;
    }
 
    /**
@@ -359,12 +373,19 @@ export class TiledResource implements Loadable<any> {
     * @returns 
     */
    getTilesByProperty(name: string, value?: any): TileInfo[] | IsometricTileInfo[] {
-      let results: TileInfo[] = [];
-      for (let layer of this.getTileLayers()) {
-         results = results.concat(layer.getTilesByProperty(name, value));
+      if (this.map.orientation === 'orthogonal') {
+         let results: TileInfo[] = [];
+         for (let layer of this.getTileLayers()) {
+            results = results.concat(layer.getTilesByProperty(name, value));
+         }
+         return results;
+      } else {
+         let results: IsometricTileInfo[] = [];
+         for (let layer of this.getIsoTileLayers()) {
+            results = results.concat(layer.getTilesByProperty(name, value));
+         }
+         return results;
       }
-      // TODO iso tile
-      return results;
    }
 
    /**
@@ -405,9 +426,16 @@ export class TiledResource implements Loadable<any> {
             }
          }
          return results;
+      } else {
+         let results: IsometricTileInfo[] = [];
+         for (let layer of this.getIsoTileLayers()) {
+            const maybeTile = layer.getTileByPoint(worldPos);
+            if (maybeTile) {
+               results.push(maybeTile);
+            }
+         }
+         return results;
       }
-      // TODO iso tile
-      return [];
    }
 
    /**

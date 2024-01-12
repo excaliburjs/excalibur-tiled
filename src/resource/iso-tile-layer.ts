@@ -8,6 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
+import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 
 export interface IsometricTileInfo {
    /**
@@ -44,6 +45,10 @@ export class IsoTileLayer implements Layer {
     * Excalibur IsometricMap structure for drawing in excalibur
     */
    isometricMap!: IsometricMap;
+
+   private _gidToTileInfo = new Map<number, IsometricTileInfo[]>();
+   private _isoTileToTile = new Map<IsometricTile, Tile>();
+
    constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledTileLayer.name;
       this.class = tiledTileLayer.class;
@@ -52,7 +57,51 @@ export class IsoTileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
-   // TODO implement the same methods as Tile Layer maybe add an interface? or a base type?
+   /**
+    * Returns the excalibur tiles that match a tiled gid
+    */
+   getTilesByGid(gid: number): IsometricTileInfo[] {
+      return this._gidToTileInfo.get(gid) ?? [];
+   }
+
+   /**
+    * Returns the excalibur tiles that match a tiled class name
+    * @param className
+    */
+   getTilesByClassName(className: string): IsometricTileInfo[] {
+      const tiles = this.isometricMap.tiles.filter(t => {
+         const maybeTiled = this._isoTileToTile.get(t) as Tile | undefined;
+         if (maybeTiled) {
+            return byClassCaseInsensitive(className)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: this._isoTileToTile.get(t)
+      }))
+   }
+
+   /**
+    * Returns the excalibur tiles that match a tiled property and optional value
+    * @param name
+    * @param value
+    */
+   getTilesByProperty(name: string, value?: any): IsometricTileInfo[] {
+      const tiles = this.isometricMap.tiles.filter(t => {
+         const maybeTiled = this._isoTileToTile.get(t) as Tile | undefined;
+         if (maybeTiled) {
+            return byPropertyCaseInsensitive(name, value)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: this._isoTileToTile.get(t)
+      }))
+   }
 
    getTileByPoint(worldPos: Vector): IsometricTileInfo | null {
       if (!this.isometricMap) {
@@ -77,7 +126,23 @@ export class IsoTileLayer implements Layer {
       return null;
    }
 
+   private _recordTileData(gid: number, tile: IsometricTile) {
+      let tiles: IsometricTileInfo[] | undefined = this._gidToTileInfo.get(gid);
+      let tileset = this.resource.getTilesetForTileGid(gid);
+      let maybeTile = tileset.getTileByGid(gid);
+      if (!tiles) {
+         tiles = [{exTile: tile, tiledTile: maybeTile}];
+      } else {
+         tiles.push({exTile: tile, tiledTile: maybeTile});
+      }
+      this._gidToTileInfo.set(gid, tiles);
+      if (maybeTile) {
+         this._isoTileToTile.set(tile, maybeTile);
+      }
+   }
+
    private updateTile(tile: IsometricTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
+      this._recordTileData(gid, tile);
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }
@@ -107,7 +172,7 @@ export class IsoTileLayer implements Layer {
 
       // the whole tilemap uses a giant composite collider relative to the Tilemap
       // not individual tiles
-      const colliders = tileset.getCollidersForGid(gid, {offset});
+      const colliders = tileset.getCollidersForGid(gid, { offset });
       for (let collider of colliders) {
          tile.addCollider(collider);
       }
@@ -170,7 +235,7 @@ export class IsoTileLayer implements Layer {
       if (typeof zoverride === 'number') {
          order = zoverride;
       }
-      
+
 
 
       if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
