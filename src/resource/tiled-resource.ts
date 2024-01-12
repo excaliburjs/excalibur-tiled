@@ -297,11 +297,11 @@ export class TiledResource implements Loadable<any> {
    }
 
    /**
-    * Queries ALL tilesets in the map for a specific class name (case insensitive)
+    * Queries ALL tilesets tile data in the map for a specific class name (case insensitive)
     * @param className 
     * @returns 
     */
-   getTilesByClassName(className: string): Tile[] {
+   getTileMetadataByClassName(className: string): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
          results = results.concat(tileset.tiles.filter(byClassCaseInsensitive(className)));
@@ -310,16 +310,60 @@ export class TiledResource implements Loadable<any> {
    }
 
    /**
-    * Queries ALL tilesets in the map for a specific property and an optional value (case insensitive)
+    * Queries ALL tilesets tile data in the map for a specific property and an optional value (case insensitive)
     * @param name 
     * @param value 
     * @returns 
     */
-   getTilesByProperty(name: string, value?: any): Tile[] {
+   getTileMetadataByProperty(name: string, value?: any): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
          results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
       }
+      return results;
+   }
+
+
+   /**
+    * Queries ALL tile layers tile instances in the map for a specific gid
+    * @param className 
+    * @returns 
+    */
+   getTilesByGid(gid: number): TileInfo[] | IsometricTileInfo[] {
+      let results: TileInfo[] = [];
+      for (let layer of this.getTileLayers()) {
+         results = results.concat(layer.getTilesByGid(gid));
+      }
+      // TODO iso tile layers
+      return results;
+   }
+
+   /**
+    * Queries ALL tile layers tile instances in the map for a specific class name (case insensitive)
+    * @param className 
+    * @returns 
+    */
+   getTilesByClassName(className: string): TileInfo[] | IsometricTileInfo[] {
+      let results: TileInfo[] = [];
+      for (let layer of this.getTileLayers()) {
+         results = results.concat(layer.getTilesByClassName(className));
+      }
+      // TODO iso tile layers
+      return results;
+   }
+
+   /**
+    *  Queries ALL tile layers tile instances in the map for a specific property and an optional value (case insensitive)
+    * @param name 
+    * @param value 
+    * @returns 
+    */
+   getTilesByProperty(name: string, value?: any): TileInfo[] | IsometricTileInfo[] {
+      let results: TileInfo[] = [];
+      for (let layer of this.getTileLayers()) {
+         results = results.concat(layer.getTilesByProperty(name, value));
+      }
+      // TODO iso tile
       return results;
    }
 
@@ -343,6 +387,27 @@ export class TiledResource implements Loadable<any> {
       }
 
       return null;
+   }
+
+   /**
+    * Returns a tile by the world position from a layer. (Uses the first layer name that matches case insensitive).
+    * @param layerName 
+    * @param worldPos 
+    * @returns 
+    */
+   getTilesByPoint(worldPos: Vector): TileInfo[] | IsometricTileInfo[] {
+      if (this.map.orientation === 'orthogonal') {
+         let results: TileInfo[] = [];
+         for (let layer of this.getTileLayers()) {
+            const maybeTile = layer.getTileByPoint(worldPos);
+            if (maybeTile) {
+               results.push(maybeTile);
+            }
+         }
+         return results;
+      }
+      // TODO iso tile
+      return [];
    }
 
    /**

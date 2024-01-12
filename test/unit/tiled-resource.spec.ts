@@ -391,7 +391,7 @@ describe('A Tiled map resource parser', () => {
 
       await tiledMap.load();
 
-      const tile = tiledMap.getTilesByClassName('tileclass');
+      const tile = tiledMap.getTileMetadataByClassName('tileclass');
 
       expect(tile[0].id).toBe(2);
       expect(tile[0].properties.get('tileprop')).toBe('someprop');
@@ -404,7 +404,7 @@ describe('A Tiled map resource parser', () => {
 
       await tiledMap.load();
 
-      const tile = tiledMap.getTilesByProperty('tileprop');
+      const tile = tiledMap.getTileMetadataByProperty('tileprop');
 
       expect(tile[0].id).toBe(2);
       expect(tile[0].properties.get('tileprop')).toBe('someprop');
