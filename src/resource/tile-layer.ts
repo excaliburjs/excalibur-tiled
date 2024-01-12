@@ -48,6 +48,26 @@ export class TileLayer implements Layer {
     */
    tilemap!: TileMap;
 
+   private _gidToTileInfo = new Map<number, TileInfo[]>();
+   private _classNameToTileInfo = new Map<string, TileInfo[]>();
+
+   /**
+    * Returns the excalibur tiles that match a tiled property
+    */
+   getTilesByGid(gid: number): TileInfo[] {
+      return this._gidToTileInfo.get(gid) ?? [];
+   }
+
+   // getTilesByClassName(className: string): ExTile[] {
+   //    return this.tiles.filter(byClassCaseInsensitive(className));
+   // }
+
+   // /**
+   //  * Returns the excalibur tiles that match a tiled property
+   //  */
+   // getTilesByProperty(name: string, value?: any): Tile[] {
+   //    return this.tiles.filter(byPropertyCaseInsensitive(name, value));
+   // }
 
    getTileByPoint(worldPos: Vector): TileInfo | null {
       if (!this.tilemap) {
@@ -102,7 +122,20 @@ export class TileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
+   private _recordTile(gid: number, tile: ExTile) {
+      let tiles: TileInfo[] | undefined = this._gidToTileInfo.get(gid);
+      let tileset = this.resource.getTilesetForTileGid(gid);
+      let maybeTile = tileset.getTileByGid(gid);
+      if (!tiles) {
+         tiles = [{exTile: tile, tiledTile: maybeTile}];
+      } else {
+         tiles.push({exTile: tile, tiledTile: maybeTile});
+      }
+      this._gidToTileInfo.set(gid, tiles);
+   }
+
    private updateTile(tile: ExTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
+      this._recordTile(gid, tile);
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }
@@ -114,7 +147,6 @@ export class TileLayer implements Layer {
          sprite.tint = tint;
       }
       tile.addGraphic(sprite, { offset: tileset.tileOffset });
-
 
       // the whole tilemap uses a giant composite collider relative to the Tilemap
       // not individual tiles
