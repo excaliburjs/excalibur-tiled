@@ -101,7 +101,9 @@ export class ObjectLayer implements Layer {
     */
    runFactory(className: string) {
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
-      for (let object of this.objects) {
+      // create a copy of the objects to prevent editing the current collection
+      const objects = this.objects.slice();
+      for (let object of objects) {
          let objectType = object.class;
          if (object instanceof TemplateObject) {
             objectType = objectType ? objectType : object.template.object.class;
