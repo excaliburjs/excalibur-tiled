@@ -3,6 +3,9 @@
  * Special excalibur properties
  */
 export const ExcaliburTiledProperties = {
+   TileData: {
+      Tiled: 'ex-tiled'
+   },
    ZIndex: {
       /**
        * Override the default z-index based on the ordering in Tiled

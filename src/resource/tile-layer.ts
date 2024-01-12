@@ -8,6 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
+import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 
 /**
  * Tile information for both excalibur and tiled tile representations
@@ -49,25 +50,52 @@ export class TileLayer implements Layer {
    tilemap!: TileMap;
 
    private _gidToTileInfo = new Map<number, TileInfo[]>();
-   private _classNameToTileInfo = new Map<string, TileInfo[]>();
 
    /**
-    * Returns the excalibur tiles that match a tiled property
+    * Returns the excalibur tiles that match a tiled gid
     */
    getTilesByGid(gid: number): TileInfo[] {
       return this._gidToTileInfo.get(gid) ?? [];
    }
 
-   // getTilesByClassName(className: string): ExTile[] {
-   //    return this.tiles.filter(byClassCaseInsensitive(className));
-   // }
+   /**
+    * Returns the excalibur tiles that match a tiled class name
+    * @param className
+    */
+   getTilesByClassName(className: string): TileInfo[] {
+      const tiles = this.tilemap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byClassCaseInsensitive(className)(maybeTiled);
+         }
+         return false;
+      });
 
-   // /**
-   //  * Returns the excalibur tiles that match a tiled property
-   //  */
-   // getTilesByProperty(name: string, value?: any): Tile[] {
-   //    return this.tiles.filter(byPropertyCaseInsensitive(name, value));
-   // }
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
+
+   /**
+    * Returns the excalibur tiles that match a tiled property and optional value
+    * @param name
+    * @param value
+    */
+   getTilesByProperty(name: string, value?: any): TileInfo[] {
+      const tiles = this.tilemap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byPropertyCaseInsensitive(name, value)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
 
    getTileByPoint(worldPos: Vector): TileInfo | null {
       if (!this.tilemap) {
@@ -122,7 +150,7 @@ export class TileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
-   private _recordTile(gid: number, tile: ExTile) {
+   private _recordTileData(gid: number, tile: ExTile) {
       let tiles: TileInfo[] | undefined = this._gidToTileInfo.get(gid);
       let tileset = this.resource.getTilesetForTileGid(gid);
       let maybeTile = tileset.getTileByGid(gid);
@@ -132,10 +160,11 @@ export class TileLayer implements Layer {
          tiles.push({exTile: tile, tiledTile: maybeTile});
       }
       this._gidToTileInfo.set(gid, tiles);
+      tile.data.set(ExcaliburTiledProperties.TileData.Tiled, maybeTile);
    }
 
    private updateTile(tile: ExTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
-      this._recordTile(gid, tile);
+      this._recordTileData(gid, tile);
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }

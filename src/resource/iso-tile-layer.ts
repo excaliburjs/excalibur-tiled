@@ -52,6 +52,8 @@ export class IsoTileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
+   // TODO implement the same methods as Tile Layer maybe add an interface? or a base type?
+
    getTileByPoint(worldPos: Vector): IsometricTileInfo | null {
       if (!this.isometricMap) {
          this.logger.warn('IsometricMap has not yet been loaded! getTileByPoint() will only return null');
