@@ -1,4 +1,4 @@
-import { Actor, CircleCollider, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, PolygonCollider, Shape, Vector, toRadians, vec } from "excalibur";
+import { Actor, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, Shape, Vector, toRadians, vec } from "excalibur";
 import { Layer } from "./layer";
 import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, Ellipse, parseObjects } from "./objects";
 import { TiledObjectLayer } from "../parser/tiled-parser";
@@ -189,8 +189,15 @@ export class ObjectLayer implements Layer {
          }
 
          const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale, offset });
-         if (colliders) {
+         if (colliders.length) {
             newActor.collider.useCompositeCollider(colliders);
+         } else {
+            // default collider based on dimension
+            let boxCollider = Shape.Box(object.width, object.height, tileset.orientation === 'isometric' ? vec(.5, 1) : vec(0, 1));
+            if (tileset.orientation === 'isometric') {
+               boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
+            }
+            newActor.collider.set(boxCollider);
          }
       }
 
@@ -237,7 +244,6 @@ export class ObjectLayer implements Layer {
    async load() {
       const opacity = this.tiledObjectLayer.opacity;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
-
       const objects = parseObjects(this.tiledObjectLayer, this.resource);
 
       for (let object of objects) {
