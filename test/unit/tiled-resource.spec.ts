@@ -195,23 +195,25 @@ describe('A Tiled map resource parser', () => {
 
       await tiledMap.load();
 
-      spyOn(console, 'warn').and.callThrough();
 
-      // will warn if registered after load
-      tiledMap.registerEntityFactory('player-start', (props) => {
+      const lateFactorySpy = jasmine.createSpy('lateFactorySpy', (props) => {
          return new Actor({
             pos: props.worldPos
          })
-      });
-
-      expect(console.warn).toHaveBeenCalledWith('Tiled Resource has already loaded, register "player-start" factory before load has been called for it to function.');
+      }).and.callThrough();
+      // will construct if registered after load
+      tiledMap.registerEntityFactory('player-start', lateFactorySpy);
 
       expect(factorySpy).toHaveBeenCalledTimes(2);
+      expect(lateFactorySpy).toHaveBeenCalledTimes(1);
 
       const entities = tiledMap.getEntitiesByClassName('Collectable');
       expect(entities.length).toBe(2);
       expect(entities[0].name).toBe('Coin');
       expect(entities[1].name).toBe('Arrow');
+
+      const playerStart = tiledMap.getEntitiesByClassName('player-start');
+      expect(playerStart).toBeDefined();
    });
 
    it('can get entities by name (case insensitive)', async () => {
