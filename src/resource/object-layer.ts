@@ -192,9 +192,17 @@ export class ObjectLayer implements Layer {
          if (colliders.length) {
             newActor.collider.useCompositeCollider(colliders);
          } else {
-            // default collider based on dimension
-            let boxCollider = Shape.Box(object.width, object.height, tileset.orientation === 'isometric' ? vec(.5, 1) : vec(0, 1));
-            if (tileset.orientation === 'isometric') {
+            let width = object.width;
+            let height = object.height;
+            if (this.resource.map.orientation === 'isometric') {
+               // Isometric uses height to organize grid alignment
+               const dimension = object.height / 2;
+               width = dimension;
+               height = dimension;
+            }
+            // Anchor at 1,1 for isometric is a quirk of the coord transformation
+            let boxCollider = Shape.Box(width, height, this.resource.map.orientation === 'isometric' ? vec(1, 1) : vec(0, 1));
+            if (this.resource.map.orientation === 'isometric') {
                boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
             }
             newActor.collider.set(boxCollider);
