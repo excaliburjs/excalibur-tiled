@@ -47,7 +47,6 @@ export class IsoTileLayer implements Layer {
    isometricMap!: IsometricMap;
 
    private _gidToTileInfo = new Map<number, IsometricTileInfo[]>();
-   private _isoTileToTile = new Map<IsometricTile, Tile>();
 
    constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledTileLayer.name;
@@ -70,7 +69,7 @@ export class IsoTileLayer implements Layer {
     */
    getTilesByClassName(className: string): IsometricTileInfo[] {
       const tiles = this.isometricMap.tiles.filter(t => {
-         const maybeTiled = this._isoTileToTile.get(t) as Tile | undefined;
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
          if (maybeTiled) {
             return byClassCaseInsensitive(className)(maybeTiled);
          }
@@ -79,7 +78,7 @@ export class IsoTileLayer implements Layer {
 
       return tiles.map(t => ({
          exTile: t,
-         tiledTile: this._isoTileToTile.get(t)
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
       }))
    }
 
@@ -90,7 +89,7 @@ export class IsoTileLayer implements Layer {
     */
    getTilesByProperty(name: string, value?: any): IsometricTileInfo[] {
       const tiles = this.isometricMap.tiles.filter(t => {
-         const maybeTiled = this._isoTileToTile.get(t) as Tile | undefined;
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
          if (maybeTiled) {
             return byPropertyCaseInsensitive(name, value)(maybeTiled);
          }
@@ -99,7 +98,7 @@ export class IsoTileLayer implements Layer {
 
       return tiles.map(t => ({
          exTile: t,
-         tiledTile: this._isoTileToTile.get(t)
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
       }))
    }
 
@@ -136,9 +135,7 @@ export class IsoTileLayer implements Layer {
          tiles.push({exTile: tile, tiledTile: maybeTile});
       }
       this._gidToTileInfo.set(gid, tiles);
-      if (maybeTile) {
-         this._isoTileToTile.set(tile, maybeTile);
-      }
+      tile.data.set(ExcaliburTiledProperties.TileData.Tiled, maybeTile);
    }
 
    private updateTile(tile: IsometricTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
