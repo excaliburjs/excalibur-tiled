@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import * as jsdom from 'jsdom';
 
 const TiledIntProperty = z.object({
    name: z.string(),
