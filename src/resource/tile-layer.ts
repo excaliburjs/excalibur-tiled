@@ -108,12 +108,16 @@ export class TileLayer implements Layer {
       }
 
       const tileset = this.resource.getTilesetForTileGid(gid);
-      let sprite = tileset.getSpriteForGid(gid);
-      if (hasTint) {
-         sprite = sprite.clone();
-         sprite.tint = tint;
+      const headless = this.resource.headless;
+
+      if (!headless) {
+         let sprite = tileset.getSpriteForGid(gid);
+         if (hasTint) {
+            sprite = sprite.clone();
+            sprite.tint = tint;
+         }
+         tile.addGraphic(sprite, { offset: tileset.tileOffset });
       }
-      tile.addGraphic(sprite, { offset: tileset.tileOffset });
 
 
       // the whole tilemap uses a giant composite collider relative to the Tilemap
@@ -123,7 +127,7 @@ export class TileLayer implements Layer {
          tile.addCollider(collider);
       }
 
-      let animation = tileset.getAnimationForGid(gid);
+      let animation = headless ? null : tileset.getAnimationForGid(gid);
       if (animation) {
          if (hasTint) {
             animation = animation.clone();
