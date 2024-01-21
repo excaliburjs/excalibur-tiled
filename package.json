@@ -79,7 +79,7 @@
       "excalibur": "~0.28.5"
    },
    "optionalDependencies": {
-      "jsdom": "^23.2.0"
+      "jsdom": "^24.0.0"
    },
    "overrides": {
       "webpack-dev-server": {
