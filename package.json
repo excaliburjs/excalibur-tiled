@@ -49,7 +49,7 @@
       "@types/pako": "1.0.6",
       "@types/webpack-env": "1.18.4",
       "cross-env": "7.0.3",
-      "excalibur": "~0.28.6",
+      "excalibur": "~0.29.0-alpha.869",
       "http-server": "14.1.1",
       "jasmine-core": "5.1.1",
       "json-diff": "1.0.6",
@@ -75,7 +75,7 @@
       "zstddec": "0.1.0"
    },
    "peerDependencies": {
-      "excalibur": "~0.28.6"
+      "excalibur": "~0.29.0-alpha.869"
    },
    "overrides": {
       "webpack-dev-server": {

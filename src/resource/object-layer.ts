@@ -120,6 +120,7 @@ export class ObjectLayer implements Layer {
 
          const factory = this.resource.factories.get(className);
          if (factory) {
+            // TODO does this entity get added to the scene?
             const entity = factory({
                worldPos,
                name: object.name,
