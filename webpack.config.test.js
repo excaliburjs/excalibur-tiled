@@ -47,5 +47,13 @@ module.exports = {
       alias: {
          "@excalibur-tiled": path.resolve(__dirname, './src/')
       }
-   }
+   },
+   externals: {
+     "jsdom": {
+         commonjs: "JSDOM",
+         commonjs2: "JSDOM",
+         amd: "JSDOM",
+         root: "JSDOM"
+     }
+   },
 };

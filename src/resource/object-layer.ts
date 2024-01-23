@@ -137,6 +137,7 @@ export class ObjectLayer implements Layer {
    }
 
    _actorFromObject(object: PluginObject, newActor: Actor, tileset?: Tileset): void {
+      const headless = this.resource.headless;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
 
@@ -150,26 +151,28 @@ export class ObjectLayer implements Layer {
          const scaleY = (object.tiledObject.width ?? this.resource.map.tilewidth) / this.resource.map.tilewidth;
          const scale = vec(scaleX, scaleY);
 
-         // need to clone because we are modify sprite properties, sprites are shared by default
-         const sprite = tileset.getSpriteForGid(object.gid).clone();
-         sprite.destSize.width = object.tiledObject.width ?? sprite.width;
-         sprite.destSize.height = object.tiledObject.height ?? sprite.height;
-         if (hasTint) {
-            sprite.tint = tint;
-         }
-
-         newActor.graphics.use(sprite);
-         newActor.graphics.offset = tileset.tileOffset;
-
-         const animation = tileset.getAnimationForGid(object.gid);
-         if (animation) {
-            const animationScaled = animation.clone();
-            animationScaled.scale = scale;
+         if (!headless) {
+            // need to clone because we are modify sprite properties, sprites are shared by default
+            const sprite = tileset.getSpriteForGid(object.gid).clone();
+            sprite.destSize.width = object.tiledObject.width ?? sprite.width;
+            sprite.destSize.height = object.tiledObject.height ?? sprite.height;
             if (hasTint) {
-               animationScaled.tint = tint;
+               sprite.tint = tint;
             }
-            newActor.graphics.use(animationScaled);
+
+            newActor.graphics.use(sprite);
             newActor.graphics.offset = tileset.tileOffset;
+
+            const animation = tileset.getAnimationForGid(object.gid);
+            if (animation) {
+               const animationScaled = animation.clone();
+               animationScaled.scale = scale;
+               if (hasTint) {
+                  animationScaled.tint = tint;
+               }
+               newActor.graphics.use(animationScaled);
+               newActor.graphics.offset = tileset.tileOffset;
+            }
          }
 
          // insertable tiles have an x, y, width, height, gid

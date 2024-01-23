@@ -84,7 +84,7 @@ export class Tileset implements Properties {
       this.tiledTileset = tiledTileset;
       this.firstGid = firstGid;
 
-      if (isTiledTilesetSingleImage(tiledTileset) && image) {
+      if (isTiledTilesetSingleImage(tiledTileset)) {
          mapProps(this, tiledTileset.properties);
          const spacing = tiledTileset.spacing;
          const columns = Math.floor((tiledTileset.imagewidth + spacing) / (tiledTileset.tilewidth + spacing));
@@ -95,25 +95,27 @@ export class Tileset implements Properties {
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.objectalignment = tiledTileset.objectalignment ?? (this.orientation === 'orthogonal' ? 'bottomleft' : 'bottom');
-         this.spritesheet =  SpriteSheet.fromImageSource({
-            image,
-            grid: {
-               rows,
-               columns,
-               spriteWidth: tiledTileset.tilewidth,
-               spriteHeight: tiledTileset.tileheight
-            },
-            spacing: {
-               originOffset: {
-                  x: tiledTileset.margin ?? 0,
-                  y: tiledTileset.margin ?? 0
+         if (image) {
+            this.spritesheet =  SpriteSheet.fromImageSource({
+               image,
+               grid: {
+                  rows,
+                  columns,
+                  spriteWidth: tiledTileset.tilewidth,
+                  spriteHeight: tiledTileset.tileheight
                },
-               margin: {
-                  x: tiledTileset.spacing ?? 0,
-                  y: tiledTileset.spacing ?? 0
+               spacing: {
+                  originOffset: {
+                     x: tiledTileset.margin ?? 0,
+                     y: tiledTileset.margin ?? 0
+                  },
+                  margin: {
+                     x: tiledTileset.spacing ?? 0,
+                     y: tiledTileset.spacing ?? 0
+                  }
                }
-            }
-         });
+            });
+         }
          this.tileCount = tiledTileset.tilecount;
          this.tileWidth = tiledTileset.tilewidth;
          this.tileHeight = tiledTileset.tileheight;
@@ -125,12 +127,13 @@ export class Tileset implements Properties {
                this.tiles.push(new Tile({
                   id: tile.id,
                   tileset: this,
-                  tiledTile: tile
+                  tiledTile: tile,
+                  ...({ image })
                }))
             }
          }
       }
-      if (isTiledTilesetCollectionOfImages(tiledTileset) && tiledTileset.firstgid !== undefined && tileToImage) {
+      if (isTiledTilesetCollectionOfImages(tiledTileset) && tiledTileset.firstgid !== undefined) {
          this.horizontalFlipTransform = AffineMatrix.identity().translate(tiledTileset.tilewidth, 0).scale(-1, 1);
          this.verticalFlipTransform = AffineMatrix.identity().translate(0, tiledTileset.tileheight).scale(1, -1);
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
@@ -145,19 +148,21 @@ export class Tileset implements Properties {
          let sprites: Sprite[] = []
          if (tiledTileset.tiles) {
             for (const tile of tiledTileset.tiles) {
-               const image = tileToImage.get(tile);
+               const image = tileToImage?.get(tile);
                if (image) {
-                  this.tiles.push(new Tile({
-                     id: tile.id,
-                     tileset: this,
-                     tiledTile: tile,
-                     image
-                  }))
                   sprites.push(image.toSprite())
                }
+               this.tiles.push(new Tile({
+                  id: tile.id,
+                  tileset: this,
+                  tiledTile: tile,
+                  ...({ image })
+               }))
             }
          }
-         this.spritesheet = new SpriteSheet({ sprites });
+         if (tileToImage) {
+            this.spritesheet = new SpriteSheet({ sprites });
+         }
       }
    }
 
