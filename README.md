@@ -31,7 +31,7 @@ game.start(loader).then(() => {
 
 ## Documentation
 
-For information on how to use the plugin visit https://beta.excaliburjs.com/docs/plugin/tiled-plugin
+For information on how to use the plugin visit https://excaliburjs.com/docs/plugin/tiled-plugin
 
 ## Contributing
 
