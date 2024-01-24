@@ -184,6 +184,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                // FIXME no ellipse support yet for colliders in isometric
                actor.collider.useCircleCollider(collider.radius);
             }
+            // @ts-ignore
             actor.addComponent(new TiledObjectComponent(collider.tiled));
             scene.add(actor);
             if (collider.zIndex) {
@@ -238,6 +239,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                label.color = Color.fromHex(text.text?.color ?? '#000000');
                label.collider.set(Shape.Box(text.width ?? 0, text.height ?? 0));
                label.body.collisionType = CollisionType.PreventCollision;
+               // @ts-ignore
                label.addComponent(new TiledObjectComponent(text));
 
                label.z = this._calculateZIndex(text, objectLayer);
@@ -293,6 +295,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                      actor.collider.clear();
                      actor.collider.set(new CompositeCollider(colliders));
                   }
+                  // @ts-ignore
                   actor.addComponent(new TiledObjectComponent(tile));
                   actor.graphics.anchor = this.isIsometric() ? vec(.5, 1) : vec(0, 1);
                   // respect tile size on sprite
@@ -710,6 +713,7 @@ export class TiledMapResource implements Loadable<TiledMap> {
                   columns: this.data.width,
                   rows: this.data.height
                });
+               // @ts-ignore
                tileMapLayer.addComponent(new TiledLayerComponent(layer));
                if (layer.rawLayer.parallaxx || layer.rawLayer.parallaxy) {
                   const factor = vec(layer.rawLayer.parallaxx ?? 1.0, layer.rawLayer.parallaxy ?? 1.0);

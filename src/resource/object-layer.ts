@@ -1,4 +1,4 @@
-import { Actor, CircleCollider, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, PolygonCollider, Shape, Vector, toRadians, vec } from "excalibur";
+import { Actor, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, Shape, Vector, toRadians, vec } from "excalibur";
 import { Layer } from "./layer";
 import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, Ellipse, parseObjects } from "./objects";
 import { TiledObjectLayer } from "../parser/tiled-parser";
@@ -95,6 +95,47 @@ export class ObjectLayer implements Layer {
       return this.objects.filter(o => o instanceof TemplateObject) as TemplateObject[];
    }
 
+   /**
+    * Runs or re-runs a specific registered factory given a class name on this object layer
+    * @param className
+    */
+   runFactory(className: string) {
+      const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
+      // create a copy of the objects to prevent editing the current collection
+      const objects = this.objects.slice();
+      for (let object of objects) {
+         let objectType = object.class;
+         if (object instanceof TemplateObject) {
+            objectType = objectType ? objectType : object.template.object.class;
+         }
+
+         if (className !== objectType) continue;
+
+         let worldPos = vec((object.x ?? 0) + offset.x, (object.y ?? 0) + offset.y);
+
+         // When isometric, Tiled positions are in isometric coordinates
+         if (this.resource.map.orientation === 'isometric') {
+            worldPos = this.resource.isometricTiledCoordToWorld(worldPos.x, worldPos.y);
+         }
+
+         const factory = this.resource.factories.get(className);
+         if (factory) {
+            // TODO does this entity get added to the scene?
+            const entity = factory({
+               worldPos,
+               name: object.name,
+               class: objectType,
+               layer: this,
+               object,
+               properties: object.properties
+            } satisfies FactoryProps);
+            if (entity) {
+               this._recordObjectEntityMapping(object, entity);
+            }
+         }
+      }
+   }
+
    _actorFromObject(object: PluginObject, newActor: Actor, tileset?: Tileset): void {
       const headless = this.resource.headless;
       const hasTint = !!this.tiledObjectLayer.tintcolor;
@@ -152,8 +193,23 @@ export class ObjectLayer implements Layer {
          }
 
          const colliders = tileset.getCollidersForGid(object.gid, { anchor: Vector.Zero, scale, offset });
-         if (colliders) {
+         if (colliders.length) {
             newActor.collider.useCompositeCollider(colliders);
+         } else {
+            let width = object.width;
+            let height = object.height;
+            if (this.resource.map.orientation === 'isometric') {
+               // Isometric uses height to organize grid alignment
+               const dimension = object.height / 2;
+               width = dimension;
+               height = dimension;
+            }
+            // Anchor at 1,1 for isometric is a quirk of the coord transformation
+            let boxCollider = Shape.Box(width, height, this.resource.map.orientation === 'isometric' ? vec(1, 1) : vec(0, 1));
+            if (this.resource.map.orientation === 'isometric') {
+               boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
+            }
+            newActor.collider.set(boxCollider);
          }
       }
 
@@ -200,7 +256,6 @@ export class ObjectLayer implements Layer {
    async load() {
       const opacity = this.tiledObjectLayer.opacity;
       const offset = vec(this.tiledObjectLayer.offsetx ?? 0, this.tiledObjectLayer.offsety ?? 0);
-
       const objects = parseObjects(this.tiledObjectLayer, this.resource);
 
       for (let object of objects) {

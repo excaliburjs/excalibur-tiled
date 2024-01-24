@@ -101,6 +101,7 @@ const start = (mapFile: string) => {
    const map = new TiledResource(mapFile, { 
       startZIndex: -2
    });
+   (window as any).tiledMap = map;
    const playercube = new ImageSource('./player-cube.png', true, ImageFiltering.Blended);
    const loader = new ex.Loader([map, playercube]);
 

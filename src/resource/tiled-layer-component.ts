@@ -5,8 +5,7 @@ export interface TiledLayerDataComponentOptions {
    tiledTileLayer: TiledTileLayer;
 }
 
-export class TiledLayerDataComponent extends Component<'ex.tiled-layer'> {
-   public readonly type = 'ex.tiled-layer';
+export class TiledLayerDataComponent extends Component {
    public readonly tiledTileLayer: TiledTileLayer;
    constructor(options: TiledLayerDataComponentOptions) {
       super();

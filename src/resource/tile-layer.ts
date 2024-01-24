@@ -8,6 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
+import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
 
 /**
  * Tile information for both excalibur and tiled tile representations
@@ -48,6 +49,53 @@ export class TileLayer implements Layer {
     */
    tilemap!: TileMap;
 
+   private _gidToTileInfo = new Map<number, TileInfo[]>();
+
+   /**
+    * Returns the excalibur tiles that match a tiled gid
+    */
+   getTilesByGid(gid: number): TileInfo[] {
+      return this._gidToTileInfo.get(gid) ?? [];
+   }
+
+   /**
+    * Returns the excalibur tiles that match a tiled class name
+    * @param className
+    */
+   getTilesByClassName(className: string): TileInfo[] {
+      const tiles = this.tilemap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byClassCaseInsensitive(className)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
+
+   /**
+    * Returns the excalibur tiles that match a tiled property and optional value
+    * @param name
+    * @param value
+    */
+   getTilesByProperty(name: string, value?: any): TileInfo[] {
+      const tiles = this.tilemap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byPropertyCaseInsensitive(name, value)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
 
    getTileByPoint(worldPos: Vector): TileInfo | null {
       if (!this.tilemap) {
@@ -102,7 +150,21 @@ export class TileLayer implements Layer {
       mapProps(this, tiledTileLayer.properties);
    }
 
+   private _recordTileData(gid: number, tile: ExTile) {
+      let tiles: TileInfo[] | undefined = this._gidToTileInfo.get(gid);
+      let tileset = this.resource.getTilesetForTileGid(gid);
+      let maybeTile = tileset.getTileByGid(gid);
+      if (!tiles) {
+         tiles = [{exTile: tile, tiledTile: maybeTile}];
+      } else {
+         tiles.push({exTile: tile, tiledTile: maybeTile});
+      }
+      this._gidToTileInfo.set(gid, tiles);
+      tile.data.set(ExcaliburTiledProperties.TileData.Tiled, maybeTile);
+   }
+
    private updateTile(tile: ExTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
+      this._recordTileData(gid, tile);
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }
@@ -118,7 +180,6 @@ export class TileLayer implements Layer {
          }
          tile.addGraphic(sprite, { offset: tileset.tileOffset });
       }
-
 
       // the whole tilemap uses a giant composite collider relative to the Tilemap
       // not individual tiles
