@@ -50,7 +50,7 @@
       "@types/pako": "1.0.7",
       "@types/webpack-env": "1.18.4",
       "cross-env": "7.0.3",
-      "excalibur": "~0.29.0-alpha.869",
+      "excalibur": "~0.29.0-alpha.870",
       "http-server": "14.1.1",
       "jasmine-core": "5.1.1",
       "json-diff": "1.0.6",
@@ -76,7 +76,7 @@
       "zstddec": "0.1.0"
    },
    "peerDependencies": {
-      "excalibur": "~0.29.0-alpha.869"
+      "excalibur": "~0.29.0-alpha.870"
    },
    "optionalDependencies": {
       "jsdom": "^23.2.0"
