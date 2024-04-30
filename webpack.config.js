@@ -50,10 +50,11 @@ module.exports = {
        root: "ex"
    },
    "jsdom": {
-       commonjs: "JSDOM",
-       commonjs2: "JSDOM",
-       amd: "JSDOM",
-       root: "JSDOM"
+      commonjs: "jsdom",
+      commonjs2: "jsdom",
+      amd: "jsdom",
+      umd: "jsdom",
+      root: "jsdom"
    }
  },
  plugins: [
