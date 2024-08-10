@@ -11,7 +11,7 @@ The plugin officially supports the latest version of Tiled that has been publish
 ## Installation
 
 ```sh
-npm install --save-exact @excaliburjs/plugin-tiled@next
+npm install --save-exact @excaliburjs/plugin-tiled
 ```
 
 Create your resource, load it, then add it to your scene!
