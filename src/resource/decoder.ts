@@ -9,7 +9,7 @@ export class Decoder {
     * @param data 
     * @param options 
     */
-   static decode(data: string, compression: string): Promise<number[]> {
+   static decode(data: string, compression?: string): Promise<number[]> {
       var i: number,
          j: number,
          l: number,

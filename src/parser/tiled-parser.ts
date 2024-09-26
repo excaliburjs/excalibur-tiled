@@ -125,8 +125,8 @@ export const TiledTileLayerInfinite = TiledTileLayerBase.extend({
    startx: z.number(),
    starty: z.number(),
    chunks: z.array(TiledTileLayerChunk),
-   encoding: z.any(),
-   compression: z.any(),
+   encoding: z.string().optional(),
+   compression: z.string().optional(),
    data: z.undefined()
 });
 
@@ -768,7 +768,6 @@ export class TiledParser {
    parseTileLayer(layerNode: Element, infinite: boolean, strict = true): TiledLayer {
       const layer: any = {};
       layer.type = 'tilelayer';
-      layer.compression = ''; // default uncompressed
       layer.x = 0;
       layer.y = 0;
       layer.opacity = 1;
