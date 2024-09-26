@@ -221,9 +221,9 @@ export class IsoTileLayer implements Layer {
       const hasTint = !!this.tiledTileLayer.tintcolor;
       const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
       const pos = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
-      if (needsDecoding(this.tiledTileLayer)) {
+      if (this.tiledTileLayer.data && needsDecoding(this.tiledTileLayer)) {
          this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
-      } else if (isCSV(this.tiledTileLayer)) {
+      } else if (this.tiledTileLayer.data && isCSV(this.tiledTileLayer)) {
          this.data = this.tiledTileLayer.data;
       }
 
@@ -271,9 +271,16 @@ export class IsoTileLayer implements Layer {
       }
 
       if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
+         const tileLayer = this.tiledTileLayer;
          for (let chunk of this.tiledTileLayer.chunks) {
-            for (let i = 0; i < chunk.data.length; i++) {
-               const gid = chunk.data[i];
+            let chunkData: number[] = [];
+            if (needsDecoding(this.tiledTileLayer)) {
+               chunkData = await Decoder.decode(chunk.data as unknown as string, tileLayer.compression);
+            } else if (isCSV(this.tiledTileLayer)) {
+               chunkData = chunk.data as number[];
+            }
+            for (let i = 0; i < chunkData.length; i++) {
+               const gid = chunkData[i];
                if (gid != 0) {
                   // Map from chunk to big tile map
                   const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);

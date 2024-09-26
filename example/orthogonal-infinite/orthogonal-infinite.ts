@@ -68,10 +68,10 @@ game.input.pointers.primary.on('down', (moveEvent) => {
 });
 
 game.input.pointers.primary.on('move', (moveEvent) => {
-   const tile = tiledMap.getTileByPoint('ground', moveEvent.worldPos);
-   if (tile) {
-      console.log(tile);
-   }
+   // const tile = tiledMap.getTileByPoint('ground', moveEvent.worldPos);
+   // if (tile) {
+   //    console.log(tile);
+   // }
 })
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
