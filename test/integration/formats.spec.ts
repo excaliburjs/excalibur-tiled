@@ -6,6 +6,18 @@ test('example-city.tmx', async ({ page }) => {
   
   await expect(page).toHaveScreenshot({clip: { x: 0, y: 0, width: 800, height: 600}});
 });
+test('example-city-infinite-base64.tmx', async ({ page }) => {
+  await page.goto('http://localhost:8080/formats/#example-city-infinite-base64.tmx');
+  await page.click('#excalibur-play');
+  
+  await expect(page).toHaveScreenshot({clip: { x: 0, y: 0, width: 800, height: 600}});
+});
+test('example-city-infinite-base64-compressed.tmx', async ({ page }) => {
+  await page.goto('http://localhost:8080/formats/#example-city-infinite-base64-compressed.tmx');
+  await page.click('#excalibur-play');
+  
+  await expect(page).toHaveScreenshot({clip: { x: 0, y: 0, width: 800, height: 600}});
+});
 
 test('margin.tmx', async ({ page }) => {
   await page.goto('http://localhost:8080/formats/#margin.tmx');
