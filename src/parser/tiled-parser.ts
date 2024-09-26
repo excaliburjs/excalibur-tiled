@@ -97,7 +97,7 @@ const TiledTileLayerZStandard = TiledTileLayerBase.extend({
 const TiledTileLayerBase64 = TiledTileLayerBase.extend({
    data: z.string(),
    encoding: z.literal('base64'),
-   compression: z.string(),
+   compression: z.string().optional(),
 });
 
 
