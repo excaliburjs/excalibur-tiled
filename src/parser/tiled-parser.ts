@@ -97,21 +97,37 @@ const TiledTileLayerZStandard = TiledTileLayerBase.extend({
 const TiledTileLayerBase64 = TiledTileLayerBase.extend({
    data: z.string(),
    encoding: z.literal('base64'),
-   compression: z.string(),
+   compression: z.string().optional(),
 });
 
-const TiledTileLayerChunk = z.object({
+
+const TiledTileLayerChunkBase64 = z.object({
    x: z.number(),
    y: z.number(),
    width: z.number(),
    height: z.number(),
-   data: z.array(z.number()) // infinite chunks are only csv!
+   data: z.string()
 });
+const TiledTileLayerChunkCSV = z.object({
+   x: z.number(),
+   y: z.number(),
+   width: z.number(),
+   height: z.number(),
+   data: z.array(z.number())
+});
+
+const TiledTileLayerChunk = z.union([
+   TiledTileLayerChunkBase64,
+   TiledTileLayerChunkCSV
+]);
 
 export const TiledTileLayerInfinite = TiledTileLayerBase.extend({
    startx: z.number(),
    starty: z.number(),
-   chunks: z.array(TiledTileLayerChunk)
+   chunks: z.array(TiledTileLayerChunk),
+   encoding: z.string().optional(),
+   compression: z.string().optional(),
+   data: z.undefined()
 });
 
 export const TiledTileLayer = z.union([
@@ -217,8 +233,8 @@ const TiledImageLayer = z.object({
 
 // FIXME recursive Group Layer definition
 const TiledLayer = z.union([
-   TiledImageLayer,
    TiledTileLayer,
+   TiledImageLayer,
    TiledObjectLayer
 ]);
 
@@ -752,7 +768,6 @@ export class TiledParser {
    parseTileLayer(layerNode: Element, infinite: boolean, strict = true): TiledLayer {
       const layer: any = {};
       layer.type = 'tilelayer';
-      layer.compression = ''; // default uncompressed
       layer.x = 0;
       layer.y = 0;
       layer.opacity = 1;
@@ -766,6 +781,16 @@ export class TiledParser {
                break;
             }
             case 'data': {
+               const encoding = layerChild.getAttribute('encoding');
+               // technically breaking compat, but this is useful
+               if (encoding) {
+                  layer.encoding = encoding;
+               }
+
+               const compression = layerChild.getAttribute('compression');
+               if (compression) {
+                  layer.compression = compression;
+               }
                if (infinite) {
                   layer.width = 0;
                   layer.height = 0;
@@ -776,9 +801,16 @@ export class TiledParser {
                      if (chunkTag.tagName === 'chunk') {
                         const chunk: any = {};
                         this._parseAttributes(chunkTag, chunk);
-
-                        // If infinite there is no encoding other than CSV!
-                        chunk.data = chunkTag.textContent?.split(',').map(id => +id);
+                        switch (layer.encoding) {
+                           case 'base64': {
+                              chunk.data = chunkTag.textContent?.trim();
+                              break;
+                           }
+                           case 'csv': {
+                              chunk.data = chunkTag.textContent?.split(',').map(id => +id);
+                              break;
+                           }
+                        }
 
                         // combining bounding boxes actually probably is easiest here
                         const chunkBounds = new BoundingBox(chunk.x, chunk.y, chunk.width, chunk.height);
@@ -797,21 +829,12 @@ export class TiledParser {
                   this._largestBounds = this._largestBounds.combine(new BoundingBox(layer.startx, layer.starty, layer.width, layer.height));
 
                } else {
-                  const encoding = layerChild.getAttribute('encoding');
-                  // technically breaking compat, but this is useful
-                  layer.encoding = encoding;
-
-                  const compression = layerChild.getAttribute('compression');
-                  if (compression) {
-                     layer.compression = compression;
-                  }
-
                   switch (layer.encoding) {
                      case 'base64': {
                         layer.data = layerChild.textContent?.trim();
                         break;
                      }
-                     case 'csv': {// csv case
+                     case 'csv': {
                         layer.data = layerChild.textContent?.split(',').map(id => +id);
                         break;
                      }
