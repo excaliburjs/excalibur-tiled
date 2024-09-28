@@ -54,7 +54,7 @@
       "http-server": "14.1.1",
       "jasmine-core": "5.1.2",
       "json-diff": "1.0.6",
-      "karma": "6.4.2",
+      "karma": "6.4.4",
       "karma-chrome-launcher": "3.2.0",
       "karma-jasmine": "5.1.0",
       "karma-webpack": "5.0.1",
