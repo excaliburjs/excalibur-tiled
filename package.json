@@ -79,7 +79,7 @@
       "excalibur": "~0.29.0"
    },
    "optionalDependencies": {
-      "jsdom": "^23.2.0"
+      "jsdom": "^25.0.0"
    },
    "browser": {
       "jsdom": false
