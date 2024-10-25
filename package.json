@@ -42,7 +42,7 @@
       "test:integration-update": "npx playwright test --update-snapshots"
    },
    "devDependencies": {
-      "@playwright/test": "1.48.1",
+      "@playwright/test": "1.48.2",
       "@types/jasmine": "5.1.4",
       "@types/json-diff": "1.0.3",
       "@types/jsdom": "21.1.7",
