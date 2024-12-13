@@ -126,8 +126,8 @@ export class TileLayer implements Layer {
          return null;
       }
       if (this.tilemap) {
-         const exTile = this.tilemap.getTile(x, y);
-         const tileIndex = this.tilemap.tiles.indexOf(exTile);
+         const exTile = this.tilemap.getTile(x, y)!;
+         const tileIndex = this.tilemap.tiles.indexOf(exTile!);
          const gid = getCanonicalGid(this.data[tileIndex]);
 
          if (gid <= 0) {

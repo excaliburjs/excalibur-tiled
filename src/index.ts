@@ -16,8 +16,3 @@ export * from './resource/tiled-layer-component';
 export * from './resource/tiled-resource';
 export * from './resource/tileset-resource';
 export * from './resource/tileset';
-
-
-// export deprecated
-import * as deprecated from './deprecated';
-export { deprecated as Deprecated };

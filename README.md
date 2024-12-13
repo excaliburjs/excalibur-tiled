@@ -66,7 +66,7 @@ To update snapshots
 * Linux for CI
 
    ```powershell
-   docker run --rm --network host -v ${PWD}:/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.41.2-jammy /bin/bash
+   docker run --rm --network host -v ${PWD}:/work/ -w /work/ -it mcr.microsoft.com/playwright:v1.49.1-jammy /bin/bash
    npm install
    npx playwright test --update-snapshots
    ```

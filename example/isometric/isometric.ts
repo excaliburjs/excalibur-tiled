@@ -50,10 +50,10 @@ class Player extends ex.Actor {
       if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
          this.vel.x = -speed;
       }
-      if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+      if (game.input.keyboard.isHeld(ex.Keys.Up)) {
          this.vel.y = -speed;
       }
-      if (game.input.keyboard.isHeld(ex.Input.Keys.Down)) {
+      if (game.input.keyboard.isHeld(ex.Keys.Down)) {
          this.vel.y = speed;
       }
    }
@@ -74,6 +74,7 @@ class Player extends ex.Actor {
 //    this.camera.zoom = 0.5
 // }
 
+ex.Flags.useLegacyImageRenderer();
 const game = new ex.Engine({
    width: 800,
    height: 600,
