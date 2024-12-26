@@ -10,5 +10,6 @@ test-results
 playwright-report
 readme/*
 !dist/*
+!build/**/*
 **/webpack.config.js
 **/webpack.config.test.js

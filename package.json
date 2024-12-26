@@ -1,9 +1,17 @@
 {
    "name": "@excaliburjs/plugin-tiled",
-   "version": "0.30.0",
+   "version": "0.30.1",
    "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
-   "main": "dist/excalibur-tiled.min.js",
-   "typings": "dist/src/index.d.ts",
+   "main": "build/umd/excalibur-tiled.min.js",
+   "typings": "build/umd/src/index.d.ts",
+   "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./build/umd/src/index.d.ts",
+      "import": "./build/esm/excalibur-tiled.min.js",
+      "require": "./build/umd/excalibur-tiled.min.js"
+    }
+  },
    "author": {
       "name": "Excalibur.js Team",
       "email": "excaliburjs@gmail.com",
@@ -34,7 +42,9 @@
       "start:no-open": "webpack-dev-server --config webpack.config.test.js",
       "start:ci-server": "webpack --config webpack.config.test.js && http-server ./example --port 8080",
       "watch": "webpack --progress --watch",
-      "build": "cross-env NODE_ENV=production webpack",
+      "build:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
+      "build:umd": "webpack --progress --config webpack.config.js --mode production",
+      "build": "npm run build:umd && npm run build:esm",
       "test": "npm run test:unit",
       "test:watch": "karma start --single-run=false",
       "test:unit": "karma start",
@@ -64,13 +74,12 @@
       "typescript": "5.7.2",
       "webpack": "5.97.1",
       "webpack-bundle-analyzer": "4.10.2",
-      "webpack-cli": "5.1.4",
+      "webpack-cli": "6.0.1",
       "webpack-dev-middleware": "7.4.2",
       "webpack-dev-server": "5.2.0"
    },
    "dependencies": {
       "compare-versions": "6.1.1",
-      "fast-xml-parser": "4.5.1",
       "pako": "1.0.11",
       "zod": "3.24.1",
       "zstddec": "0.1.0"

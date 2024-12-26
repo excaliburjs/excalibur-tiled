@@ -15,7 +15,7 @@ module.exports = function(config) {
     basePath: '',
 
     webpack: {
-      ...webpack,
+      ...webpack({output: 'umd'}, {mode: 'development'}),
       ...{ plugins: [
          new NodePolyfillPlugin() // for json-diff tests in parser
       ]}
