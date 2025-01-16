@@ -349,8 +349,13 @@ export class ObjectLayer implements Layer {
 
          if (object instanceof TemplateObject) {
             // templates reference their own tilesets
-            const tileset = object.template.tileset;
+            let tileset = object.template.tileset;
             if (object.template.object) {
+               // TODO templates have odd inheritance via gid where flipping will use a different gid
+               if (object.gid) {
+                  tileset = this.resource.getTilesetForTileGid(object.gid);
+                  (object.template.object as any).gid = object.gid;
+               }
                this._actorFromObject(object.template.object, newActor, tileset);
             }
          } else {

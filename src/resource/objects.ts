@@ -46,10 +46,15 @@ export class TemplateObject extends PluginObject {
    public source: string;
    public template: Template;
    public tiledTemplate: TiledObject;
+   /**
+    * Templates can have a gid if they're flipped, otherwise they do not
+    */
+   public gid?: number;
    constructor(tiledObject: TiledObject, template: Template) {
       super({ tiledObject });
       if (!tiledObject.template) throw new Error('Invalid template');
       this.source = tiledObject.template
+      this.gid = tiledObject.gid;
       this.tiledTemplate = tiledObject;
       this.template = template;
 
@@ -241,7 +246,11 @@ export function parseObject(object: TiledObject, resource?: TiledResource): Plug
       newObject = new Polyline(object, object.polyline);
    } else if (object.text) {
       newObject = new Text(object, object.text, object.width ?? 0, resource?.textQuality ?? 4);
-   } else if (object.gid) {
+   } else if (object.gid && !object.template) {
+      // Some object.template's can have a gid in certain situations, we want to treat those as templates in the next case
+
+
+
       newObject = new InsertedTile(object, object.gid, object.width ?? 0, object.height ?? 0);
 
       // Check for inherited class names & properties from tileset
