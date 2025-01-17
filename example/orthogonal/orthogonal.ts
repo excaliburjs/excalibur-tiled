@@ -33,6 +33,7 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
    useMapBackgroundColor: true,
    layerConfig: {
       "Above": {
+         //isSolid: true
          useTileColliders: true,
          //useTileCollidersWhenInivisible: true
       }
