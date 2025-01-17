@@ -43,19 +43,29 @@ export class PluginObject implements Properties {
  * Inherits properties, class, and name from template if not overridden.
  */
 export class TemplateObject extends PluginObject {
-   public source: string;
-   public template: Template;
-   public tiledTemplate: TiledObject;
    /**
-    * Templates can have a gid if they're flipped, otherwise they do not
+    * Source path to the template file
+    */
+   public source: string;
+   /**
+    * Parsed template object
+    */
+   public template: Template;
+   /**
+    * TiledObject that represents the template instance in the map file
+    */
+   public instanceObject: TiledObject;
+   /**
+    * Template instances can have a gid if they're flipped, otherwise they do not
     */
    public gid?: number;
-   constructor(tiledObject: TiledObject, template: Template) {
-      super({ tiledObject });
-      if (!tiledObject.template) throw new Error('Invalid template');
-      this.source = tiledObject.template
-      this.gid = tiledObject.gid;
-      this.tiledTemplate = tiledObject;
+
+   constructor(instanceObject: TiledObject, template: Template) {
+      super({ tiledObject: instanceObject });
+      if (!instanceObject.template) throw new Error('Invalid template');
+      this.source = instanceObject.template
+      this.gid = instanceObject.gid;
+      this.instanceObject = instanceObject;
       this.template = template;
 
       // Inherited from template object
