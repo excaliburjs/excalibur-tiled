@@ -34,8 +34,8 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
    layerConfig: {
       "Above": {
          //isSolid: true
-         useTileColliders: true,
-         //useTileCollidersWhenInivisible: true
+         //useTileColliders: true,
+         useTileCollidersWhenInvisible: true
       }
    },
    entityClassNameFactories: {

@@ -192,9 +192,9 @@ export class IsoTileLayer implements Layer {
          if (this.visible) {
             tile.solid = true;
          }
-         if (maybeLayerConfig?.useTileCollidersWhenInivisible) {
-            tile.solid = true;
-         }
+      }
+      if (maybeLayerConfig?.useTileCollidersWhenInvisible && colliders.length > 0) {
+         tile.solid = true;
       }
 
       let animation = tileset.getAnimationForGid(gid);

@@ -210,9 +210,9 @@ export class TileLayer implements Layer {
          if (this.visible) {
             tile.solid = true;
          }
-         if (maybeLayerConfig?.useTileCollidersWhenInivisible) {
-            tile.solid = true;
-         }
+      }
+      if (maybeLayerConfig?.useTileCollidersWhenInvisible && colliders.length > 0) {
+         tile.solid = true;
       }
 
       let animation = headless ? null : tileset.getAnimationForGid(gid);

@@ -34,7 +34,7 @@ export interface TiledLayerConfig {
    /**
     * Use custom colliders in Excalibur set in the tileset regardless if the layer is currently visible
     */
-   useTileCollidersWhenInivisible?: boolean;
+   useTileCollidersWhenInvisible?: boolean;
 }
 
 export interface TiledAddToSceneOptions {
