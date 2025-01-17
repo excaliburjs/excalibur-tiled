@@ -2,6 +2,9 @@ import * as ex from 'excalibur';
 import { TiledResource } from '@excalibur-tiled';
 
 class Player extends ex.Actor {
+   constructor(args: ex.ActorArgs) {
+      super(args);
+   }
    override onPostUpdate(engine: ex.Engine) {
       this.vel = ex.vec(0, 0)
       const speed = 64;
@@ -21,8 +24,8 @@ class Player extends ex.Actor {
 }
 
 const game = new ex.Engine({
-   width: 800, 
-   height: 600, 
+   width: 800,
+   height: 600,
    canvasElementId: 'game',
    pointerScope: ex.PointerScope.Canvas,
    antialiasing: false
@@ -31,6 +34,14 @@ game.toggleDebug();
 
 const tiledMap = new TiledResource('./orthogonal.tmx', {
    useMapBackgroundColor: true,
+   layerConfig: {
+      "Above": {
+         //isSolid: true
+         //useTileColliders: true,
+         useTileCollidersWhenInvisible: true,
+         collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
+      }
+   },
    entityClassNameFactories: {
       'player-start': (props) => {
          return new Player({
@@ -38,7 +49,8 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
             width: 16,
             height: 16,
             color: ex.Color.Blue,
-            collisionType: ex.CollisionType.Active
+            collisionType: ex.CollisionType.Active,
+            collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
          });
       }
    }
@@ -63,8 +75,8 @@ const loader = new ex.Loader([tiledMap]);
 
 let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
-      currentPointer = moveEvent.worldPos;
-      game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+   currentPointer = moveEvent.worldPos;
+   game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
 });
 
 game.input.pointers.primary.on('move', (moveEvent) => {
@@ -78,9 +90,9 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
    // wheel up
    game.currentScene.camera.pos = currentPointer;
    if (wheelEvent.deltaY < 0) {
-       game.currentScene.camera.zoom *= 1.2;
+      game.currentScene.camera.zoom *= 1.2;
    } else {
-       game.currentScene.camera.zoom /= 1.2;
+      game.currentScene.camera.zoom /= 1.2;
    }
 });
 

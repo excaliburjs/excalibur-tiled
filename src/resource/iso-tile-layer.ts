@@ -1,4 +1,4 @@
-import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile, IsometricEntityComponent } from "excalibur";
+import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile, IsometricEntityComponent, BodyComponent } from "excalibur";
 import { mapProps } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -23,6 +23,10 @@ export interface IsometricTileInfo {
 
 export class IsoTileLayer implements Layer {
    private logger = Logger.getInstance();
+   /**
+    * Numeric id given by Tiled
+    */
+   public readonly id: string | number;
    public readonly name: string;
    class?: string | undefined;
    /**
@@ -34,6 +38,10 @@ export class IsoTileLayer implements Layer {
     */
    public readonly height: number = 0;
 
+   /**
+    * Whether the tile layer is visible in the original map
+    */
+   public readonly visible: boolean;
    properties = new Map<string, string | number | boolean>();
 
    /**
@@ -50,9 +58,11 @@ export class IsoTileLayer implements Layer {
 
    constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
       this.name = tiledTileLayer.name;
+      this.id = tiledTileLayer.id;
       this.class = tiledTileLayer.class;
       this.width = tiledTileLayer.width;
       this.height = tiledTileLayer.height;
+      this.visible = !!tiledTileLayer.visible;
       mapProps(this, tiledTileLayer.properties);
    }
 
@@ -130,9 +140,9 @@ export class IsoTileLayer implements Layer {
       let tileset = this.resource.getTilesetForTileGid(gid);
       let maybeTile = tileset.getTileByGid(gid);
       if (!tiles) {
-         tiles = [{exTile: tile, tiledTile: maybeTile}];
+         tiles = [{ exTile: tile, tiledTile: maybeTile }];
       } else {
-         tiles.push({exTile: tile, tiledTile: maybeTile});
+         tiles.push({ exTile: tile, tiledTile: maybeTile });
       }
       this._gidToTileInfo.set(gid, tiles);
       tile.data.set(ExcaliburTiledProperties.TileData.Tiled, maybeTile);
@@ -140,6 +150,11 @@ export class IsoTileLayer implements Layer {
 
    private updateTile(tile: IsometricTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
       this._recordTileData(gid, tile);
+      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
+         this.resource.getLayerConfig(this.id);
+      if (maybeLayerConfig?.isSolid !== undefined) {
+         isSolidLayer = maybeLayerConfig.isSolid;
+      }
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }
@@ -172,6 +187,14 @@ export class IsoTileLayer implements Layer {
       const colliders = tileset.getCollidersForGid(gid, { offset });
       for (let collider of colliders) {
          tile.addCollider(collider);
+      }
+      if (maybeLayerConfig?.useTileColliders && colliders.length > 0) {
+         if (this.visible) {
+            tile.solid = true;
+         }
+      }
+      if (maybeLayerConfig?.useTileCollidersWhenInvisible && colliders.length > 0) {
+         tile.solid = true;
       }
 
       let animation = tileset.getAnimationForGid(gid);
@@ -215,6 +238,8 @@ export class IsoTileLayer implements Layer {
    }
 
    async load(): Promise<void> {
+      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
+         this.resource.getLayerConfig(this.id);
       const layer = this.tiledTileLayer;
       const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
       const opacity = this.tiledTileLayer.opacity;
@@ -249,6 +274,10 @@ export class IsoTileLayer implements Layer {
             rows: layer.height,
             elevation: order
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.isometricMap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       } else {
          this.isometricMap = new IsometricMap({
             name: this.name,
@@ -259,6 +288,10 @@ export class IsoTileLayer implements Layer {
             rows: layer.height,
             elevation: order
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.isometricMap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       }
 
       // TODO make these optional params in the ctor
