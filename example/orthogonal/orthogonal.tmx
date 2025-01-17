@@ -45,6 +45,9 @@
 </data>
  </layer>
  <layer id="4" name="Above" width="10" height="10">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
@@ -52,7 +55,7 @@
 0,0,0,0,0,0,0,0,0,0,
 0,225,0,0,0,0,0,0,222,0,
 0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,250,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0
@@ -66,7 +69,7 @@
    </properties>
    <point/>
   </object>
-  <object id="2" template="coin.tx" x="47.75" y="80"/>
+  <object id="2" template="coin.tx" gid="3221225698" x="47.75" y="80" rotation="180"/>
   <object id="3" name="Player" type="player-start" x="38.9091" y="40">
    <point/>
   </object>

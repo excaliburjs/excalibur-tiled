@@ -349,9 +349,19 @@ export class ObjectLayer implements Layer {
 
          if (object instanceof TemplateObject) {
             // templates reference their own tilesets
-            const tileset = object.template.tileset;
-            if (object.template.object) {
-               this._actorFromObject(object.template.object, newActor, tileset);
+            let tileset = object.template.tileset;
+            let maybeTemplateObject = object.template.object;
+            if (maybeTemplateObject) {
+               // handle the weird inheritance of template instance gids from the main map when flipped
+               if (object.gid && maybeTemplateObject instanceof InsertedTile) {
+                  tileset = this.resource.getTilesetForTileGid(object.gid);
+                  maybeTemplateObject = new InsertedTile(
+                     maybeTemplateObject.tiledObject,
+                     object.gid,
+                     maybeTemplateObject.width,
+                     maybeTemplateObject.height);
+               }
+               this._actorFromObject(maybeTemplateObject, newActor, tileset);
             }
          } else {
             let tileset: Tileset | undefined;

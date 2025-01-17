@@ -1,4 +1,4 @@
-import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox } from "excalibur";
+import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox, toRadians } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, Polygon, Rectangle, parseObjects } from "./objects";
@@ -96,7 +96,7 @@ export class Tileset implements Properties {
          this.diagonalFlipTransform = AffineMatrix.identity().translate(0, 0).rotate(-Math.PI / 2).scale(-1, 1);
          this.objectalignment = tiledTileset.objectalignment ?? (this.orientation === 'orthogonal' ? 'bottomleft' : 'bottom');
          if (image) {
-            this.spritesheet =  SpriteSheet.fromImageSource({
+            this.spritesheet = SpriteSheet.fromImageSource({
                image,
                grid: {
                   rows,
@@ -168,32 +168,32 @@ export class Tileset implements Properties {
 
    getTilesetAlignmentAnchor(overrideAlignment?: string) {
       // https://doc.mapeditor.org/en/stable/manual/editing-tilesets/#tileset-properties
-      switch(overrideAlignment ?? this.objectalignment) {
-         case 'topleft' : {
+      switch (overrideAlignment ?? this.objectalignment) {
+         case 'topleft': {
             return vec(0, 0);
          }
-         case 'top' : {
+         case 'top': {
             return vec(0.5, 0);
          }
-         case 'topright' : {
+         case 'topright': {
             return vec(1, 0);
          }
-         case 'left' : {
+         case 'left': {
             return vec(0, .5);
          }
-         case 'center' : {
+         case 'center': {
             return vec(0.5, 0.5);
          }
-         case 'right' : {
+         case 'right': {
             return vec(1, .5);
          }
-         case 'bottomleft' : {
+         case 'bottomleft': {
             return vec(0, 1);
          }
-         case 'bottom' : {
+         case 'bottom': {
             return vec(0.5, 1);
          }
-         case 'bottomright' : {
+         case 'bottomright': {
             return vec(1, 1);
          }
          default: { // default is bottom left
@@ -257,7 +257,7 @@ export class Tileset implements Properties {
       const tileWidth = this.tileWidth;
       // This is slightly different in tilesets because the grid aligns with actual image rectangles
       // Tiled Resource DOES not, and aligns with the "logical" height
-      const halftileHeight = this.tileHeight / 2; 
+      const halftileHeight = this.tileHeight / 2;
       const tileY = isoCoord.y / halftileHeight;
       const tileX = isoCoord.x / halftileHeight;
       return vec(
@@ -304,11 +304,14 @@ export class Tileset implements Properties {
                }
             }
             if (object instanceof Rectangle) {
+               const width = object.width;
+               const height = object.height;
+               const anchor = object.anchor;
                const bb = BoundingBox.fromDimension(
-                  object.width * scale.x,
-                  object.height * scale.y,
+                  width * scale.x,
+                  height * scale.y,
                   anchor);
-               let points = bb.getPoints().map(p => p.add(vec(object.x, object.y)));
+               let points = bb.getPoints().map(p => p.rotate(toRadians(object.rotation)).add(vec(object.x, object.y)));
                if (orientation === 'isometric') {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }

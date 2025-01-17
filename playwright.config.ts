@@ -12,12 +12,12 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './test/integration/',
   webServer: {
-   command: 'npm run start:ci-server',
-   timeout: 240 * 1000, // linux takes a long time
-   url: 'http://localhost:8080',
-   reuseExistingServer: !process.env.CI,
-   stdout: 'ignore',
-   stderr: 'pipe',
+    command: 'npm run start:ci-server',
+    timeout: 240 * 1000, // linux takes a long time
+    url: 'http://localhost:8080',
+    reuseExistingServer: !process.env.CI,
+    stdout: 'ignore',
+    stderr: 'pipe',
   },
   timeout: 120_000, // linux is slow sometimes
   /* Run tests in files in parallel */
@@ -46,15 +46,15 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-   //  {
-   //    name: 'firefox',
-   //    use: { ...devices['Desktop Firefox'] },
-   //  },
+    //  {
+    //    name: 'firefox',
+    //    use: { ...devices['Desktop Firefox'] },
+    //  },
 
-   //  {
-   //    name: 'webkit',
-   //    use: { ...devices['Desktop Safari'] },
-   //  },
+    //  {
+    //    name: 'webkit',
+    //    use: { ...devices['Desktop Safari'] },
+    //  },
 
     /* Test against mobile viewports. */
     // {

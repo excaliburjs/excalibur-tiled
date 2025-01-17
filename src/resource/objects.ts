@@ -1,4 +1,4 @@
-import { BaseAlign, Color, Font, FontUnit, TextAlign, Vector, vec } from "excalibur";
+import { BaseAlign, Color, Font, FontUnit, TextAlign, Vector, toRadians, vec } from "excalibur";
 import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
 import { Properties, mapProps } from "./properties";
@@ -19,6 +19,7 @@ export class PluginObject implements Properties {
    id: number;
    x: number;
    y: number;
+   rotation: number;
    name?: string;
    class?: string;
    tiledObject: TiledObject;
@@ -28,10 +29,11 @@ export class PluginObject implements Properties {
       this.name = this.tiledObject.name;
       // Yes this is class in the Tiled UI, it switched from Type -> Class but not all the representations match
       // class mostly synonymous with type in tiled except for a few instances
-      this.class = this.tiledObject.type; 
+      this.class = this.tiledObject.type;
       this.id = this.tiledObject.id ?? -1;
       this.x = this.tiledObject.x ?? 0;
       this.y = this.tiledObject.y ?? 0;
+      this.rotation = this.tiledObject.rotation ?? 0;
    }
 }
 
@@ -41,14 +43,29 @@ export class PluginObject implements Properties {
  * Inherits properties, class, and name from template if not overridden.
  */
 export class TemplateObject extends PluginObject {
+   /**
+    * Source path to the template file
+    */
    public source: string;
+   /**
+    * Parsed template object
+    */
    public template: Template;
-   public tiledTemplate: TiledObject;
-   constructor(tiledObject: TiledObject, template: Template) {
-      super({tiledObject});
-      if (!tiledObject.template) throw new Error('Invalid template');
-      this.source = tiledObject.template
-      this.tiledTemplate = tiledObject;
+   /**
+    * TiledObject that represents the template instance in the map file
+    */
+   public instanceObject: TiledObject;
+   /**
+    * Template instances can have a gid if they're flipped, otherwise they do not
+    */
+   public gid?: number;
+
+   constructor(instanceObject: TiledObject, template: Template) {
+      super({ tiledObject: instanceObject });
+      if (!instanceObject.template) throw new Error('Invalid template');
+      this.source = instanceObject.template
+      this.gid = instanceObject.gid;
+      this.instanceObject = instanceObject;
       this.template = template;
 
       // Inherited from template object
@@ -75,7 +92,7 @@ export class TemplateObject extends PluginObject {
          }
       }
 
-      
+
    }
 }
 
@@ -84,14 +101,14 @@ export class TemplateObject extends PluginObject {
  */
 export class InsertedTile extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly gid: number, public readonly width: number, public readonly height: number) {
-      super({tiledObject});
+      super({ tiledObject });
    }
 }
 
 /**
  * Represents an instance of a point object in a map
  */
-export class Point extends PluginObject {}
+export class Point extends PluginObject { }
 
 /**
  * Represents an instance of a Text object in a map
@@ -99,9 +116,9 @@ export class Point extends PluginObject {}
 export class Text extends PluginObject {
    text: ExText;
    font: Font;
-   
+
    constructor(tiledObject: TiledObject, text: TiledText, width: number, textQuality: number) {
-      super({tiledObject});
+      super({ tiledObject });
 
       this.font = new Font({
          family: text.fontfamily ?? 'sans-serif',
@@ -120,11 +137,11 @@ export class Text extends PluginObject {
          font: this.font,
          ...(textWrap ? {
             maxWidth: width + 10 // FIXME: need to bump by a few pixels for some reason
-         }: {})
+         } : {})
       });
    }
-   _textBaselineFromTiled(code: Pick<TiledText, 'valign'>['valign']){
-      switch(code) {
+   _textBaselineFromTiled(code: Pick<TiledText, 'valign'>['valign']) {
+      switch (code) {
          case 'bottom': {
             return BaseAlign.Bottom;
          }
@@ -140,8 +157,8 @@ export class Text extends PluginObject {
       }
    }
 
-   _textAlignFromTiled(code: Pick<TiledText,'halign'>['halign']) {
-      switch(code) {
+   _textAlignFromTiled(code: Pick<TiledText, 'halign'>['halign']) {
+      switch (code) {
          case 'left': {
             return TextAlign.Left
          }
@@ -166,7 +183,7 @@ export class Text extends PluginObject {
  */
 export class Ellipse extends PluginObject {
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number) {
-      super({tiledObject});
+      super({ tiledObject });
    }
 }
 
@@ -176,7 +193,7 @@ export class Ellipse extends PluginObject {
 export class Rectangle extends PluginObject {
 
    constructor(tiledObject: TiledObject, public readonly width: number, public readonly height: number, public readonly anchor: Vector) {
-      super({tiledObject});
+      super({ tiledObject });
    }
 }
 
@@ -192,10 +209,10 @@ export class Polygon extends PluginObject {
     * Local space points
     */
    public readonly localPoints: Vector[] = [];
-   constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
-      super({tiledObject});
+   constructor(tiledObject: TiledObject, points: { x: number, y: number }[]) {
+      super({ tiledObject });
       this.localPoints = points.map(p => vec(p.x, p.y));
-      this.points = points.map(p => vec(p.x, p.y).add(vec(this.x, this.y)));
+      this.points = points.map(p => vec(p.x, p.y).rotate(toRadians(this.rotation)).add(vec(this.x, this.y)));
    }
 }
 
@@ -204,8 +221,8 @@ export class Polygon extends PluginObject {
  */
 export class Polyline extends PluginObject {
    public readonly points: Vector[] = []
-   constructor(tiledObject: TiledObject, points: {x: number, y: number}[]) {
-      super({tiledObject});
+   constructor(tiledObject: TiledObject, points: { x: number, y: number }[]) {
+      super({ tiledObject });
       this.points = points.map(p => vec(p.x, p.y));
    }
 }
@@ -222,7 +239,7 @@ export function parseObject(object: TiledObject, resource?: TiledResource): Plug
    let newObject: PluginObject;
    if (object.point) {
       // Template objects don't have an id for some reason
-      newObject = new Point({tiledObject: object});
+      newObject = new Point({ tiledObject: object });
    } else if (object.ellipse) {
       if (object.width && object.height) {
          // if defaulted the circle center is accurate, otherwise need to be offset by radius
@@ -237,10 +254,14 @@ export function parseObject(object: TiledObject, resource?: TiledResource): Plug
       newObject = new Polygon(object, object.polygon);
    } else if (object.polyline) {
       newObject = new Polyline(object, object.polyline);
-   } else if(object.text) {
+   } else if (object.text) {
       newObject = new Text(object, object.text, object.width ?? 0, resource?.textQuality ?? 4);
-   } else if (object.gid) {
-      newObject = new InsertedTile(object, object.gid,  object.width ?? 0, object.height ?? 0);
+   } else if (object.gid && !object.template) {
+      // Some object.template's can have a gid in certain situations, we want to treat those as templates in the next case
+
+
+
+      newObject = new InsertedTile(object, object.gid, object.width ?? 0, object.height ?? 0);
 
       // Check for inherited class names & properties from tileset
       const tileset = resource?.getTilesetForTileGid(object.gid);
