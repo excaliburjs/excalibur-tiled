@@ -1,4 +1,4 @@
-import { BoundingBox, Color, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
+import { BoundingBox, CollisionGroup, Color, Entity, ImageSource, Loadable, Logger, Scene, TransformComponent, Vector, vec } from "excalibur";
 import { TiledMap, TiledParser, TiledTile, isTiledTilesetCollectionOfImages, isTiledTilesetEmbedded, isTiledTilesetExternal, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Tile, Tileset } from "./tileset";
 import { Layer } from "./layer";
@@ -27,6 +27,10 @@ export interface TiledLayerConfig {
     * Override the Tiled layer property solid=true|false
     */
    isSolid?: boolean;
+   /**
+    * Collision group to associate with colliders in this layer
+    */
+   collisionGroup?: CollisionGroup;
    /**
     * Use custom colliders in Excalibur set in the tileset regardless if the layer is set to solid=true|false
     */

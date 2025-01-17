@@ -1,4 +1,4 @@
-import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile, IsometricEntityComponent } from "excalibur";
+import { Color, ParallaxComponent, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, IsometricMap, PolygonCollider, CircleCollider, IsometricTile, IsometricEntityComponent, BodyComponent } from "excalibur";
 import { mapProps } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -238,6 +238,8 @@ export class IsoTileLayer implements Layer {
    }
 
    async load(): Promise<void> {
+      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
+         this.resource.getLayerConfig(this.id);
       const layer = this.tiledTileLayer;
       const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
       const opacity = this.tiledTileLayer.opacity;
@@ -272,6 +274,10 @@ export class IsoTileLayer implements Layer {
             rows: layer.height,
             elevation: order
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.isometricMap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       } else {
          this.isometricMap = new IsometricMap({
             name: this.name,
@@ -282,6 +288,10 @@ export class IsoTileLayer implements Layer {
             rows: layer.height,
             elevation: order
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.isometricMap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       }
 
       // TODO make these optional params in the ctor

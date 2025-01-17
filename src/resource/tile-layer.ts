@@ -1,4 +1,4 @@
-import { Color, ParallaxComponent, TileMap, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, TransformComponent, Tile as ExTile } from "excalibur";
+import { Color, ParallaxComponent, TileMap, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, TransformComponent, Tile as ExTile, BodyComponent } from "excalibur";
 import { mapProps } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
@@ -256,6 +256,8 @@ export class TileLayer implements Layer {
    }
 
    async load() {
+      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
+         this.resource.getLayerConfig(this.id);
       const opacity = this.tiledTileLayer.opacity;
       const hasTint = !!this.tiledTileLayer.tintcolor;
       const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
@@ -281,6 +283,10 @@ export class TileLayer implements Layer {
             columns: layer.width,
             rows: layer.height
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.tilemap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       } else {
          this.tilemap = new TileMap({
             name: this.name,
@@ -290,6 +296,10 @@ export class TileLayer implements Layer {
             columns: layer.width,
             rows: layer.height,
          });
+         if (maybeLayerConfig?.collisionGroup) {
+            const body = this.tilemap.get(BodyComponent);
+            body.group = maybeLayerConfig.collisionGroup;
+         }
       }
 
       // Common tilemap props
