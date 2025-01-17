@@ -2,6 +2,9 @@ import * as ex from 'excalibur';
 import { TiledResource } from '@excalibur-tiled';
 
 class Player extends ex.Actor {
+   constructor(args: ex.ActorArgs) {
+      super(args);
+   }
    override onPostUpdate(engine: ex.Engine) {
       this.vel = ex.vec(0, 0)
       const speed = 64;
@@ -35,7 +38,8 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
       "Above": {
          //isSolid: true
          //useTileColliders: true,
-         useTileCollidersWhenInvisible: true
+         useTileCollidersWhenInvisible: true,
+         collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
       }
    },
    entityClassNameFactories: {
@@ -45,7 +49,8 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
             width: 16,
             height: 16,
             color: ex.Color.Blue,
-            collisionType: ex.CollisionType.Active
+            collisionType: ex.CollisionType.Active,
+            collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
          });
       }
    }
