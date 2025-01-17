@@ -19,8 +19,21 @@ import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
 import { LoaderCache } from "./loader-cache";
 import { TemplateResource, TemplateResourceOptions } from "./template-resource";
 import { ImageLayer } from "./image-layer";
+
 export interface TiledLayerConfig {
+   /**
+    * Solid layers mean that Excalibur should treat the presence of a tile as solid, it will use the Tile bounds as a collider.
+    *
+    * Override the Tiled layer property solid=true|false
+    */
+   isSolid?: boolean;
+   /**
+    * Use custom colliders in Excalibur set in the tileset regardless if the layer is set to solid=true|false
+    */
    useTileColliders?: boolean;
+   /**
+    * Use custom colliders in Excalibur set in the tileset regardless if the layer is currently visible
+    */
    useTileCollidersWhenInivisible?: boolean;
 }
 

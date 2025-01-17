@@ -150,6 +150,11 @@ export class IsoTileLayer implements Layer {
 
    private updateTile(tile: IsometricTile, gid: number, hasTint: boolean, tint: Color, isSolidLayer: boolean) {
       this._recordTileData(gid, tile);
+      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
+         this.resource.getLayerConfig(this.id);
+      if (maybeLayerConfig?.isSolid !== undefined) {
+         isSolidLayer = maybeLayerConfig.isSolid;
+      }
       if (this.resource.useExcaliburWiring && isSolidLayer) {
          tile.solid = true;
       }
@@ -183,8 +188,6 @@ export class IsoTileLayer implements Layer {
       for (let collider of colliders) {
          tile.addCollider(collider);
       }
-      const maybeLayerConfig = this.resource.getLayerConfig(this.name) ||
-         this.resource.getLayerConfig(this.id);
       if (maybeLayerConfig?.useTileColliders && colliders.length > 0) {
          if (this.visible) {
             tile.solid = true;
