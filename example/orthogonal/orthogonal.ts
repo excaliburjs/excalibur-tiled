@@ -21,8 +21,8 @@ class Player extends ex.Actor {
 }
 
 const game = new ex.Engine({
-   width: 800, 
-   height: 600, 
+   width: 800,
+   height: 600,
    canvasElementId: 'game',
    pointerScope: ex.PointerScope.Canvas,
    antialiasing: false
@@ -31,6 +31,12 @@ game.toggleDebug();
 
 const tiledMap = new TiledResource('./orthogonal.tmx', {
    useMapBackgroundColor: true,
+   layerConfig: {
+      "Above": {
+         useTileColliders: true,
+         //useTileCollidersWhenInivisible: true
+      }
+   },
    entityClassNameFactories: {
       'player-start': (props) => {
          return new Player({
@@ -63,8 +69,8 @@ const loader = new ex.Loader([tiledMap]);
 
 let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
-      currentPointer = moveEvent.worldPos;
-      game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+   currentPointer = moveEvent.worldPos;
+   game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
 });
 
 game.input.pointers.primary.on('move', (moveEvent) => {
@@ -78,9 +84,9 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
    // wheel up
    game.currentScene.camera.pos = currentPointer;
    if (wheelEvent.deltaY < 0) {
-       game.currentScene.camera.zoom *= 1.2;
+      game.currentScene.camera.zoom *= 1.2;
    } else {
-       game.currentScene.camera.zoom /= 1.2;
+      game.currentScene.camera.zoom /= 1.2;
    }
 });
 

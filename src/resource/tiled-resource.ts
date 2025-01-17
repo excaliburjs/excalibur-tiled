@@ -19,6 +19,10 @@ import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
 import { LoaderCache } from "./loader-cache";
 import { TemplateResource, TemplateResourceOptions } from "./template-resource";
 import { ImageLayer } from "./image-layer";
+export interface TiledLayerConfig {
+   useTileColliders?: boolean;
+   useTileCollidersWhenInivisible?: boolean;
+}
 
 export interface TiledAddToSceneOptions {
    pos: Vector;
@@ -63,12 +67,17 @@ export interface TiledResourceOptions {
     *
     * Defaults true, if false the camera will use the layer bounds to keep the camera from showing the background.
     */
-   useTilemapCameraStrategy?: boolean
+   useTilemapCameraStrategy?: boolean;
 
    /**
     * Plugin detects the map type based on extension, if you know better you can force an override.
     */
    mapFormatOverride?: 'TMX' | 'TMJ';
+
+   /**
+    * Configure tile layers by string name or by number id
+    */
+   layerConfig?: Record<string | number, TiledLayerConfig>;
 
    /**
     * The pathMap helps work around odd things bundlers do with static files by providing a way to redirect the original
@@ -195,6 +204,7 @@ export class TiledResource implements Loadable<any> {
    public readonly useMapBackgroundColor: boolean = false;
    public readonly useTilemapCameraStrategy: boolean = false;
    public readonly headless: boolean = false;
+   public layerConfig: Record<string | number, TiledLayerConfig> = {};
 
    private _imageLoader = new LoaderCache(ImageSource);
    private _tilesetLoader = new LoaderCache(TilesetResource);
@@ -207,6 +217,7 @@ export class TiledResource implements Loadable<any> {
          useExcaliburWiring,
          useTilemapCameraStrategy,
          useMapBackgroundColor,
+         layerConfig,
          pathMap,
          fileLoader,
          strict,
@@ -218,6 +229,7 @@ export class TiledResource implements Loadable<any> {
       this.useExcaliburWiring = useExcaliburWiring ?? this.useExcaliburWiring;
       this.useTilemapCameraStrategy = useTilemapCameraStrategy ?? this.useTilemapCameraStrategy;
       this.useMapBackgroundColor = useMapBackgroundColor ?? this.useMapBackgroundColor;
+      this.layerConfig = layerConfig ?? this.layerConfig;
       this.textQuality = textQuality ?? this.textQuality;
       this.startZIndex = startZIndex ?? this.startZIndex;
       this.fileLoader = fileLoader ?? this.fileLoader;
@@ -250,6 +262,10 @@ export class TiledResource implements Loadable<any> {
          console.warn(`No factory has been registered for tiled class/type "${className}", cannot unregister!`);
       }
       this.factories.delete(className);
+   }
+
+   getLayerConfig(idOrName: number | string): TiledLayerConfig | undefined {
+      return this.layerConfig[idOrName];
    }
 
    /**
