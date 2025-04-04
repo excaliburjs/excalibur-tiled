@@ -8,7 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
-import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byProperty } from "./filter-util";
 
 export interface IsometricTileInfo {
    /**
@@ -96,12 +96,13 @@ export class IsoTileLayer implements Layer {
     * Returns the excalibur tiles that match a tiled property and optional value
     * @param name
     * @param value
+    * @param [valueMatchInsensitive=true] 
     */
-   getTilesByProperty(name: string, value?: any): IsometricTileInfo[] {
+   getTilesByProperty(name: string, value?: any, valueMatchInsensitive = true): IsometricTileInfo[] {
       const tiles = this.isometricMap.tiles.filter(t => {
          const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
          if (maybeTiled) {
-            return byPropertyCaseInsensitive(name, value)(maybeTiled);
+            return byProperty(name, value, valueMatchInsensitive)(maybeTiled);
          }
          return false;
       });

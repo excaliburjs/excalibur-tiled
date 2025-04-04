@@ -4,7 +4,7 @@ import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTiles
 import { Ellipse, Polygon, Rectangle, parseObjects } from "./objects";
 import { Properties, mapProps } from "./properties";
 import { PluginObject } from "./objects";
-import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byProperty } from "./filter-util";
 
 
 export interface TileOptions {
@@ -219,8 +219,8 @@ export class Tileset implements Properties {
       return this.tiles.filter(byClassCaseInsensitive(className));
    }
 
-   getTilesByProperty(name: string, value?: any): Tile[] {
-      return this.tiles.filter(byPropertyCaseInsensitive(name, value));
+   getTilesByProperty(name: string, value?: any, valueMatchInsensitive = true): Tile[] {
+      return this.tiles.filter(byProperty(name, value, valueMatchInsensitive));
    }
 
    getSpriteForGid(gid: number): Sprite {

@@ -4,7 +4,7 @@ import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, E
 import { TiledObjectLayer } from "../parser/tiled-parser";
 import { FactoryProps, TiledResource } from "./tiled-resource";
 import { mapProps } from "./properties";
-import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty } from "./filter-util";
 import { Tileset } from "./tileset";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledDataComponent } from "./tiled-data-component";
@@ -55,11 +55,12 @@ export class ObjectLayer implements Layer {
     * Search for a tiled object that has a property name, and optionally specify a value
     * @param propertyName 
     * @param value 
+    * @param [valueMatchInsensitive=true] 
     * @returns 
     */
-   getObjectsByProperty(propertyName: string, value?: any): PluginObject[] {
+   getObjectsByProperty(propertyName: string, value?: any, valueMatchInsensitive = true): PluginObject[] {
       if (!this._loaded) this._logLoadedWarning('getObjectsByProperty');
-      return this.objects.filter(byPropertyCaseInsensitive(propertyName, value));
+      return this.objects.filter(byProperty(propertyName, value, valueMatchInsensitive));
    }
    /**
     * Search for actors that were created from tiled objects
