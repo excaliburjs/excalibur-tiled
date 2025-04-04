@@ -25,28 +25,6 @@ const copyPropsLowerCase = (properties: Map<string, string | number | boolean>) 
    return lowercase;
 }
 
-export const byPropertyCaseInsensitive = (propertyName: string, value?: any) => {
-   return <TObject extends { properties: Map<string, string | number | boolean> }>(object: TObject) => {
-      const lowercase = copyPropsLowerCase(object.properties);
-
-      if (value !== undefined) {
-         let normalizedValue = value;
-         if (typeof value === 'string') {
-            normalizedValue = value.toLocaleLowerCase();
-         }
-
-         const maybeValue = lowercase.get(propertyName.toLocaleLowerCase());
-         if (typeof maybeValue === 'string') {
-            return maybeValue.toLocaleLowerCase() === normalizedValue;
-         }
-
-         return lowercase.get(propertyName.toLocaleLowerCase()) === normalizedValue;
-      } else {
-         return lowercase.has(propertyName.toLocaleLowerCase());
-      }
-   }
-}
-
 export const byProperty = (propertyName: string, value?: any, valueMatchInsensitve = true) => {
    return <TObject extends { properties: Map<string, string | number | boolean> }>(object: TObject) => {
       const lowercase = copyPropsLowerCase(object.properties);
