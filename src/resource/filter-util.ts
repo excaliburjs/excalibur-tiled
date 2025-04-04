@@ -69,7 +69,7 @@ export const byProperty = (propertyName: string, value?: any, valueMatchInsensit
    }
 }
 
-export const byPropertyMatcher = (propertyName: string, matchValue: (val: any) => boolean) => {
+export const byPropertyValueMatcher = (propertyName: string, matchValue: (val: any) => boolean) => {
    return <TObject extends { properties: Map<string, string | number | boolean> }>(object: TObject) => {
       const lowercase = copyPropsLowerCase(object.properties);
       return matchValue(lowercase.get(propertyName.toLocaleLowerCase()));

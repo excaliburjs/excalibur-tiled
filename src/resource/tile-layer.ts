@@ -8,7 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
-import { byClassCaseInsensitive, byProperty } from "./filter-util";
+import { byClassCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 
 /**
  * Tile information for both excalibur and tiled tile representations
@@ -100,6 +100,26 @@ export class TileLayer implements Layer {
          const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
          if (maybeTiled) {
             return byProperty(name, value, valueMatchInsensitive)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
+
+   /**
+    * Get the tiles that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getTilesByPropertyValueMatcher(name: string, valueMatcher: (val: any) => any): TileInfo[] {
+      const tiles = this.tilemap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byPropertyValueMatcher(name, valueMatcher)(maybeTiled);
          }
          return false;
       });
