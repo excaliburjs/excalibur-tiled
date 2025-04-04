@@ -8,7 +8,7 @@ import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledLayerDataComponent } from "./tiled-layer-component";
 import { Layer } from "./layer";
 import { Tile } from "./tileset";
-import { byClassCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 
 export interface IsometricTileInfo {
    /**
@@ -96,12 +96,13 @@ export class IsoTileLayer implements Layer {
     * Returns the excalibur tiles that match a tiled property and optional value
     * @param name
     * @param value
+    * @param [valueMatchInsensitive=true] 
     */
-   getTilesByProperty(name: string, value?: any): IsometricTileInfo[] {
+   getTilesByProperty(name: string, value?: any, valueMatchInsensitive = true): IsometricTileInfo[] {
       const tiles = this.isometricMap.tiles.filter(t => {
          const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
          if (maybeTiled) {
-            return byPropertyCaseInsensitive(name, value)(maybeTiled);
+            return byProperty(name, value, valueMatchInsensitive)(maybeTiled);
          }
          return false;
       });
@@ -111,6 +112,27 @@ export class IsoTileLayer implements Layer {
          tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
       }))
    }
+
+   /**
+    * Get the tiles that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getTilesByPropertyValueMatcher(name: string, valueMatcher: (val: any) => boolean): IsometricTileInfo[] {
+      const tiles = this.isometricMap.tiles.filter(t => {
+         const maybeTiled = t.data.get(ExcaliburTiledProperties.TileData.Tiled) as Tile | undefined;
+         if (maybeTiled) {
+            return byPropertyValueMatcher(name, valueMatcher)(maybeTiled);
+         }
+         return false;
+      });
+
+      return tiles.map(t => ({
+         exTile: t,
+         tiledTile: t.data.get(ExcaliburTiledProperties.TileData.Tiled)
+      }))
+   }
+
 
    getTileByPoint(worldPos: Vector): IsometricTileInfo | null {
       if (!this.isometricMap) {

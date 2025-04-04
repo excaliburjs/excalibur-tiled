@@ -12,7 +12,7 @@ import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { PathMap, pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
-import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { FetchLoader, FileLoader } from './file-loader';
 import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
@@ -322,11 +322,21 @@ export class TiledResource implements Loadable<any> {
    /**
     * Queries for tilesets in the map by property and an optional value (case insensitive)
     * @param propertyName 
-    * @param value 
+    * @param value
+    * @param [valueMatchInsensitive=true] 
     * @returns 
     */
-   getTilesetByProperty(propertyName: string, value?: any): Tileset[] {
-      return this.tilesets.filter(byPropertyCaseInsensitive(propertyName, value));
+   getTilesetByProperty(propertyName: string, value?: any, valueMatchInsensitive = true): Tileset[] {
+      return this.tilesets.filter(byProperty(propertyName, value, valueMatchInsensitive));
+   }
+
+   /**
+    * Get the tilesets that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getTilesetByPropertyValueMatcher(propertyName: string, valueMatcher: (val: any) => boolean): Tileset[] {
+      return this.tilesets.filter(byPropertyValueMatcher(propertyName, valueMatcher));
    }
 
    /**
@@ -346,12 +356,26 @@ export class TiledResource implements Loadable<any> {
     * Queries ALL tilesets tile data in the map for a specific property and an optional value (case insensitive)
     * @param name 
     * @param value 
+    * @param [valueMatchInsensitive=true] 
     * @returns 
     */
-   getTileMetadataByProperty(name: string, value?: any): Tile[] {
+   getTileMetadataByProperty(name: string, value?: any, valueMatchInsensitive = true): Tile[] {
       let results: Tile[] = [];
       for (let tileset of this.tilesets) {
-         results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
+         results = results.concat(tileset.tiles.filter(byProperty(name, value, valueMatchInsensitive)));
+      }
+      return results;
+   }
+
+   /**
+    * Get the tile metadata that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getTileMetadataByPropertyValueMatcher(name: string, valueMatcher: (val: any) => boolean): Tile[] {
+      let results: Tile[] = [];
+      for (let tileset of this.tilesets) {
+         results = results.concat(tileset.tiles.filter(byPropertyValueMatcher(name, valueMatcher)));
       }
       return results;
    }
@@ -618,9 +642,25 @@ export class TiledResource implements Loadable<any> {
       return this.layers.filter(byClassCaseInsensitive(className));
    }
 
-   getLayersByProperty(propertyName: string, value?: any): Layer[] {
-      return this.layers.filter(byPropertyCaseInsensitive(propertyName, value));
+   /**
+    * Get the layers that match the property name and the value
+    * @param name 
+    * @param value
+    * @param [valueMatchInsensitive=true]
+    */
+   getLayersByProperty(propertyName: string, value?: any, valueMatchInsensitive = true): Layer[] {
+      return this.layers.filter(byProperty(propertyName, value, valueMatchInsensitive));
    }
+
+   /**
+    * Get the layers that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getLayersByPropertyValueMatcher(propertyName: string, valueMatcher: (val: any) => boolean): Layer[] {
+      return this.layers.filter(byPropertyValueMatcher(propertyName, valueMatcher));
+   }
+
 
    private _parseMap(data: any) {
       if (this.mapFormat === 'TMX') {
