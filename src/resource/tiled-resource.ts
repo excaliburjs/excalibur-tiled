@@ -165,7 +165,7 @@ export interface FactoryProps {
    /**
     * If using an object layer or a tile object property, the object will be passed.
     */
-   object?: PluginObject;
+   object: PluginObject;
    /**
     * Tiled properties, these are all converted to lowercase keys, and lowercase if the value is a string
     */
