@@ -4,7 +4,7 @@ import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, E
 import { TiledObjectLayer } from "../parser/tiled-parser";
 import { FactoryProps, TiledResource } from "./tiled-resource";
 import { mapProps } from "./properties";
-import { byClassCaseInsensitive, byNameCaseInsensitive, byPropertyCaseInsensitive } from "./filter-util";
+import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 import { Tileset } from "./tileset";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { TiledDataComponent } from "./tiled-data-component";
@@ -55,20 +55,39 @@ export class ObjectLayer implements Layer {
     * Search for a tiled object that has a property name, and optionally specify a value
     * @param propertyName 
     * @param value 
+    * @param [valueMatchInsensitive=true] 
     * @returns 
     */
-   getObjectsByProperty(propertyName: string, value?: any): PluginObject[] {
+   getObjectsByProperty(propertyName: string, value?: any, valueMatchInsensitive = true): PluginObject[] {
       if (!this._loaded) this._logLoadedWarning('getObjectsByProperty');
-      return this.objects.filter(byPropertyCaseInsensitive(propertyName, value));
+      return this.objects.filter(byProperty(propertyName, value, valueMatchInsensitive));
    }
+
+   /**
+    * Get the objects that match the property name and the value matcher returns true
+    * @param name 
+    * @param valueMatcher 
+    */
+   getObjectsByPropertyValueMatcher(propertyName: string, valueMatcher: (val: any) => boolean): PluginObject[] {
+      if (!this._loaded) this._logLoadedWarning('getObjectsByPropertyValueMatcher');
+      return this.objects.filter(byPropertyValueMatcher(propertyName, valueMatcher));
+   }
+
+
    /**
     * Search for actors that were created from tiled objects
     * @returns 
     */
-   getEntitiesByProperty(propertyName: string, value?: any): Entity[] {
+   getEntitiesByProperty(propertyName: string, value?: any, valueMatchInsensitve = true): Entity[] {
       if (!this._loaded) this._logLoadedWarning('getEntitiesByProperty');
-      return this.getObjectsByProperty(propertyName, value).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
+      return this.getObjectsByProperty(propertyName, value, valueMatchInsensitve).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
    }
+
+   getEntitiesByPropertyValueMatcher(propertyName: string, valueMatcher: (val: any) => boolean): Entity[] {
+      if (!this._loaded) this._logLoadedWarning('getEntitiesByPropertyValueMatcher');
+      return this.getObjectsByProperty(propertyName, valueMatcher).map(o => this._objectToEntity.get(o)).filter(a => !!a) as Entity[];
+   }
+
 
    /**
     * Search for an Tiled object by it's Tiled class name
