@@ -12,7 +12,7 @@ import { compare } from "compare-versions";
 import { getCanonicalGid } from "./gid-util";
 import { PathMap, pathRelativeToBase } from "./path-util";
 import { PluginObject } from "./objects";
-import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
+import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty } from "./filter-util";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
 import { FetchLoader, FileLoader } from './file-loader';
 import { TilesetResource, TilesetResourceOptions } from "./tileset-resource";
@@ -326,7 +326,7 @@ export class TiledResource implements Loadable<any> {
    * @returns 
    */
   getTilesetByProperty(propertyName: string, value?: any): Tileset[] {
-    return this.tilesets.filter(byPropertyCaseInsensitive(propertyName, value));
+    return this.tilesets.filter(byProperty(propertyName, value));
   }
 
   /**
@@ -351,7 +351,7 @@ export class TiledResource implements Loadable<any> {
   getTileMetadataByProperty(name: string, value?: any): Tile[] {
     let results: Tile[] = [];
     for (let tileset of this.tilesets) {
-      results = results.concat(tileset.tiles.filter(byPropertyCaseInsensitive(name, value)));
+      results = results.concat(tileset.tiles.filter(byProperty(name, value)));
     }
     return results;
   }
@@ -653,7 +653,7 @@ export class TiledResource implements Loadable<any> {
   }
 
   getLayersByProperty(propertyName: string, value?: any): Layer[] {
-    return this.layers.filter(byPropertyCaseInsensitive(propertyName, value));
+    return this.layers.filter(byProperty(propertyName, value));
   }
 
   private _parseMap(data: any) {
