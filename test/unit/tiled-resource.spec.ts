@@ -387,7 +387,7 @@ describe('A Tiled map resource parser', () => {
       expect(othertile?.tiledTile).toBe(undefined);
    });
 
-   fit('can get tile by layer and world pos in infinite map', async () => {
+   it('can get tile by layer and world pos in infinite map', async () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
 
       await tiledMap.load();

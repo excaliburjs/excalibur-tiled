@@ -168,17 +168,40 @@ export class IsoTileLayer implements Layer {
 
       const gid = this._getGidForTile(exTile);
 
-      if (gid <= 0) {
-        return null;
+      let tiledTile: Tile | undefined;
+      if (gid > 0) {
+        const tileset = this.resource.getTilesetForTileGid(gid);
+        tiledTile = tileset.getTileByGid(gid);
       }
-
-      const tileset = this.resource.getTilesetForTileGid(gid);
-      const tiledTile = tileset.getTileByGid(gid);
 
       return { tiledTile, exTile };
     }
     return null;
   }
+
+  getTileByCoordinate(x: number, y: number): IsometricTileInfo | null {
+    if (!this.isometricMap) {
+      this.logger.warn('IsometricMap has not yet been loaded! getTileByCoordinate() will only return null');
+      return null;
+    }
+
+    if (this.isometricMap) {
+      const exTile = this.isometricMap.getTile(x, y)!;
+
+      const gid = this._getGidForTile(exTile);
+
+      let tiledTile: Tile | undefined;
+      if (gid > 0) {
+        const tileset = this.resource.getTilesetForTileGid(gid);
+        tiledTile = tileset.getTileByGid(gid);
+      }
+
+      return { tiledTile, exTile };
+    }
+
+    return null;
+  }
+
 
   private _recordTileData(gid: number, tile: IsometricTile) {
     let tiles: IsometricTileInfo[] | undefined = this._gidToTileInfo.get(gid);
@@ -303,8 +326,6 @@ export class IsoTileLayer implements Layer {
       order = zoverride;
     }
 
-
-
     if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
       const start = this.resource.isometricTiledCoordToWorld(this.tiledTileLayer.startx, this.tiledTileLayer.starty);
       const infiniteStartPos = vec(
@@ -360,16 +381,17 @@ export class IsoTileLayer implements Layer {
         }
         for (let i = 0; i < chunkData.length; i++) {
           const gid = chunkData[i];
-          if (gid != 0) {
-            // Map from chunk to big tile map
-            const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
-            const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
-            const tile = this.isometricMap.tiles[tileX + tileY * layer.width];
-            this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
 
-            // keep chunk data for tiles per map
-            this._tileToChunkData.set(tile, chunkData);
-            this._tileToChunkIndex.set(tile, i);
+          // Map from chunk to big tile map
+          const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
+          const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
+          const tile = this.isometricMap.tiles[tileX + tileY * layer.width];
+
+          // keep chunk data for tiles per map
+          this._tileToChunkData.set(tile, chunkData);
+          this._tileToChunkIndex.set(tile, i);
+          if (gid != 0) {
+            this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
           }
         }
       }

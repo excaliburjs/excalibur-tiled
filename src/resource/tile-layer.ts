@@ -68,11 +68,11 @@ export class TileLayer implements Layer {
   /**
    * Chunk data by tile
    */
-  private _tileToChunkData = new WeakMap<ExTile, number[]>;
+  private _tileToChunkData = new Map<ExTile, number[]>;
   /**
    * Chunk index by tile
    */
-  private _tileToChunkIndex = new WeakMap<ExTile, number>;
+  private _tileToChunkIndex = new Map<ExTile, number>;
 
   public get isInfinite(): boolean {
     return this._isInfinite;
@@ -128,10 +128,10 @@ export class TileLayer implements Layer {
     let gid = 0;
     if (this._isInfinite) {
       const chunkData = this._tileToChunkData.get(exTile);
-      if (chunkData === undefined) throw Error("Missing chunk data for excalibur tile");
+      if (chunkData === undefined) throw Error(`Missing chunk data for excalibur tile (${exTile.x}, ${exTile.y})`);
 
       const chunkIndex = this._tileToChunkIndex.get(exTile);
-      if (chunkIndex === undefined) throw Error("Missing chunk index for excalibur tile");
+      if (chunkIndex === undefined) throw Error(`Missing chunk index for excalibur tile (${exTile.x}, ${exTile.y})`);
 
       gid = getCanonicalGid(chunkData[chunkIndex]);
 
@@ -153,12 +153,11 @@ export class TileLayer implements Layer {
 
       const gid = this._getGidForTile(exTile);
 
-      if (gid <= 0) {
-        return null;
+      let tiledTile: Tile | undefined;
+      if (gid > 0) {
+        const tileset = this.resource.getTilesetForTileGid(gid);
+        tiledTile = tileset.getTileByGid(gid);
       }
-
-      const tileset = this.resource.getTilesetForTileGid(gid);
-      const tiledTile = tileset.getTileByGid(gid);
 
       return { tiledTile, exTile };
     }
@@ -176,12 +175,11 @@ export class TileLayer implements Layer {
 
       const gid = this._getGidForTile(exTile);
 
-      if (gid <= 0) {
-        return null;
+      let tiledTile: Tile | undefined;
+      if (gid > 0) {
+        const tileset = this.resource.getTilesetForTileGid(gid);
+        tiledTile = tileset.getTileByGid(gid);
       }
-
-      const tileset = this.resource.getTilesetForTileGid(gid);
-      const tiledTile = tileset.getTileByGid(gid);
 
       return { tiledTile, exTile };
     }
@@ -371,16 +369,17 @@ export class TileLayer implements Layer {
 
         for (let i = 0; i < chunkData.length; i++) {
           const gid = chunkData[i];
-          if (gid != 0) {
-            // Map from chunk to big tile map
-            const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
-            const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
-            const tile = this.tilemap.tiles[tileX + tileY * layer.width];
-            this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
+          const tileX = (i % chunk.width) + (chunk.x - this.tiledTileLayer.startx);
+          const tileY = Math.floor(i / chunk.width) + (chunk.y - this.tiledTileLayer.starty);
+          const tile = this.tilemap.tiles[tileX + tileY * layer.width];
 
-            // keep chunk data for tiles per map
-            this._tileToChunkData.set(tile, chunkData);
-            this._tileToChunkIndex.set(tile, i);
+          // keep chunk data for tiles per map
+          this._tileToChunkData.set(tile, chunkData);
+          this._tileToChunkIndex.set(tile, i);
+
+          if (gid !== 0) {
+            // Map from chunk to big tile map
+            this.updateTile(tile, gid, hasTint, tint, isSolidLayer);
           }
         }
       }
