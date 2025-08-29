@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="2" height="2" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="4">
+ <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32" tilecount="30" columns="6">
+  <image source="tilemap_packed.png" width="192" height="176"/>
+  <tile id="2">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="5" y="28.875" width="6" height="2.0625"/>
+   </objectgroup>
+  </tile>
+ </tileset>
+ <objectgroup id="2" name="objects">
+  <object id="3" gid="3" x="0" y="32" width="32" height="32"/>
+ </objectgroup>
+</map>
