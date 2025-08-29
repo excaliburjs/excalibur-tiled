@@ -64,11 +64,14 @@ export class TileLayer implements Layer {
   public readonly visible: boolean;
 
 
-  /**
-   * Chunk data for infinite maps in chunk order
-   */
   private _isInfinite = false;
+  /**
+   * Chunk data by tile
+   */
   private _tileToChunkData = new WeakMap<ExTile, number[]>;
+  /**
+   * Chunk index by tile
+   */
   private _tileToChunkIndex = new WeakMap<ExTile, number>;
 
   public get isInfinite(): boolean {
@@ -182,6 +185,7 @@ export class TileLayer implements Layer {
 
       return { tiledTile, exTile };
     }
+
     return null;
   }
 
