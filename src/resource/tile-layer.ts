@@ -121,6 +121,24 @@ export class TileLayer implements Layer {
     }))
   }
 
+  private _getGidForTile(exTile: ExTile): number {
+    let gid = 0;
+    if (this._isInfinite) {
+      const chunkData = this._tileToChunkData.get(exTile);
+      if (chunkData === undefined) throw Error("Missing chunk data for excalibur tile");
+
+      const chunkIndex = this._tileToChunkIndex.get(exTile);
+      if (chunkIndex === undefined) throw Error("Missing chunk index for excalibur tile");
+
+      gid = getCanonicalGid(chunkData[chunkIndex]);
+
+    } else {
+      const tileIndex = this.tilemap.tiles.indexOf(exTile);
+      gid = getCanonicalGid(this.data[tileIndex]);
+    }
+    return gid;
+  }
+
   getTileByPoint(worldPos: Vector): TileInfo | null {
     if (!this.tilemap) {
       this.logger.warn('Tilemap has not yet been loaded! getTileByPoint() will only return null');
@@ -129,20 +147,8 @@ export class TileLayer implements Layer {
     if (this.tilemap) {
       const exTile = this.tilemap.getTileByPoint(worldPos);
       if (!exTile) return null;
-      const tileIndex = this.tilemap.tiles.indexOf(exTile);
-      let gid = 0;
-      if (this._isInfinite) {
-        const chunkData = this._tileToChunkData.get(exTile);
-        if (chunkData === undefined) throw Error("Missing chunk data for excalibur tile");
 
-        const chunkIndex = this._tileToChunkIndex.get(exTile);
-        if (chunkIndex === undefined) throw Error("Missing chunk index for excalibur tile");
-
-        gid = getCanonicalGid(chunkData[chunkIndex]);
-
-      } else {
-        gid = getCanonicalGid(this.data[tileIndex]);
-      }
+      const gid = this._getGidForTile(exTile);
 
       if (gid <= 0) {
         return null;
@@ -161,10 +167,11 @@ export class TileLayer implements Layer {
       this.logger.warn('Tilemap has not yet been loaded! getTileByCoordinate() will only return null');
       return null;
     }
+
     if (this.tilemap) {
       const exTile = this.tilemap.getTile(x, y)!;
-      const tileIndex = this.tilemap.tiles.indexOf(exTile!);
-      const gid = getCanonicalGid(this.data[tileIndex]);
+
+      const gid = this._getGidForTile(exTile);
 
       if (gid <= 0) {
         return null;
