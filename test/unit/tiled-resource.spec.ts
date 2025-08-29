@@ -387,7 +387,18 @@ describe('A Tiled map resource parser', () => {
       expect(othertile?.tiledTile).toBe(undefined);
    });
 
-   it('can get tile by layer and world pos in infinite map', async () => {
+   it('can get tile by layer and world pos in orthogonal infinite map', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByPoint('ground', vec(8, 8));
+
+      expect(tile).not.toBeNull();
+   });
+
+
+   it('can get tile by layer and world pos in isometric infinite map', async () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
 
       await tiledMap.load();
