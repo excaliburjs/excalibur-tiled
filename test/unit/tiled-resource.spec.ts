@@ -1,5 +1,6 @@
 import { FactoryProps, FetchLoader, TiledResource } from '@excalibur-tiled';
-import { Actor, vec } from 'excalibur';
+import { Actor, BoundingBox, vec } from 'excalibur';
+import type { ObjectLayer } from '../../src/resource/object-layer.js'
 
 describe('A Tiled map resource parser', () => {
    it('should exist', () => {
@@ -387,6 +388,48 @@ describe('A Tiled map resource parser', () => {
       expect(othertile?.tiledTile).toBe(undefined);
    });
 
+   it('can get tile by layer and world pos in orthogonal infinite map', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByPoint('ground', vec(8, 8));
+
+      expect(tile).not.toBeNull();
+   });
+
+
+   it('can get tile by layer and world pos in isometric infinite map', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/isometric-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByPoint('ground', vec(8, 8));
+
+      expect(tile).not.toBeNull();
+   });
+  
+   it('can get tile by layer and coord in orthogonal infinite map', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByCoordinate('ground', 1, 1);
+
+      expect(tile).not.toBeNull();
+   });
+
+
+   it('can get tile by layer and coord in isometric infinite map', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/isometric-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tile = tiledMap.getTileByCoordinate('ground', 1, 1);
+
+      expect(tile).not.toBeNull();
+   });
+
    it('can get tile by class name', async () => {
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
@@ -411,5 +454,21 @@ describe('A Tiled map resource parser', () => {
       expect(tile[0].id).toBe(2);
       expect(tile[0].properties.get('tileprop')).toBe('someprop');
       expect(tile[0].class).toBe('tileclass');
+   });
+
+   it("correctly places collision box when the object's tileset tile size is different than the map tile size", async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/bigger_tile_object.tmx');
+
+      await tiledMap.load();
+
+      const objectsLayer = tiledMap.getLayersByName('objects')[0] as ObjectLayer;
+      const object = objectsLayer.entities[0] as Actor;
+
+      expect(object.collider.bounds).toEqual(new BoundingBox({
+         bottom: 30.9375,
+         left: 5,
+         right: 11,
+         top: 28.875,
+      }));
    });
 });
