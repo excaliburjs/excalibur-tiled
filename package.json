@@ -59,7 +59,7 @@
       "@types/node": "22.18.0",
       "@types/pako": "1.0.7",
       "@types/webpack-env": "1.18.8",
-      "cross-env": "7.0.3",
+      "cross-env": "10.0.0",
       "excalibur": "~0.30.1",
       "http-server": "14.1.1",
       "jasmine-core": "5.9.0",
