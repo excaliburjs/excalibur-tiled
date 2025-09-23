@@ -75,7 +75,7 @@
       "webpack": "5.101.3",
       "webpack-bundle-analyzer": "4.10.2",
       "webpack-cli": "6.0.1",
-      "webpack-dev-middleware": "7.4.3",
+      "webpack-dev-middleware": "7.4.4",
       "webpack-dev-server": "5.2.2"
    },
    "dependencies": {
@@ -95,7 +95,7 @@
    },
    "overrides": {
       "webpack-dev-server": {
-         "webpack-dev-middleware": "7.4.3"
+         "webpack-dev-middleware": "7.4.4"
       }
    }
 }
