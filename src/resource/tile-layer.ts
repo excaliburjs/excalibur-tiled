@@ -15,7 +15,7 @@ import { byClassCaseInsensitive, byProperty, byPropertyValueMatcher } from "./fi
  */
 export interface TileInfo {
   /**
-   * Tiled based information for the tile
+   * Tiled based information for the tile, possibly undefined if no specific tile information
    */
   tiledTile?: Tile;
   /**
