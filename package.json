@@ -54,7 +54,7 @@
    "devDependencies": {
       "@playwright/test": "1.56.1",
       "@types/jasmine": "5.1.12",
-      "@types/jsdom": "21.1.7",
+      "@types/jsdom": "27.0.0",
       "@types/json-diff": "1.0.3",
       "@types/node": "22.18.12",
       "@types/pako": "1.0.7",
