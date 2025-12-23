@@ -60,7 +60,7 @@
       "@types/pako": "1.0.7",
       "@types/webpack-env": "1.18.8",
       "cross-env": "10.1.0",
-      "excalibur": "~0.31.0",
+      "excalibur": "~0.32.0",
       "http-server": "14.1.1",
       "jasmine-core": "5.13.0",
       "json-diff": "1.0.6",
