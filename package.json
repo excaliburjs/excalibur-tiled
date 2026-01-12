@@ -76,7 +76,7 @@
       "webpack-bundle-analyzer": "4.10.2",
       "webpack-cli": "6.0.1",
       "webpack-dev-middleware": "7.4.5",
-      "webpack-dev-server": "5.2.2"
+      "webpack-dev-server": "5.2.3"
    },
    "dependencies": {
       "compare-versions": "6.1.1",
