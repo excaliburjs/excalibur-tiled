@@ -81,7 +81,7 @@
    "dependencies": {
       "compare-versions": "6.1.1",
       "pako": "1.0.11",
-      "zod": "4.3.5",
+      "zod": "4.3.6",
       "zstddec": "0.2.0"
    },
    "peerDependencies": {
