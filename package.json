@@ -54,7 +54,7 @@
    "devDependencies": {
       "@playwright/test": "1.58.1",
       "@types/jasmine": "5.1.15",
-      "@types/jsdom": "21.1.7",
+      "@types/jsdom": "28.0.0",
       "@types/json-diff": "1.0.3",
       "@types/node": "22.19.7",
       "@types/pako": "1.0.7",
@@ -88,7 +88,7 @@
       "excalibur": "~0.32.0"
    },
    "optionalDependencies": {
-      "jsdom": "^27.0.0"
+      "jsdom": "^28.0.0"
    },
    "browser": {
       "jsdom": false
