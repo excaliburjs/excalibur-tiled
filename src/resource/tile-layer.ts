@@ -191,7 +191,8 @@ export class TileLayer implements Layer {
     }
 
     if (this.tilemap) {
-      const exTile = this.tilemap.getTile(x, y)!;
+      const exTile = this.tilemap.getTile(x, y);
+      if (!exTile) return null;
 
       const gid = this._getGidForTile(exTile);
 
@@ -316,6 +317,7 @@ export class TileLayer implements Layer {
     const tint = this.tiledTileLayer.tintcolor ? Color.fromHex(this.tiledTileLayer.tintcolor) : Color.Transparent;
     const isSolidLayer = !!this.properties.get(ExcaliburTiledProperties.Layer.Solid);
     const layer = this.tiledTileLayer;
+    const isEmptyInfiniteLayer = this.resource.map.infinite && isInfiniteLayer(layer) && layer.chunks.length === 0;
     const pos = vec(layer.offsetx ?? 0, layer.offsety ?? 0);
     if (this.tiledTileLayer.data && needsDecoding(this.tiledTileLayer)) {
       this.data = await Decoder.decode(this.tiledTileLayer.data, this.tiledTileLayer.compression);
@@ -367,7 +369,7 @@ export class TileLayer implements Layer {
     }
     const graphics = this.tilemap.get(GraphicsComponent);
     if (graphics) {
-      graphics.isVisible = this.tiledTileLayer.visible;
+      graphics.isVisible = this.tiledTileLayer.visible && !isEmptyInfiniteLayer;
       graphics.opacity = opacity;
     }
     if (layer.parallaxx || layer.parallaxy) {

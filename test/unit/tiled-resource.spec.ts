@@ -1,5 +1,5 @@
 import { FactoryProps, FetchLoader, TiledResource } from '@excalibur-tiled';
-import { Actor, BoundingBox, vec } from 'excalibur';
+import { Actor, BoundingBox, GraphicsComponent, vec } from 'excalibur';
 import type { ObjectLayer } from '../../src/resource/object-layer.js'
 
 describe('A Tiled map resource parser', () => {
@@ -417,6 +417,51 @@ describe('A Tiled map resource parser', () => {
       const tile = tiledMap.getTileByCoordinate('ground', 1, 1);
 
       expect(tile).not.toBeNull();
+   });
+
+   it('does not render or throw when an infinite tile layer has no chunks', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/empty-infinite.tmj', {
+         headless: true,
+         fileLoader: async () => ({
+            type: 'map',
+            version: '1.10',
+            tiledversion: '1.10.2',
+            width: 0,
+            height: 0,
+            tilewidth: 16,
+            tileheight: 16,
+            infinite: true,
+            nextlayerid: 2,
+            nextobjectid: 1,
+            orientation: 'orthogonal',
+            renderorder: 'right-down',
+            layers: [
+               {
+                  id: 1,
+                  name: 'empty',
+                  type: 'tilelayer',
+                  visible: true,
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  width: 0,
+                  height: 0,
+                  startx: 0,
+                  starty: 0,
+                  chunks: []
+               }
+            ],
+            tilesets: []
+         })
+      });
+
+      await tiledMap.load();
+
+      const [layer] = tiledMap.getTileLayers('empty');
+      const graphics = layer.tilemap.get(GraphicsComponent);
+
+      expect(graphics.isVisible).toBe(false);
+      expect(tiledMap.getTileByCoordinate('empty', 0, 0)).toBeNull();
    });
 
 
