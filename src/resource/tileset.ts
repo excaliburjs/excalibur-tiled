@@ -372,8 +372,16 @@ export class Tileset implements Properties {
       return points;
    }
 
+   _cachedAnimations = new Map<number, Animation>();
    public getAnimationForGid(gid: number): Animation | null {
+      if (this._cachedAnimations.has(gid)) {
+        return this._cachedAnimations.get(gid)!;
+      }
       const tile = this.getTileByGid(gid);
+      const h = isFlippedHorizontally(gid);
+      const v = isFlippedVertically(gid);
+      const d = isFlippedDiagonally(gid);
+
       if (tile && tile.animation?.length) {
          let exFrames: Frame[] = [];
          for (let frame of tile.animation) {
@@ -382,10 +390,24 @@ export class Tileset implements Properties {
                duration: frame.duration
             });
          }
-         return new Animation({
+         const anim = new Animation({
             frames: exFrames,
             strategy: AnimationStrategy.Loop
          });
+
+         if (d) {
+            anim.rotation = -Math.PI / 2;
+            anim.scale = vec(-1, 1);
+         }
+         if (h) {
+            anim.scale = vec((d ? 1 : -1) * anim.scale.x, (d ? -1 : 1) * anim.scale.y);
+         }
+         if (v) {
+            anim.scale = vec((d ? -1 : 1) * anim.scale.x, (d ? 1 : -1) * anim.scale.y);
+         }
+         this._cachedAnimations.set(gid, anim);
+
+         return anim;
       }
       return null;
    }
