@@ -1,8 +1,14 @@
+const path = require('path');
+const webpack = require('webpack');
+const stdLibBrowser = require('node-stdlib-browser');
 // Karma configuration
 // Generated on Sun Jan 31 2021 14:58:28 GMT-0600 (Central Standard Time)
 
-const webpack = require('./webpack.config')
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+const webpackConfig = require('./webpack.config')
+
+const bufferPath = path.resolve(__dirname, 'node_modules/node-stdlib-browser/node_modules/buffer/index.js');
+
+const baseWebpack = webpackConfig({output: 'umd'}, {mode: 'development'});
 
 module.exports = function(config) {
   config.set({
@@ -15,10 +21,29 @@ module.exports = function(config) {
     basePath: '',
 
     webpack: {
-      ...webpack({output: 'umd'}, {mode: 'development'}),
-      ...{ plugins: [
-         new NodePolyfillPlugin() // for json-diff tests in parser
-      ]}
+      ...baseWebpack,
+      resolve: {
+        ...baseWebpack.resolve,
+        fallback: {
+          ...baseWebpack.resolve?.fallback,
+          buffer: bufferPath,
+          os: stdLibBrowser.os,
+          path: stdLibBrowser.path,
+          util: stdLibBrowser.util,
+          assert: stdLibBrowser.assert,
+          events: stdLibBrowser.events,
+          stream: stdLibBrowser.stream,
+          string_decoder: stdLibBrowser.string_decoder,
+          crypto: stdLibBrowser.crypto,
+          url: stdLibBrowser.url,
+        }
+      },
+      plugins: [
+         new webpack.ProvidePlugin({
+            Buffer: [bufferPath, 'Buffer'],
+            process: stdLibBrowser.process,
+         })
+      ]
     },
 
 
