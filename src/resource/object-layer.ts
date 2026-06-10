@@ -308,9 +308,10 @@ export class ObjectLayer implements Layer {
          }
 
          let zindex = undefined;
-         let zoverride = this.properties.get(ExcaliburTiledProperties.ZIndex.ZIndex) as number | undefined;
-         if (typeof zoverride === 'number') {
-            zindex = zoverride;
+         let zLayerOverride = this.properties.get(ExcaliburTiledProperties.ZIndex.ZIndex) as number | undefined;
+         let zObjectOverride = object.properties.get(ExcaliburTiledProperties.ZIndex.ZIndex) as number | undefined;
+         if (typeof zLayerOverride === 'number' || typeof zObjectOverride === 'number') {
+            zindex = zObjectOverride ?? zLayerOverride;
          }
 
          const newActor = new Actor({
