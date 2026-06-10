@@ -71,6 +71,11 @@ const tiledMap = new TiledResource('./orthogonal.tmx', {
 //    }
 // });
 
+
+// const tiledMap = new TiledResource('animation-tiles.tmx', {
+//    useMapBackgroundColor: true
+// });
+
 const loader = new ex.Loader([tiledMap]);
 
 let currentPointer!: ex.Vector;
@@ -85,6 +90,8 @@ game.input.pointers.primary.on('move', (moveEvent) => {
       console.log(tile);
    }
 })
+let frame = 0;
+game.on('preframe', () => console.log('frame:', frame++));
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
    // wheel up
