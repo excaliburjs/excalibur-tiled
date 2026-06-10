@@ -32,29 +32,29 @@ const game = new ex.Engine({
 });
 game.toggleDebug();
 
-// const tiledMap = new TiledResource('./orthogonal.tmx', {
-//    useMapBackgroundColor: true,
-//    layerConfig: {
-//       "Above": {
-//          //isSolid: true
-//          //useTileColliders: true,
-//          useTileCollidersWhenInvisible: true,
-//          collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
-//       }
-//    },
-//    entityClassNameFactories: {
-//       'player-start': (props) => {
-//          return new Player({
-//             pos: props.worldPos,
-//             width: 16,
-//             height: 16,
-//             color: ex.Color.Blue,
-//             collisionType: ex.CollisionType.Active,
-//             collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
-//          });
-//       }
-//    }
-// });
+const tiledMap = new TiledResource('./orthogonal.tmx', {
+   useMapBackgroundColor: true,
+   layerConfig: {
+      "Above": {
+         //isSolid: true
+         //useTileColliders: true,
+         useTileCollidersWhenInvisible: true,
+         collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
+      }
+   },
+   entityClassNameFactories: {
+      'player-start': (props) => {
+         return new Player({
+            pos: props.worldPos,
+            width: 16,
+            height: 16,
+            color: ex.Color.Blue,
+            collisionType: ex.CollisionType.Active,
+            collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
+         });
+      }
+   }
+});
 
 // const tiledMap = new TiledResource('../../test/unit/tiled/parser-spec/orthogonal-infinite.tmx', {
 //    useMapBackgroundColor: true,
@@ -72,9 +72,9 @@ game.toggleDebug();
 // });
 
 
-const tiledMap = new TiledResource('animation-tiles.tmx', {
-   useMapBackgroundColor: true
-});
+// const tiledMap = new TiledResource('animation-tiles.tmx', {
+//    useMapBackgroundColor: true
+// });
 
 const loader = new ex.Loader([tiledMap]);
 
