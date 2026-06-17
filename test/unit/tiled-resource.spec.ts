@@ -408,7 +408,7 @@ describe('A Tiled map resource parser', () => {
 
       expect(tile).not.toBeNull();
    });
-  
+   
    it('can get tile by layer and coord in orthogonal infinite map', async () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal-infinite.tmx');
 
@@ -473,6 +473,70 @@ describe('A Tiled map resource parser', () => {
       const tile = tiledMap.getTileByCoordinate('ground', 1, 1);
 
       expect(tile).not.toBeNull();
+   });
+
+   it('getTileByCoordinate returns correct tile in isometric infinite map with non-zero start', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/isometric-infinite.tmx');
+
+      await tiledMap.load();
+
+      const tileAtOrigin = tiledMap.getTileByCoordinate('ground', 0, 0);
+      expect(tileAtOrigin).not.toBeNull();
+      expect(tileAtOrigin?.tiledTile).toBeDefined();
+      expect(tileAtOrigin?.tiledTile?.id).toBe(1);
+
+      const emptyTile = tiledMap.getTileByCoordinate('ground', -16, -16);
+      expect(emptyTile).not.toBeNull();
+      expect(emptyTile?.tiledTile).toBeUndefined();
+   });
+
+   it('getTileByCoordinate returns correct tile in orthogonal infinite map with non-zero start', async () => {
+      const chunkData = new Array(256).fill(0);
+
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/ortho-offset-infinite.tmj', {
+         headless: true,
+         fileLoader: async () => ({
+            type: 'map',
+            version: '1.10',
+            tiledversion: '1.10.2',
+            width: 32,
+            height: 16,
+            tilewidth: 16,
+            tileheight: 16,
+            infinite: true,
+            nextlayerid: 2,
+            nextobjectid: 1,
+            orientation: 'orthogonal',
+            renderorder: 'right-down',
+            layers: [{
+               id: 1, name: 'ground', type: 'tilelayer', visible: true, opacity: 1,
+               x: 0, y: 0, width: 32, height: 16, startx: -16, starty: 0,
+               encoding: 'csv',
+               chunks: [
+                  { x: -16, y: 0, width: 16, height: 16, data: chunkData },
+                  { x: 0, y: 0, width: 16, height: 16, data: chunkData }
+               ]
+            }],
+            tilesets: []
+         })
+      });
+
+      await tiledMap.load();
+
+      const tileAtOrigin = tiledMap.getTileByCoordinate('ground', 0, 0);
+      expect(tileAtOrigin).not.toBeNull();
+      expect(tileAtOrigin?.exTile.x).toBe(16);
+      expect(tileAtOrigin?.exTile.y).toBe(0);
+
+      const tileInLeftChunk = tiledMap.getTileByCoordinate('ground', -16, 15);
+      expect(tileInLeftChunk).not.toBeNull();
+      expect(tileInLeftChunk?.exTile.x).toBe(0);
+      expect(tileInLeftChunk?.exTile.y).toBe(15);
+
+      const tileAtNegX = tiledMap.getTileByCoordinate('ground', -1, 0);
+      expect(tileAtNegX).not.toBeNull();
+      expect(tileAtNegX?.exTile.x).toBe(15);
+      expect(tileAtNegX?.exTile.y).toBe(0);
    });
 
    it('can get tile by class name', async () => {

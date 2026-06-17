@@ -191,7 +191,9 @@ export class TileLayer implements Layer {
     }
 
     if (this.tilemap) {
-      const exTile = this.tilemap.getTile(x, y);
+      const startx = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.startx : 0;
+      const starty = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.starty : 0;
+      const exTile = this.tilemap.getTile(x - startx, y - starty);
       if (!exTile) return null;
 
       const gid = this._getGidForTile(exTile);
