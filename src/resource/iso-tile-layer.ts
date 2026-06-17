@@ -211,6 +211,7 @@ export class IsoTileLayer implements Layer {
       const startx = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.startx : 0;
       const starty = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.starty : 0;
       const exTile = this.isometricMap.getTile(x - startx, y - starty)!;
+      if (!exTile) return null;
 
       const gid = this._getGidForTile(exTile);
 
