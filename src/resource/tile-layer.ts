@@ -148,10 +148,9 @@ export class TileLayer implements Layer {
     let gid = 0;
     if (this._isInfinite) {
       const chunkData = this._tileToChunkData.get(exTile);
-      if (chunkData === undefined) throw Error(`Missing chunk data for excalibur tile (${exTile.x}, ${exTile.y})`);
-
       const chunkIndex = this._tileToChunkIndex.get(exTile);
-      if (chunkIndex === undefined) throw Error(`Missing chunk index for excalibur tile (${exTile.x}, ${exTile.y})`);
+      // Actually not an error, Tiled packs these sparsely so it's very possible they're missing
+      if (!chunkIndex || !chunkData) return gid;
 
       gid = getCanonicalGid(chunkData[chunkIndex]);
 
@@ -184,6 +183,12 @@ export class TileLayer implements Layer {
     return null;
   }
 
+
+  /**
+   * What do we mean by coordinate?
+   * Tiled coordinate (min chunk start col, min chunk start row) -> (max, max)? 
+   * or EX Tilemap coordinate (0, 0) -> (max cols, max rows)
+   */
   getTileByCoordinate(x: number, y: number): TileInfo | null {
     if (!this.tilemap) {
       this.logger.warn('Tilemap has not yet been loaded! getTileByCoordinate() will only return null');
@@ -193,6 +198,7 @@ export class TileLayer implements Layer {
     if (this.tilemap) {
       const startx = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.startx : 0;
       const starty = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.starty : 0;
+      // ex tilemaps always start at 0,0 we remap the Tiled coords
       const exTile = this.tilemap.getTile(x - startx, y - starty);
       if (!exTile) return null;
 
