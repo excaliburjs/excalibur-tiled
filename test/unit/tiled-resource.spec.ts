@@ -1,6 +1,7 @@
 import { FactoryProps, FetchLoader, TiledResource } from '@excalibur-tiled';
 import { Actor, BoundingBox, GraphicsComponent, vec } from 'excalibur';
 import type { ObjectLayer } from '../../src/resource/object-layer.js'
+import type { ImageLayer } from '../../src/resource/image-layer.js'
 
 describe('A Tiled map resource parser', () => {
    it('should exist', () => {
@@ -124,6 +125,32 @@ describe('A Tiled map resource parser', () => {
              expect(entity.z).toBe(14);
           }
        }
+    });
+
+    it('image layer actors use layer order as z-index by default', async () => {
+       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+       await tiledMap.load();
+
+       const imageLayers = tiledMap.getImageLayers();
+       expect(imageLayers.length).toBeGreaterThan(0);
+
+       const imageLayer = imageLayers[0] as ImageLayer;
+       expect(imageLayer.order).toBe(3);
+       expect(imageLayer.imageActor).not.toBeNull();
+       expect(imageLayer.imageActor!.z).toBe(3);
+    });
+
+    it('image layer actors respect startZIndex', async () => {
+       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
+          startZIndex: 10
+       });
+       await tiledMap.load();
+
+       const imageLayers = tiledMap.getImageLayers();
+       const imageLayer = imageLayers[0] as ImageLayer;
+       expect(imageLayer.order).toBe(13);
+       expect(imageLayer.imageActor).not.toBeNull();
+       expect(imageLayer.imageActor!.z).toBe(13);
     });
 
     it('can load headless', async () => {
