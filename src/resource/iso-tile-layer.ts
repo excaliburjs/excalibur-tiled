@@ -168,7 +168,7 @@ export class IsoTileLayer implements Layer {
       const chunkIndex = this._tileToChunkIndex.get(exTile);
 
       // Actually not an error, Tiled packs these sparsely so it's very possible they're missing
-      if (!chunkIndex || !chunkData) return gid;
+      if (chunkIndex == null || !chunkData) return gid;
 
       gid = getCanonicalGid(chunkData[chunkIndex]);
 
