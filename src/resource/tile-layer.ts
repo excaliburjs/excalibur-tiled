@@ -185,9 +185,8 @@ export class TileLayer implements Layer {
 
 
   /**
-   * What do we mean by coordinate?
-   * Tiled coordinate (min chunk start col, min chunk start row) -> (max, max)? 
-   * or EX Tilemap coordinate (0, 0) -> (max cols, max rows)
+   * Tiled integer (x, y) tile coordinate. The same coords you see in the Tiled editor are the same used here, 
+*  * for infinite maps those can be negative.
    */
   getTileByCoordinate(x: number, y: number): TileInfo | null {
     if (!this.tilemap) {
