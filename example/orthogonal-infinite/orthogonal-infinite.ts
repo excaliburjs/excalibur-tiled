@@ -68,10 +68,21 @@ game.input.pointers.primary.on('down', (moveEvent) => {
 });
 
 game.input.pointers.primary.on('move', (moveEvent) => {
+
+   const x = Math.floor(moveEvent.worldPos.x/16);
+   const y = Math.floor(moveEvent.worldPos.y/16);
+   console.log('coord', x, y);
+   const tile = tiledMap.getTilesByCoordinate(x, y)[0]?.exTile;
+   const maybeGraphics = tile?.getGraphics();
+   if (maybeGraphics && maybeGraphics.length) {
+    console.log(maybeGraphics[0]);
+   }
+
    // const tile = tiledMap.getTileByPoint('ground', moveEvent.worldPos);
    // if (tile) {
    //    console.log(tile);
    // }
+
 })
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
@@ -87,6 +98,9 @@ game.input.pointers.primary.on('wheel', (wheelEvent) => {
 game.start(loader).then(() => {
    tiledMap.addToScene(game.currentScene);
    currentPointer = game.currentScene.camera.pos;
+
+   console.log(-36, -26, tiledMap.getTilesByCoordinate(-36, -26)[0].exTile.getGraphics());
+   console.log(-37, -26, tiledMap.getTilesByCoordinate(-37, -26)[0].exTile.getGraphics());
 
    (window as any).tiledMap = tiledMap;
 });

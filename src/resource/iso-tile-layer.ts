@@ -165,10 +165,10 @@ export class IsoTileLayer implements Layer {
     let gid = 0;
     if (this._isInfinite) {
       const chunkData = this._tileToChunkData.get(exTile);
-      if (chunkData === undefined) throw Error("Missing chunk data for excalibur tile");
-
       const chunkIndex = this._tileToChunkIndex.get(exTile);
-      if (chunkIndex === undefined) throw Error("Missing chunk index for excalibur tile");
+
+      // Actually not an error, Tiled packs these sparsely so it's very possible they're missing
+      if (chunkIndex == null || !chunkData) return gid;
 
       gid = getCanonicalGid(chunkData[chunkIndex]);
 
@@ -208,7 +208,11 @@ export class IsoTileLayer implements Layer {
     }
 
     if (this.isometricMap) {
-      const exTile = this.isometricMap.getTile(x, y)!;
+      const startx = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.startx : 0;
+
+      const starty = isInfiniteLayer(this.tiledTileLayer) ? this.tiledTileLayer.starty : 0;
+      const exTile = this.isometricMap.getTile(x - startx, y - starty)!;
+      if (!exTile) return null;
 
       const gid = this._getGidForTile(exTile);
 
