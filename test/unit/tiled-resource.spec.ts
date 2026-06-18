@@ -87,7 +87,46 @@ describe('A Tiled map resource parser', () => {
       expect(tileLayers[2].tilemap.z).toBe(12);
    });
 
-   it('can load headless', async () => {
+    it('object layer actors use layer order as z-index by default', async () => {
+       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
+       await tiledMap.load();
+
+       const objectsLayer = tiledMap.getLayersByName('Objects')[0] as ObjectLayer;
+       const otherObjectsLayer = tiledMap.getLayersByName('OtherObjects')[0] as ObjectLayer;
+
+       expect(objectsLayer.order).toBe(4);
+       expect(otherObjectsLayer.order).toBe(5);
+
+       for (const entity of objectsLayer.entities) {
+          if (entity instanceof Actor) {
+             expect(entity.z).toBe(4);
+          }
+       }
+
+       for (const entity of otherObjectsLayer.entities) {
+          if (entity instanceof Actor) {
+             expect(entity.z).toBe(5);
+          }
+       }
+    });
+
+    it('object layer actors respect startZIndex', async () => {
+       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
+          startZIndex: 10
+       });
+       await tiledMap.load();
+
+       const objectsLayer = tiledMap.getLayersByName('Objects')[0] as ObjectLayer;
+       expect(objectsLayer.order).toBe(14);
+
+       for (const entity of objectsLayer.entities) {
+          if (entity instanceof Actor) {
+             expect(entity.z).toBe(14);
+          }
+       }
+    });
+
+    it('can load headless', async () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
          headless: true
       });
