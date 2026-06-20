@@ -2,13 +2,13 @@ import { Actor, Color, ImageSource, ParallaxComponent, Vector, vec } from "excal
 import { Layer } from "./layer";
 import { TiledImageLayer } from "../parser/tiled-parser";
 import { TiledResource } from "./tiled-resource";
-import { mapProps } from "./properties";
+import { mapProps, PropertyMapValue } from "./properties";
 import { pathRelativeToBase } from "./path-util";
 
 export class ImageLayer implements Layer {
    public readonly name: string;
    public readonly class?: string;
-   properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
    image: ImageSource | null = null;
    imageActor: Actor | null = null;
    constructor(public tiledImageLayer: TiledImageLayer, public resource: TiledResource, public readonly order: number) {

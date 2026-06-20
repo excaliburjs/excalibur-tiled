@@ -2,7 +2,7 @@ import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, Sprit
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, Polygon, Rectangle, parseObjects } from "./objects";
-import { Properties, mapProps } from "./properties";
+import { Properties, PropertyMapValue, mapProps } from "./properties";
 import { PluginObject } from "./objects";
 import { byClassCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 
@@ -25,8 +25,8 @@ export class Tile implements Properties {
    graphic?: Graphic;
    objects: PluginObject[] = [];
    colliders: Collider[] = [];
-   animation: { tileid: number, duration: number }[] = [];
-   properties = new Map<string, string | number | boolean>()
+    animation: { tileid: number, duration: number }[] = [];
+    properties = new Map<string, PropertyMapValue>()
    constructor(options: TileOptions) {
       const { id, tileset, tiledTile } = options;
       this.id = id;
@@ -72,7 +72,7 @@ export class Tileset implements Properties {
    tiles: Tile[] = [];
    objectalignment: string = 'bottomleft';
    orientation: 'isometric' | 'orthogonal' = 'orthogonal';
-   properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
 
    horizontalFlipTransform!: AffineMatrix;
    verticalFlipTransform!: AffineMatrix;

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.12" tiledversion="1.12.0" orientation="orthogonal" renderorder="right-down" width="4" height="4" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="3">
+ <properties>
+  <property name="stringList" type="list">
+   <item type="string" value="hello"/>
+   <item type="string" value="world"/>
+  </property>
+  <property name="mixedList" type="list">
+   <item type="int" value="42"/>
+   <item type="string" value="test"/>
+   <item type="bool" value="true"/>
+   <item type="float" value="3.14"/>
+   <item type="color" value="#ff0000ff"/>
+  </property>
+  <property name="nestedList" type="list">
+   <item type="list">
+    <item type="int" value="1"/>
+    <item type="int" value="2"/>
+   </item>
+   <item type="list">
+    <item type="string" value="a"/>
+    <item type="string" value="b"/>
+   </item>
+  </property>
+  <property name="emptyList" type="list">
+  </property>
+ </properties>
+ <tileset firstgid="1" name="test" tilewidth="16" tileheight="16" tilecount="1" columns="1">
+  <image source="tilemap_packed.png" width="16" height="16"/>
+  <tile id="0">
+   <properties>
+    <property name="tileList" type="list">
+     <item type="string" value="tileItem1"/>
+     <item type="string" value="tileItem2"/>
+    </property>
+   </properties>
+  </tile>
+ </tileset>
+ <layer id="1" name="TileLayer" width="4" height="4">
+  <properties>
+   <property name="layerList" type="list">
+    <item type="string" value="layerItem1"/>
+    <item type="int" value="100"/>
+   </property>
+  </properties>
+  <data encoding="csv">
+1,1,1,1,
+1,1,1,1,
+1,1,1,1,
+1,1,1,1
+</data>
+ </layer>
+ <objectgroup id="2" name="ObjectLayer">
+  <properties>
+   <property name="objectLayerList" type="list">
+    <item type="string" value="objLayerItem"/>
+   </property>
+  </properties>
+  <object id="1" name="TestObject" x="16" y="16" width="16" height="16">
+   <properties>
+    <property name="objectList" type="list">
+     <item type="string" value="objectItem1"/>
+     <item type="string" value="objectItem2"/>
+     <item type="int" value="99"/>
+    </property>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

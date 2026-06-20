@@ -1,4 +1,7 @@
-import { TiledProperty } from "../parser/tiled-parser";
+import { TiledListItemValue, TiledProperty } from "../parser/tiled-parser";
+
+export type PropertyValue = string | number | boolean;
+export type PropertyMapValue = PropertyValue | TiledListItemValue[];
 
 export interface Properties {
    /**
@@ -6,7 +9,17 @@ export interface Properties {
     *
     * These are all converted to lowercase keys, and lowercase if the value is a string
     */
-   properties: Map<string, string | number | boolean>;
+   properties: Map<string, PropertyMapValue>;
+}
+
+function lowercaseListItem(item: TiledListItemValue): TiledListItemValue {
+   if (item.type === 'list') {
+      return { type: 'list', value: item.value.map(lowercaseListItem) };
+   }
+   if (item.type === 'string' || item.type === 'file' || item.type === 'color') {
+      return { ...item, value: item.value.toLocaleLowerCase() };
+   }
+   return item;
 }
 
 /**
@@ -18,8 +31,10 @@ export function mapProps<T extends Properties>(target: T, sourceProps?: TiledPro
    try {
       if (sourceProps) {
          for (const prop of sourceProps) {
-            let value = prop.value;
-            if (typeof prop.value === 'string') {
+            let value: PropertyMapValue = prop.value;
+            if (prop.type === 'list') {
+               value = prop.value.map(lowercaseListItem);
+            } else if (typeof prop.value === 'string') {
                value = prop.value.toLocaleLowerCase();
             }
             target.properties.set(prop.name.toLocaleLowerCase(), value);
