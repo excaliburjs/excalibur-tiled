@@ -518,13 +518,14 @@ export class TiledParser {
        if (propertiesNode) {
           for (let prop of propertiesNode.children) {
              const type = prop.getAttribute('type') as TiledPropertyTypes ?? 'string'; // if no type is set it's string!
-             let value: any = prop.getAttribute('value');
+             let value: any;
              if (type === 'list') {
                 value = this._parseListItems(prop);
-             } else if (!value) {
-                value = prop.innerHTML;
-                value = this._coerceType(type, value as string);
              } else {
+                value = prop.getAttribute('value');
+                if (!value) {
+                   value = prop.innerHTML;
+                }
                 value = this._coerceType(type, value as string);
              }
              properties.push({
