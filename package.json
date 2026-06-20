@@ -70,7 +70,7 @@
       "karma-webpack": "5.0.1",
       "node-polyfill-webpack-plugin": "4.1.0",
       "raw-loader": "4.0.2",
-      "ts-loader": "9.5.4",
+      "ts-loader": "9.6.1",
       "typescript": "5.9.3",
       "webpack": "5.105.4",
       "webpack-bundle-analyzer": "4.10.2",
