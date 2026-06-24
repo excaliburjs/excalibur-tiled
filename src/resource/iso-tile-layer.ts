@@ -82,6 +82,7 @@ export class IsoTileLayer implements Layer {
   }
 
   private _gidToTileInfo = new Map<number, IsometricTileInfo[]>();
+  private _resolvedOrder: number;
 
   constructor(public tiledTileLayer: TiledTileLayer, public resource: TiledResource, public readonly order: number) {
     this.name = tiledTileLayer.name;
@@ -90,6 +91,7 @@ export class IsoTileLayer implements Layer {
     this.width = tiledTileLayer.width;
     this.height = tiledTileLayer.height;
     this.visible = !!tiledTileLayer.visible;
+    this._resolvedOrder = order;
     mapProps(this, tiledTileLayer.properties);
   }
 
@@ -255,7 +257,7 @@ export class IsoTileLayer implements Layer {
 
     const iso = tile.get(IsometricEntityComponent);
     if (iso) {
-      iso.elevation = this.order;
+      iso.elevation = this._resolvedOrder;
     }
 
     const tileset = this.resource.getTilesetForTileGid(gid);
@@ -346,11 +348,8 @@ export class IsoTileLayer implements Layer {
       this.data = this.tiledTileLayer.data;
     }
 
-    let order = this.order;
     let zoverride = this.properties.get(ExcaliburTiledProperties.ZIndex.ZIndex) as number | undefined;
-    if (typeof zoverride === 'number') {
-      order = zoverride;
-    }
+    this._resolvedOrder = zoverride ?? this.order;
 
     if (this.resource.map.infinite && isInfiniteLayer(this.tiledTileLayer)) {
       const start = this.resource.isometricTiledCoordToWorld(this.tiledTileLayer.startx, this.tiledTileLayer.starty);
@@ -364,7 +363,7 @@ export class IsoTileLayer implements Layer {
         tileWidth: this.resource.map.tilewidth,
         columns: layer.width,
         rows: layer.height,
-        elevation: order
+        elevation: this._resolvedOrder 
       });
       if (maybeLayerConfig?.collisionGroup) {
         const body = this.isometricMap.get(BodyComponent);

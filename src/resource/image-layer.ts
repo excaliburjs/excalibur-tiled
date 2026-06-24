@@ -4,6 +4,7 @@ import { TiledImageLayer } from "../parser/tiled-parser";
 import { TiledResource } from "./tiled-resource";
 import { mapProps } from "./properties";
 import { pathRelativeToBase } from "./path-util";
+import { ExcaliburTiledProperties } from "./excalibur-properties";
 
 export class ImageLayer implements Layer {
    public readonly name: string;
@@ -30,11 +31,16 @@ export class ImageLayer implements Layer {
          if (!this.resource.headless) {
             await this.image.load();
          }
+         let z = this.order;
+         let zoverride = this.properties.get(ExcaliburTiledProperties.ZIndex.ZIndex) as number | undefined;
+         if (typeof zoverride === 'number') {
+            z = zoverride;
+         }
          this.imageActor = new Actor({
             name: this.tiledImageLayer.name,
             pos: offset,
             anchor: Vector.Zero,
-            z: this.order
+            z
          });
          this.imageActor.addComponent(new ParallaxComponent(vec(parallaxx, parallaxy)))
          // FIXME when excalibur supports tiling we should use it here for repeatx/repeaty!
