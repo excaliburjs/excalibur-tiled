@@ -565,19 +565,195 @@ describe('A Tiled map resource parser', () => {
       expect(tile[0].class).toBe('tileclass');
    });
 
-   it("correctly places collision box when the object's tileset tile size is different than the map tile size", async () => {
-      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/bigger_tile_object.tmx');
+    it("correctly places collision box when the object's tileset tile size is different than the map tile size", async () => {
+       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/bigger_tile_object.tmx');
 
-      await tiledMap.load();
+       await tiledMap.load();
 
-      const objectsLayer = tiledMap.getLayersByName('objects')[0] as ObjectLayer;
-      const object = objectsLayer.entities[0] as Actor;
+       const objectsLayer = tiledMap.getLayersByName('objects')[0] as ObjectLayer;
+       const object = objectsLayer.entities[0] as Actor;
 
-      expect(object.collider.bounds).toEqual(new BoundingBox({
-         bottom: 30.9375,
-         left: 5,
-         right: 11,
-         top: 28.875,
-      }));
-   });
+       expect(object.collider.bounds).toEqual(new BoundingBox({
+          bottom: 30.9375,
+          left: 5,
+          right: 11,
+          top: 28.875,
+       }));
+    });
+
+    describe('list properties (Tiled 1.12+)', () => {
+       it('can parse list properties from JSON format', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          // Check map properties (raw array format)
+          const mapProps = tiledMap.map.properties;
+          expect(mapProps).toBeDefined();
+
+          const stringListProp = mapProps?.find((p: any) => p.name === 'stringList') as any;
+          expect(stringListProp).toBeDefined();
+          expect(stringListProp.type).toBe('list');
+          expect(stringListProp.value.length).toBe(2);
+          expect(stringListProp.value[0]).toEqual({ type: 'string', value: 'hello' });
+          expect(stringListProp.value[1]).toEqual({ type: 'string', value: 'world' });
+
+          // Mixed type list
+          const mixedListProp = mapProps?.find((p: any) => p.name === 'mixedList') as any;
+          expect(mixedListProp).toBeDefined();
+          expect(mixedListProp.value.length).toBe(5);
+          expect(mixedListProp.value[0]).toEqual({ type: 'int', value: 42 });
+          expect(mixedListProp.value[1]).toEqual({ type: 'string', value: 'test' });
+          expect(mixedListProp.value[2]).toEqual({ type: 'bool', value: true });
+          expect(mixedListProp.value[3]).toEqual({ type: 'float', value: 3.14 });
+          expect(mixedListProp.value[4]).toEqual({ type: 'color', value: '#ff0000ff' });
+
+          // Empty list
+          const emptyListProp = mapProps?.find((p: any) => p.name === 'emptyList') as any;
+          expect(emptyListProp).toBeDefined();
+          expect(emptyListProp.value.length).toBe(0);
+       });
+
+       it('can parse nested list properties from JSON format', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          const mapProps = tiledMap.map.properties;
+          const nestedListProp = mapProps?.find((p: any) => p.name === 'nestedList') as any;
+
+          expect(nestedListProp).toBeDefined();
+          expect(nestedListProp.value.length).toBe(2);
+          expect(nestedListProp.value[0].type).toBe('list');
+          expect(nestedListProp.value[0].value).toEqual([
+             { type: 'int', value: 1 },
+             { type: 'int', value: 2 }
+          ]);
+          expect(nestedListProp.value[1].type).toBe('list');
+          expect(nestedListProp.value[1].value).toEqual([
+             { type: 'string', value: 'a' },
+             { type: 'string', value: 'b' }
+          ]);
+       });
+
+       it('can parse list properties from XML/TMX format', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmx');
+          await tiledMap.load();
+
+          const mapProps = tiledMap.map.properties;
+          expect(mapProps).toBeDefined();
+
+          const stringListProp = mapProps?.find((p: any) => p.name === 'stringList') as any;
+          expect(stringListProp).toBeDefined();
+          expect(stringListProp.type).toBe('list');
+          expect(stringListProp.value.length).toBe(2);
+          expect(stringListProp.value[0]).toEqual({ type: 'string', value: 'hello' });
+          expect(stringListProp.value[1]).toEqual({ type: 'string', value: 'world' });
+
+          // Mixed type list
+          const mixedListProp = mapProps?.find((p: any) => p.name === 'mixedList') as any;
+          expect(mixedListProp).toBeDefined();
+          expect(mixedListProp.value.length).toBe(5);
+          expect(mixedListProp.value[0]).toEqual({ type: 'int', value: 42 });
+          expect(mixedListProp.value[1]).toEqual({ type: 'string', value: 'test' });
+          expect(mixedListProp.value[2]).toEqual({ type: 'bool', value: true });
+          expect(mixedListProp.value[3]).toEqual({ type: 'float', value: 3.14 });
+          expect(mixedListProp.value[4]).toEqual({ type: 'color', value: '#ff0000ff' });
+       });
+
+       it('can parse nested list properties from XML/TMX format', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmx');
+          await tiledMap.load();
+
+          const mapProps = tiledMap.map.properties;
+          const nestedListProp = mapProps?.find((p: any) => p.name === 'nestedList') as any;
+
+          expect(nestedListProp).toBeDefined();
+          expect(nestedListProp.value.length).toBe(2);
+          expect(nestedListProp.value[0].type).toBe('list');
+          expect(nestedListProp.value[0].value).toEqual([
+             { type: 'int', value: 1 },
+             { type: 'int', value: 2 }
+          ]);
+       });
+
+       it('lowercases string values within lists for consistency', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          // Check layer properties (these go through mapProps which lowercases strings)
+          const tileLayer = tiledMap.getTileLayers().find(l => l.name === 'TileLayer');
+          expect(tileLayer).toBeDefined();
+          const layerList = tileLayer!.properties.get('layerlist') as any[];
+          expect(layerList).toBeDefined();
+          // Values should be lowercased
+          expect(layerList[0].value).toBe('layeritem1');
+       });
+
+       it('can parse list properties on layers', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          const tileLayer = tiledMap.getTileLayers().find(l => l.name === 'TileLayer');
+          expect(tileLayer).toBeDefined();
+          const layerList = tileLayer!.properties.get('layerlist') as any[];
+          expect(layerList).toBeDefined();
+          expect(layerList.length).toBe(2);
+          expect(layerList[0]).toEqual({ type: 'string', value: 'layeritem1' });
+          expect(layerList[1]).toEqual({ type: 'int', value: 100 });
+       });
+
+       it('can parse list properties on objects', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          const objectLayer = tiledMap.getObjectLayers().find(l => l.name === 'ObjectLayer');
+          expect(objectLayer).toBeDefined();
+          const obj = objectLayer!.objects.find(o => o.name === 'TestObject');
+          expect(obj).toBeDefined();
+          const objectList = obj!.properties.get('objectlist') as any[];
+          expect(objectList).toBeDefined();
+          expect(objectList.length).toBe(3);
+          expect(objectList[0]).toEqual({ type: 'string', value: 'objectitem1' });
+          expect(objectList[1]).toEqual({ type: 'string', value: 'objectitem2' });
+          expect(objectList[2]).toEqual({ type: 'int', value: 99 });
+       });
+
+       it('can parse list properties on tiles', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          const tile = tiledMap.getTileMetadataByProperty('tilelist');
+          expect(tile.length).toBe(1);
+          const tileList = tile[0].properties.get('tilelist') as any[];
+          expect(tileList).toBeDefined();
+          expect(tileList.length).toBe(2);
+          expect(tileList[0]).toEqual({ type: 'string', value: 'tileitem1' });
+          expect(tileList[1]).toEqual({ type: 'string', value: 'tileitem2' });
+       });
+
+       it('byProperty supports containment check for list values', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          // Find layers containing 'layeritem1' in their list property
+          const layers = tiledMap.getLayersByProperty('layerlist', 'layeritem1');
+          expect(layers.length).toBe(1);
+          expect(layers[0].name).toBe('TileLayer');
+
+          // Find layers containing int value 100
+          const layersWithInt = tiledMap.getLayersByProperty('layerlist', 100);
+          expect(layersWithInt.length).toBe(1);
+          expect(layersWithInt[0].name).toBe('TileLayer');
+       });
+
+       it('byProperty supports containment check for nested list values', async () => {
+          const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/list-properties.tmj');
+          await tiledMap.load();
+
+          // Check that the map has the nestedList property
+          const mapProps = tiledMap.map.properties;
+          const nestedListProp = mapProps?.find((p: any) => p.name === 'nestedList') as any;
+          expect(nestedListProp).toBeDefined();
+          expect(nestedListProp.value[0].type).toBe('list');
+       });
+    });
 });

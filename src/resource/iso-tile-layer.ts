@@ -11,7 +11,7 @@ import {
   BodyComponent
 } from "excalibur";
 
-import { mapProps } from "./properties";
+import { mapProps, PropertyMapValue } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
@@ -54,7 +54,7 @@ export class IsoTileLayer implements Layer {
    * Whether the tile layer is visible in the original map
    */
   public readonly visible: boolean;
-  properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
 
   /**
    * Original list of gids for this layer from tiled

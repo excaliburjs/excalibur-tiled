@@ -3,7 +3,7 @@ import { Layer } from "./layer";
 import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, Ellipse, parseObjects } from "./objects";
 import { TiledObjectLayer } from "../parser/tiled-parser";
 import { FactoryProps, TiledResource } from "./tiled-resource";
-import { mapProps } from "./properties";
+import { mapProps, PropertyMapValue } from "./properties";
 import { byClassCaseInsensitive, byNameCaseInsensitive, byProperty, byPropertyValueMatcher } from "./filter-util";
 import { Tileset } from "./tileset";
 import { ExcaliburTiledProperties } from "./excalibur-properties";
@@ -14,7 +14,7 @@ export class ObjectLayer implements Layer {
 
    public readonly name: string;
    public readonly class?: string;
-   properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
    objects: PluginObject[] = [];
    entities: Entity[] = [];
    private _objectToEntity = new Map<PluginObject, Entity>();

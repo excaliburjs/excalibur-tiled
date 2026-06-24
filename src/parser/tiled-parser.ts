@@ -42,6 +42,63 @@ const TiledObjectProperty = z.object({
    value: z.number()
 })
 
+const TiledIntListItem = z.object({
+   type: z.literal('int'),
+   value: z.number().int()
+})
+
+const TiledBoolListItem = z.object({
+   type: z.literal('bool'),
+   value: z.boolean()
+})
+
+const TiledFloatListItem = z.object({
+   type: z.literal('float'),
+   value: z.number()
+})
+
+const TiledStringListItem = z.object({
+   type: z.literal('string'),
+   value: z.string()
+})
+
+const TiledFileListItem = z.object({
+   type: z.literal('file'),
+   value: z.string()
+})
+
+const TiledColorListItem = z.object({
+   type: z.literal('color'),
+   value: z.string()
+})
+
+const TiledObjectListItem = z.object({
+   type: z.literal('object'),
+   value: z.number()
+})
+
+const TiledListItem: z.ZodType<TiledListItemValue> = z.lazy(() =>
+   z.discriminatedUnion("type", [
+      TiledIntListItem,
+      TiledBoolListItem,
+      TiledFloatListItem,
+      TiledStringListItem,
+      TiledFileListItem,
+      TiledColorListItem,
+      TiledObjectListItem,
+      z.object({
+         type: z.literal('list'),
+         value: z.array(TiledListItem)
+      })
+   ])
+)
+
+const TiledListProperty = z.object({
+   name: z.string(),
+   type: z.literal('list'),
+   value: z.array(TiledListItem)
+})
+
 const TiledProperty = z.discriminatedUnion("type", [
    TiledIntProperty,
    TiledBoolProperty,
@@ -49,7 +106,8 @@ const TiledProperty = z.discriminatedUnion("type", [
    TiledStringProperty,
    TiledFileProperty,
    TiledColorProperty,
-   TiledObjectProperty
+   TiledObjectProperty,
+   TiledListProperty
 ]);
 
 const TiledTileLayerBase = z.object({
@@ -376,6 +434,16 @@ export type TiledImageLayer = z.infer<typeof TiledImageLayer>;
 export type TiledLayer = z.infer<typeof TiledLayer>;
 export type TiledProperty = z.infer<typeof TiledProperty>;
 export type TiledPropertyTypes = Pick<TiledProperty, 'type'>['type'];
+export type TiledListItemValue = 
+   | z.infer<typeof TiledIntListItem>
+   | z.infer<typeof TiledBoolListItem>
+   | z.infer<typeof TiledFloatListItem>
+   | z.infer<typeof TiledStringListItem>
+   | z.infer<typeof TiledFileListItem>
+   | z.infer<typeof TiledColorListItem>
+   | z.infer<typeof TiledObjectListItem>
+   | { type: 'list'; value: TiledListItemValue[] };
+export type TiledListItem = z.infer<typeof TiledListItem>;
 
 export function isInfiniteLayer(tileLayer: TiledTileLayer): tileLayer is TiledTileLayerInfinite {
    return !!(tileLayer as TiledTileLayerInfinite).chunks;
@@ -445,24 +513,54 @@ export class TiledParser {
       return value;
    }
 
-   _parsePropertiesNode(propertiesNode: Element, target: any) {
-      const properties = [];
-      if (propertiesNode) {
-         for (let prop of propertiesNode.children) {
-            const type = prop.getAttribute('type') as TiledPropertyTypes ?? 'string'; // if no type is set it's string!
-            let value: any = prop.getAttribute('value');
-            if (!value) {
-               value = prop.innerHTML;
-            }
-            properties.push({
-               name: prop.getAttribute('name'),
-               type: type,
-               value: this._coerceType(type, value as string)
-            })
-         }
-      }
-      target.properties = properties;
-   }
+    _parsePropertiesNode(propertiesNode: Element, target: any) {
+       const properties = [];
+       if (propertiesNode) {
+          for (let prop of propertiesNode.children) {
+             const type = prop.getAttribute('type') as TiledPropertyTypes ?? 'string'; // if no type is set it's string!
+             let value: any;
+             if (type === 'list') {
+                value = this._parseListItems(prop);
+             } else {
+                value = prop.getAttribute('value');
+                if (!value) {
+                   value = prop.innerHTML;
+                }
+                value = this._coerceType(type, value as string);
+             }
+             properties.push({
+                name: prop.getAttribute('name'),
+                type: type,
+                value: value
+             })
+          }
+       }
+       target.properties = properties;
+    }
+
+    _parseListItems(listNode: Element): TiledListItemValue[] {
+       const items: TiledListItemValue[] = [];
+       for (let item of listNode.children) {
+          if (item.tagName !== 'item') continue;
+          const type = item.getAttribute('type') as TiledPropertyTypes ?? 'string';
+          if (type === 'list') {
+             items.push({
+                type: 'list',
+                value: this._parseListItems(item)
+             });
+          } else {
+             let rawValue: any = item.getAttribute('value');
+             if (!rawValue) {
+                rawValue = item.innerHTML;
+             }
+             items.push({
+                type: type,
+                value: this._coerceType(type, rawValue as string)
+             } as TiledListItemValue);
+          }
+       }
+       return items;
+    }
 
    _parseAttributes(node: Element, target: any) {
       // attribute names to coerce into numbers

@@ -1,0 +1,149 @@
+{ "compressionlevel":-1,
+ "height":4,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+         "height":4,
+         "id":1,
+         "name":"TileLayer",
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"layerList",
+                 "type":"list",
+                 "value":[
+                    {"type":"string", "value":"layerItem1"},
+                    {"type":"int", "value":100}
+                ]
+                }],
+         "type":"tilelayer",
+         "visible":true,
+         "width":4,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"ObjectLayer",
+         "objects":[
+                {
+                 "height":16,
+                 "id":1,
+                 "name":"TestObject",
+                 "properties":[
+                        {
+                         "name":"objectList",
+                         "type":"list",
+                         "value":[
+                            {"type":"string", "value":"objectItem1"},
+                            {"type":"string", "value":"objectItem2"},
+                            {"type":"int", "value":99}
+                        ]
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":16,
+                 "y":16
+                }],
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"objectLayerList",
+                 "type":"list",
+                 "value":[
+                    {"type":"string", "value":"objLayerItem"}
+                ]
+                }],
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":3,
+ "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"stringList",
+         "type":"list",
+         "value":[
+            {"type":"string", "value":"hello"},
+            {"type":"string", "value":"world"}
+        ]
+        }, 
+        {
+         "name":"mixedList",
+         "type":"list",
+         "value":[
+            {"type":"int", "value":42},
+            {"type":"string", "value":"test"},
+            {"type":"bool", "value":true},
+            {"type":"float", "value":3.14},
+            {"type":"color", "value":"#ff0000ff"}
+        ]
+        }, 
+        {
+         "name":"nestedList",
+         "type":"list",
+         "value":[
+            {
+             "type":"list",
+             "value":[
+                {"type":"int", "value":1},
+                {"type":"int", "value":2}
+            ]
+            },
+            {
+             "type":"list",
+             "value":[
+                {"type":"string", "value":"a"},
+                {"type":"string", "value":"b"}
+            ]
+            }
+        ]
+        }, 
+        {
+         "name":"emptyList",
+         "type":"list",
+         "value":[]
+        }],
+ "renderorder":"right-down",
+ "tiledversion":"1.12.0",
+ "tileheight":16,
+ "tilesets":[
+        {
+         "columns":1,
+         "firstgid":1,
+         "image":"tilemap_packed.png",
+         "imageheight":16,
+         "imagewidth":16,
+         "margin":0,
+         "name":"test",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":16,
+         "tiles":[
+                {
+                 "id":0,
+                 "properties":[
+                        {
+                         "name":"tileList",
+                         "type":"list",
+                         "value":[
+                            {"type":"string", "value":"tileItem1"},
+                            {"type":"string", "value":"tileItem2"}
+                        ]
+                        }
+                ]
+                }],
+         "tilewidth":16
+        }],
+ "tilewidth":16,
+ "type":"map",
+ "version":"1.12",
+ "width":4
+}
