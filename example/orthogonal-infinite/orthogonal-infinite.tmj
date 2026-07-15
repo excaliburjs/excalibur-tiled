@@ -545,12 +545,26 @@
                  "height":0,
                  "id":1,
                  "name":"camera",
+                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
                          "name":"camera",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"listprop1",
+                         "type":"list",
+                         "value":[
+                                {
+                                 "type":"float",
+                                 "value":0.1
+                                }, 
+                                {
+                                 "type":"float",
+                                 "value":0.5
+                                }]
                         }, 
                         {
                          "name":"zoom",
@@ -574,6 +588,7 @@
                  "height":0,
                  "id":3,
                  "name":"Player",
+                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"player-start",
@@ -587,6 +602,7 @@
                  "height":16,
                  "id":4,
                  "name":"",
+                 "opacity":1,
                  "properties":[
                         {
                          "name":"otherprop",
@@ -610,7 +626,7 @@
  "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.10.2",
+ "tiledversion":"1.12.2",
  "tileheight":16,
  "tilesets":[
         {
@@ -634,13 +650,13 @@
                  "objectgroup":
                     {
                      "draworder":"index",
-                     "id":2,
                      "name":"",
                      "objects":[
                             {
                              "height":16,
                              "id":1,
                              "name":"",
+                             "opacity":1,
                              "rotation":0,
                              "type":"",
                              "visible":true,

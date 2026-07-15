@@ -71,6 +71,7 @@
   <properties>
    <property name="answer" type="float" value="42"/>
   </properties>
+  <image source="tilemap_packed.png"/>
  </imagelayer>
  <objectgroup id="3" name="Objects" class="SomeObjectLayer">
   <properties>
