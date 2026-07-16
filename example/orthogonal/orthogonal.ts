@@ -2,59 +2,59 @@ import * as ex from 'excalibur';
 import { TiledResource } from '@excalibur-tiled';
 
 class Player extends ex.Actor {
-  constructor(args: ex.ActorArgs) {
-    super(args);
-  }
-  override onPostUpdate(engine: ex.Engine) {
-    this.vel = ex.vec(0, 0)
-    const speed = 64;
-    if (engine.input.keyboard.isHeld(ex.Keys.Right)) {
-      this.vel.x = speed;
-    }
-    if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
-      this.vel.x = -speed;
-    }
-    if (game.input.keyboard.isHeld(ex.Keys.Up)) {
-      this.vel.y = -speed;
-    }
-    if (game.input.keyboard.isHeld(ex.Keys.Down)) {
-      this.vel.y = speed;
-    }
-  }
+   constructor(args: ex.ActorArgs) {
+      super(args);
+   }
+   override onPostUpdate(engine: ex.Engine) {
+      this.vel = ex.vec(0, 0)
+      const speed = 64;
+      if (engine.input.keyboard.isHeld(ex.Keys.Right)) {
+         this.vel.x = speed;
+      }
+      if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
+         this.vel.x = -speed;
+      }
+      if (game.input.keyboard.isHeld(ex.Keys.Up)) {
+         this.vel.y = -speed;
+      }
+      if (game.input.keyboard.isHeld(ex.Keys.Down)) {
+         this.vel.y = speed;
+      }
+   }
 }
 
 const game = new ex.Engine({
-  width: 800,
-  height: 600,
-  canvasElementId: 'game',
-  pointerScope: ex.PointerScope.Canvas,
-  antialiasing: false
+   width: 800,
+   height: 600,
+   canvasElementId: 'game',
+   pointerScope: ex.PointerScope.Canvas,
+   antialiasing: false
 });
 game.toggleDebug();
 
-// const tiledMap = new TiledResource('./orthogonal.tmx', {
-//    useMapBackgroundColor: true,
-//    layerConfig: {
-//       "Above": {
-//          //isSolid: true
-//          //useTileColliders: true,
-//          useTileCollidersWhenInvisible: true,
-//          collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
-//       }
-//    },
-//    entityClassNameFactories: {
-//       'player-start': (props) => {
-//          return new Player({
-//             pos: props.worldPos,
-//             width: 16,
-//             height: 16,
-//             color: ex.Color.Blue,
-//             collisionType: ex.CollisionType.Active,
-//             collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
-//          });
-//       }
-//    }
-// });
+const tiledMap = new TiledResource('./orthogonal.tmx', {
+   useMapBackgroundColor: true,
+   layerConfig: {
+      "Above": {
+         //isSolid: true
+         //useTileColliders: true,
+         useTileCollidersWhenInvisible: true,
+         collisionGroup: new ex.CollisionGroup("above", 0x01, 0x00111)
+      }
+   },
+   entityClassNameFactories: {
+      'player-start': (props) => {
+         return new Player({
+            pos: props.worldPos,
+            width: 16,
+            height: 16,
+            color: ex.Color.Blue,
+            collisionType: ex.CollisionType.Active,
+            collisionGroup: new ex.CollisionGroup("player", 0x10, 0x00010)
+         });
+      }
+   }
+});
 
 // const tiledMap = new TiledResource('../../test/unit/tiled/parser-spec/orthogonal-infinite.tmx', {
 //    useMapBackgroundColor: true,
@@ -72,58 +72,40 @@ game.toggleDebug();
 // });
 
 
-const tiledMap = new TiledResource('animation-tiles.tmx', {
-  useMapBackgroundColor: true
-});
-
-
-game.on('predraw', (ev) => {
-  if (!game.screen) return;
-  try {
-    const tilemap = tiledMap.getTileLayers()[0].tilemap;
-    const tiles = tilemap.tiles;
-
-    for (const tile of tiles) {
-      const graphics = tile.getGraphics();
-      for (const graphic of graphics) {
-        if (ex.hasGraphicsTick(graphic)) {
-          graphic?.tick(ev.elapsed, (tilemap as any)._token);
-        }
-      }
-    }
-  } catch { }
-});
+// const tiledMap = new TiledResource('animation-tiles.tmx', {
+//    useMapBackgroundColor: true
+// });
 
 const loader = new ex.Loader([tiledMap]);
 
 let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
-  currentPointer = moveEvent.worldPos;
-  game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+   currentPointer = moveEvent.worldPos;
+   game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
 });
 
 game.input.pointers.primary.on('move', (moveEvent) => {
-  const tile = tiledMap.getTileByPoint('ground', moveEvent.worldPos);
-  if (tile) {
-    console.log(tile);
-  }
+   const tile = tiledMap.getTileByPoint('ground', moveEvent.worldPos);
+   if (tile) {
+      console.log(tile);
+   }
 })
 let frame = 0;
 game.on('preframe', () => console.log('frame:', frame++));
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
-  // wheel up
-  game.currentScene.camera.pos = currentPointer;
-  if (wheelEvent.deltaY < 0) {
-    game.currentScene.camera.zoom *= 1.2;
-  } else {
-    game.currentScene.camera.zoom /= 1.2;
-  }
+   // wheel up
+   game.currentScene.camera.pos = currentPointer;
+   if (wheelEvent.deltaY < 0) {
+      game.currentScene.camera.zoom *= 1.2;
+   } else {
+      game.currentScene.camera.zoom /= 1.2;
+   }
 });
 
 game.start(loader).then(() => {
-  tiledMap.addToScene(game.currentScene);
-  currentPointer = game.currentScene.camera.pos;
+   tiledMap.addToScene(game.currentScene);
+   currentPointer = game.currentScene.camera.pos;
 
-  (window as any).tiledMap = tiledMap;
+   (window as any).tiledMap = tiledMap;
 });
