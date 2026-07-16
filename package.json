@@ -52,12 +52,11 @@
       "test:integration-update": "npx playwright test --update-snapshots"
    },
    "devDependencies": {
-      "@playwright/test": "1.58.2",
+      "@playwright/test": "1.61.1",
       "@types/jasmine": "5.1.15",
       "@types/jsdom": "21.1.7",
       "@types/json-diff": "1.0.3",
-      "@types/node": "22.19.15",
-      "@types/pako": "1.0.7",
+      "@types/node": "22.20.1",
       "@types/webpack-env": "1.18.8",
       "cross-env": "10.1.0",
       "excalibur": "~0.32.0",
@@ -70,17 +69,17 @@
       "karma-webpack": "5.0.1",
       "node-polyfill-webpack-plugin": "4.1.0",
       "raw-loader": "4.0.2",
-      "ts-loader": "9.5.4",
+      "ts-loader": "9.6.2",
       "typescript": "5.9.3",
-      "webpack": "5.105.4",
+      "webpack": "5.107.2",
       "webpack-bundle-analyzer": "4.10.2",
       "webpack-cli": "6.0.1",
       "webpack-dev-middleware": "7.4.5",
-      "webpack-dev-server": "5.2.4"
+      "webpack-dev-server": "5.2.6"
    },
    "dependencies": {
       "compare-versions": "6.1.1",
-      "pako": "1.0.11",
+      "pako": "3.0.1",
       "zod": "4.3.6",
       "zstddec": "0.2.0"
    },
