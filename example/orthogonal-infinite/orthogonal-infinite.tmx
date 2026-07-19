@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="1" backgroundcolor="#2df6f9" nextlayerid="5" nextobjectid="6">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="1" backgroundcolor="#2df6f9" nextlayerid="5" nextobjectid="6">
  <tileset firstgid="1" name="fantasy" tilewidth="16" tileheight="16" tilecount="132" columns="12">
   <image source="tilemap_packed.png" width="192" height="176"/>
   <tile id="105" type="Collectable"/>
@@ -31,22 +31,22 @@
    eJxjYBgFo2DoAuaBdsAQBwAHwAAE
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYCANMJOofhSMglFAfcDMQH5eZEbCABFcABM=
+   eJxjYCANMJOofhSMglFAfcBMQV5kRsIAEVwAEw==
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
-   eJxjYCAeMJOgllZmUMsNMDwKRgElgJkETKl+bGZQqh8AamAAfA==
+   eJxjYCAeMJOgllZmUMsNzFQyaxSMbMBMAqZUPzYzKNUPAGpgAHw=
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
    eJxjYBjagBkNj4JRMAqIBwAquAAN
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYCAdMCNhSvSO6h95+tHNGAj9yGZQAijVPxgAAEeXAIU=
+   eJxjYCAdMCNhSvSO6h95+tHNGAj9DFTQz0AF/YMBAABHlwCF
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJzNkVEOwCAIQ7Hc/87bB0tqA4z4s5E0YuRBVTezdctjfXJEjtizOLhukUDqeJ7dzZzw2kfv1Pl3qYOslQdPesD293jjlXHbvWc9mHdhlO3+oPpvyFnF8z25LnvLif+J7CM+ixPmT3EB2bUBug==
+   eJzNkVEKwDAIQ9N4/zvvx0EI6mQ/myBa6tPUBoADIDLeOTNnntXVtO6IU3zidfY0c8N7H3/TpD+sjhY7DVH0oO3jiXcmTHvVQ/kwxtnpD7r/pt11PJs51S43+jeOj/jK3jB/sgvZtQG6
   </chunk>
    <chunk x="-16" y="16" width="16" height="16">
-   eJxjYBgFowA/YMaDSVGDz3xSxIkFhPRT4jZquYHW+gmZAQBiOABD
+   eJxjYBgFowA/YMaDSVGDz3xSxElxNyXy9HADrfUTMgMAYjgAQw==
   </chunk>
    <chunk x="0" y="16" width="16" height="16">
    eJxjYBgFIxkwI2FqmDWQ+geDGwa7fnR5ACnUACI=
@@ -58,19 +58,19 @@
    eJxjYBgFo4B8wDzA+tHNwGYeMxLGpx+bGnSzcalBx8S6Dd0MdPfgcgu19AMASDQAXg==
   </chunk>
    <chunk x="48" y="16" width="16" height="16">
-   eJxjYBh+gBkJk6sf2Rxy9ZNrBrr6gdRPqfupEX7k6qdG/JEDhpJ+AKGAAFI=
+   eJxjYBh+gBkJk6ufgQIzmNHYpJqBrn4g9VPqfmqEH7n6qRF/5IChpB8AoYAAUg==
   </chunk>
    <chunk x="-16" y="32" width="16" height="16">
    eJxjYCAMmEkUp7Z+XGop1U8KoFT/KBgFgxEAAFXkABk=
   </chunk>
    <chunk x="0" y="32" width="16" height="16">
-   eJxjYMAEzFjEYOLMeOTJ0Y9PLS79xABc+okFlOrHpp4U9+MzkxrmwMwaBSMbAADbxABG
+   eJxjYMAEzFjEYOLMeOTJ0Y9PLS79xABc+okFlOrHpp4U9+MzkxrmMFDJjFEwtAEA28QARg==
   </chunk>
    <chunk x="16" y="32" width="16" height="16">
    eJxjYCAOMKPRpAJmCvSO6keYQYm5lNo/CoYfAACSOAAx
   </chunk>
    <chunk x="32" y="32" width="16" height="16">
-   eJxjYIAAZgYEYMYiBuOji6HrwSWGrBeXGYT047OLFP3EmoHsXkL+w6WfWLfSQv8oGAWEAADukABJ
+   eJxjYIAAZgYEYMYiBuOji6HrwSXGjMdcXACbm6ihn1gzkN1LyH+49BPrVlroHwWjgBAAAO6QAEk=
   </chunk>
    <chunk x="48" y="32" width="16" height="16">
    eJxjYMAEzFjESAFDST82tcwkmIFL3VAKg1EwcgEAZvQAIg==
@@ -83,14 +83,14 @@
   </properties>
   <data encoding="base64" compression="zlib">
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYSAMWPDICRChnxg16GAnEO8C4t1AvIcM/UeB+BgQHwfiE2TovwjEl4D4MhBfIaD2LRnm0wJMQ+M/IUIPvrglRg2t4n8U0AcAAKkhDAY=
+   eJzt0bkNgDAQRNEXuACqpxeOlCPlKIGUHsgd2JYliPjZaOdvMkGekLg1BX5JJ6ZDjwFjhT9hxoK1wt+w48CZ6d4V/9+gjfJV4KS2Lem8tf/PNzypIQwG
   </chunk>
   </data>
  </layer>
  <layer id="4" name="Above" width="10" height="10">
   <data encoding="base64" compression="zlib">
    <chunk x="0" y="0" width="16" height="16">
-   eJxjYBgFD/HI3aObK0bBKKA/AAAiBwHA
+   eJxjYBgFD/HI3aOjO0bBKKA3AAAiBwHA
   </chunk>
   </data>
  </layer>
@@ -102,8 +102,27 @@
    </properties>
    <point/>
   </object>
-  <object id="2" template="coin.tx" x="52.25" y="95.5"/>
+  <object id="2" template="coin.tx" x="52.25" y="95.5">
+   <properties>
+    <property name="listprop" type="list">
+     <item type="color" value="#ff5644da"/>
+     <item type="color" value="#ffaa0000"/>
+    </property>
+    <property name="listprop2" type="list">
+     <item type="float" value="1.4"/>
+    </property>
+    <property name="listpropempty" type="list"/>
+   </properties>
+  </object>
   <object id="3" name="Player" type="player-start" x="38.9091" y="40">
+   <properties>
+    <property name="listprop" type="list">
+     <item type="object" value="2"/>
+    </property>
+    <property name="listprop1" type="list">
+     <item type="float" value="0.3"/>
+    </property>
+   </properties>
    <point/>
   </object>
   <object id="4" gid="120" x="128.134" y="111.847" width="16" height="16">

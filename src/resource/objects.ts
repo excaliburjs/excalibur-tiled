@@ -1,7 +1,7 @@
 import { BaseAlign, Color, Font, FontUnit, TextAlign, Vector, toRadians, vec } from "excalibur";
 import { Text as ExText } from 'excalibur';
 import { TiledObject, TiledObjectGroup, TiledText } from "../parser/tiled-parser";
-import { Properties, mapProps } from "./properties";
+import { Properties, PropertyMapValue, mapProps } from "./properties";
 import { Template } from "./template";
 import { filenameFromPath } from "./path-util";
 import { Tileset } from "./tileset";
@@ -23,7 +23,7 @@ export class PluginObject implements Properties {
    name?: string;
    class?: string;
    tiledObject: TiledObject;
-   properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
    constructor(props: PluginObjectProps) {
       this.tiledObject = props.tiledObject;
       this.name = this.tiledObject.name;

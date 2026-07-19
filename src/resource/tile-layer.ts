@@ -1,5 +1,5 @@
 import { Color, ParallaxComponent, TileMap, Vector, vec, GraphicsComponent, Logger, AnimationStrategy, TransformComponent, Tile as ExTile, BodyComponent } from "excalibur";
-import { mapProps } from "./properties";
+import { mapProps, PropertyMapValue } from "./properties";
 import { TiledTileLayer, isCSV, isInfiniteLayer, needsDecoding } from "../parser/tiled-parser";
 import { Decoder } from "./decoder";
 import { TiledResource } from "./tiled-resource";
@@ -44,7 +44,7 @@ export class TileLayer implements Layer {
    */
   public readonly height: number = 0;
 
-  properties = new Map<string, string | number | boolean>();
+   properties = new Map<string, PropertyMapValue>();
 
   /**
    * Original list of gids for this layer from tiled
