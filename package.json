@@ -71,7 +71,7 @@
       "raw-loader": "4.0.2",
       "ts-loader": "9.6.2",
       "typescript": "5.9.3",
-      "webpack": "5.107.2",
+      "webpack": "5.109.0",
       "webpack-bundle-analyzer": "4.10.2",
       "webpack-cli": "6.0.1",
       "webpack-dev-middleware": "7.4.5",
