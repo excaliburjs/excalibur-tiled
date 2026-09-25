@@ -32,5 +32,41 @@ jobs:
           ${{ runner.os }}-node-
     - run: npm ci
     - run: npm run build
-    - run: npx playwright install
-    - run: npm run test
+    - run: npm run test:unit
+
+  # The golden-master screenshots in test/e2e/*.spec.ts-snapshots are recorded as
+  # `-chromium-linux`, so this job is deliberately Linux-only - running it on another OS
+  # would ask Playwright for baselines that do not exist. xvfb + the liberation/noto font
+  # packages reproduce the font metrics and GL setup the baselines were recorded under.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        submodules: true
+    - name: Use Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version-file: '.nvmrc'
+        cache: npm
+    - run: npm ci
+    - name: Install system dependencies for headed rendering
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb fonts-liberation fonts-noto-core
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    - name: Run Playwright e2e tests
+      run: >-
+        xvfb-run --auto-servernum
+        --server-args="-screen 0 1920x1080x24 -ac +extension GLX +render -noreset"
+        npm run test:e2e
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 30
