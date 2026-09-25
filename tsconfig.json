@@ -14,5 +14,5 @@
       }
    },
    "include": ["example/**/*.ts", "./src/**/*.ts", "./test/unit/*.spec.ts", "files.d.ts"],
-   "exclude": ["./example/**/*.tsx", "./test/integration/*.ts"]
+   "exclude": ["./example/**/*.tsx", "./example/vite.config.ts", "./test/e2e/*.ts"]
 }

@@ -387,7 +387,7 @@ export class IsoTileLayer implements Layer {
     }
 
     // TODO make these optional params in the ctor
-    this.isometricMap.visible = this.tiledTileLayer.visible;
+    this.isometricMap.isVisible = this.tiledTileLayer.visible;
     this.isometricMap.opacity = this.tiledTileLayer.opacity;
     this.isometricMap.addComponent(new TiledLayerDataComponent({ tiledTileLayer: layer }));
     if (layer.parallaxx || layer.parallaxy) {
