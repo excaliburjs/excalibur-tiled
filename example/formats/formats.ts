@@ -21,7 +21,7 @@ game.input.keyboard.on("press", (evt) => {
 let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
    currentPointer = moveEvent.worldPos;
-   game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+   game.currentScene.camera.move(currentPointer, 300, ex.easeInOutCubic);
 });
 
 game.input.pointers.primary.on('wheel', (wheelEvent) => {
