@@ -81,7 +81,7 @@
       "compare-versions": "6.1.1",
       "pako": "3.0.2",
       "zod": "4.3.6",
-      "zstddec": "0.2.0"
+      "zstddec": "0.3.1"
    },
    "peerDependencies": {
       "excalibur": "~0.32.0"
