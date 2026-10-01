@@ -2,14 +2,13 @@
    "name": "@excaliburjs/plugin-tiled",
    "version": "1.0.0-alpha.0",
    "description": "excalibur-tiled provides Tiled map editor integration with Excalibur.js",
-   "main": "build/umd/excalibur-tiled.min.js",
-   "typings": "build/umd/src/index.d.ts",
+   "main": "build/esm/excalibur-tiled.min.js",
+   "typings": "build/esm/src/index.d.ts",
    "exports": {
       "./package.json": "./package.json",
       ".": {
-         "types": "./build/umd/src/index.d.ts",
-         "import": "./build/esm/excalibur-tiled.min.js",
-         "require": "./build/umd/excalibur-tiled.min.js"
+         "types": "./build/esm/src/index.d.ts",
+         "import": "./build/esm/excalibur-tiled.min.js"
       }
    },
    "author": {
@@ -40,10 +39,10 @@
    "scripts": {
       "start": "vite example --port 4173 --open",
       "start:no-open": "vite example --port 4173",
-      "watch": "webpack --progress --watch",
-      "build:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
-      "build:umd": "webpack --progress --config webpack.config.js --mode production",
-      "build": "npm run build:umd && npm run build:esm",
+      "watch": "vite",
+      "build:esm:webpack": "webpack --progress --config webpack.config.js --mode production --env output=esm",
+      "build:esm": "vite build && vite build --minify false",
+      "build": "npm run build:esm",
       "test": "npm run test:unit && npm run test:e2e",
       "test:watch": "karma start --single-run=false",
       "test:unit": "karma start",
