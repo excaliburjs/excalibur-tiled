@@ -343,7 +343,8 @@ export class TileLayer implements Layer {
         tileHeight: this.resource.map.tileheight,
         tileWidth: this.resource.map.tilewidth,
         columns: layer.width,
-        rows: layer.height
+        rows: layer.height,
+        compositeStrategy: 'together'
       });
       if (maybeLayerConfig?.collisionGroup) {
         const body = this.tilemap.get(BodyComponent);
@@ -357,6 +358,7 @@ export class TileLayer implements Layer {
         tileHeight: this.resource.map.tileheight,
         columns: layer.width,
         rows: layer.height,
+        compositeStrategy: 'together',
       });
       if (maybeLayerConfig?.collisionGroup) {
         const body = this.tilemap.get(BodyComponent);
