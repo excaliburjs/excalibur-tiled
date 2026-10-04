@@ -5,13 +5,6 @@ import { defineConfig, type Plugin } from 'vite';
 const exampleDir = __dirname;
 const repoRoot = resolve(exampleDir, '..');
 
-/**
- * Tiled ships its map/tileset/template files with extensions that Vite would otherwise
- * mistake for source modules - most notably `.tsx`, which Vite/esbuild will happily try to
- * parse as TypeScript+JSX and choke on, because a Tiled `.tsx` is XML. These files are only
- * ever read by the plugin at runtime via `fetch()`, so serve them verbatim (with a sane
- * content type) ahead of Vite's own transform middleware.
- */
 const TILED_MIME_TYPES: Record<string, string> = {
   '.tmx': 'text/xml',
   '.tsx': 'text/xml',

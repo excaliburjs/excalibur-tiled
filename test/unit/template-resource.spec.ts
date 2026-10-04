@@ -51,7 +51,7 @@ describe('A Tiled template resource', () => {
          ]
       });
 
-      spyOn((templateResource as any).imageLoader, 'getOrAdd').and.callThrough();
+      vi.spyOn((templateResource as any).imageLoader, 'getOrAdd');
 
       await templateResource.load();
 
