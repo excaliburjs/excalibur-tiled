@@ -1,5 +1,6 @@
 {
    "compilerOptions": {
+      "outDir": "build/esm",
       "types": [
         "@vitest/browser-playwright",
         "vitest/globals"
