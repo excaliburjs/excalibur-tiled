@@ -1,86 +1,58 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
+// Defaults to 4173 (the same port excalibur core's sandbox e2e suite uses). Overridable so
+// that several excalibur plugin repos can run their e2e suites side by side on one machine
+// without `reuseExistingServer` silently latching onto a *sibling* repo's dev server.
+const port = Number(process.env.EX_E2E_PORT ?? 4173);
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
-  testDir: './test/integration/',
-  webServer: {
-    command: 'npm run start:ci-server',
-    timeout: 240 * 1000, // linux takes a long time
-    url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'ignore',
-    stderr: 'pipe',
-  },
-  timeout: 120_000, // linux is slow sometimes
-  /* Run tests in files in parallel */
+  testDir: './test/e2e',
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  // Mirrors excalibur core's sandbox e2e config: on swiftshader/software-rendered runners a
+  // high worker count backs up the GPU command queue and turns into timeouts. 2 is a
+  // reasonable speed/stability balance - override with --workers locally if you have headroom.
+  workers: 2,
+  timeout: 60_000,
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  reporter: 'list',
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    baseURL: `http://localhost:${port}`,
+    screenshot: 'off',
+    trace: 'off'
   },
-
-  /* Configure projects for major browsers */
+  webServer: {
+    command: `npx vite example --port ${port} --strictPort`,
+    port,
+    reuseExistingServer: !process.env.CI,
+    timeout: 60_000
+  },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-
-    //  {
-    //    name: 'firefox',
-    //    use: { ...devices['Desktop Firefox'] },
-    //  },
-
-    //  {
-    //    name: 'webkit',
-    //    use: { ...devices['Desktop Safari'] },
-    //  },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Copied verbatim from excalibur core's playwright.config.ts - these flags are why
+        // the baselines reproduce across machines/OSes. Do not "clean up".
+        launchOptions: {
+          ignoreDefaultArgs: ['--disable-render-backgrounding', '--disable-remote-fonts', '--font-render-hinting'],
+          args: [
+            '--no-default-browser-check',
+            '--no-first-run',
+            '--disable-default-apps',
+            '--disable-popup-blocking',
+            '--disable-translate',
+            '--disable-background-timer-throttling',
+            '--disable-dev-shm-usage',
+            '--disable-renderer-backgrounding',
+            '--disable-device-discovery-notifications',
+            '--autoplay-policy=no-user-gesture-required',
+            '--mute-audio',
+            '--force-device-scale-factor=1',
+            '--use-gl=swiftshader'
+          ]
+        }
+      }
+    }
+  ]
 });

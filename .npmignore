@@ -12,5 +12,8 @@ readme/*
 !dist/*
 !build/**/*
 tests/
-**/webpack.config.js
-**/webpack.config.test.js
+vite.config.ts
+vitest.config.ts
+renovate.json
+playwright.config.ts
+build/esm/test

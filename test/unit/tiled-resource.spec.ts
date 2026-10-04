@@ -28,7 +28,7 @@ describe('A Tiled map resource parser', () => {
    });
 
    it('should warn on bad version', async () => {
-      spyOn(console, 'warn').and.callThrough();
+      vi.spyOn(console, 'warn');
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/badversion.tmx');
 
@@ -38,7 +38,7 @@ describe('A Tiled map resource parser', () => {
    });
 
    it('should not warn on newer version', async () => {
-      spyOn(console, 'warn').and.callThrough();
+      vi.spyOn(console, 'warn');
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/newversion.tmx');
 
@@ -56,15 +56,15 @@ describe('A Tiled map resource parser', () => {
          ]
       });
 
-      spyOn((tiledMap as any)._imageLoader, 'getOrAdd').and.callThrough();
-      spyOn((tiledMap as any)._tilesetLoader, 'getOrAdd').and.callThrough();
-      spyOn((tiledMap as any)._templateLoader, 'getOrAdd').and.callThrough();
+      vi.spyOn((tiledMap as any)._imageLoader, 'getOrAdd');
+      vi.spyOn((tiledMap as any)._tilesetLoader, 'getOrAdd');
+      vi.spyOn((tiledMap as any)._templateLoader, 'getOrAdd');
 
       await tiledMap.load();
 
       expect((tiledMap as any)._imageLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/tilemap_packed.png');
-      expect((tiledMap as any)._templateLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/coin.tx', jasmine.any(Object));
-      expect((tiledMap as any)._tilesetLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/external-fantasy.tsx', jasmine.any(Number), jasmine.any(Object));
+      expect((tiledMap as any)._templateLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/coin.tx', expect.any(Object));
+      expect((tiledMap as any)._tilesetLoader.getOrAdd).toHaveBeenCalledWith('/test/unit/tiled/template-resource-spec/external-fantasy.tsx', expect.any(Number), expect.any(Object));
    });
 
    it('can set a start z index', async () => {
@@ -92,7 +92,7 @@ describe('A Tiled map resource parser', () => {
          headless: true
       });
 
-      spyOn((tiledMap as any)._imageLoader, 'load').and.callThrough();
+      vi.spyOn((tiledMap as any)._imageLoader, 'load');
 
       await tiledMap.load();
 
@@ -100,7 +100,7 @@ describe('A Tiled map resource parser', () => {
    });
 
    it('can with custom file loader', async () => {
-      const spiedLoader = jasmine.createSpy('spiedLoader', FetchLoader).and.callThrough();
+      const spiedLoader = vi.fn(FetchLoader);
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
          headless: true,
          fileLoader: spiedLoader
@@ -109,11 +109,11 @@ describe('A Tiled map resource parser', () => {
       await tiledMap.load();
 
       expect(spiedLoader).toHaveBeenCalledTimes(5);
-      expect(spiedLoader.calls.argsFor(0)).toEqual(['/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', 'xml']);
-      expect(spiedLoader.calls.argsFor(1)).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsx', 'xml']);
-      expect(spiedLoader.calls.argsFor(2)).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsj', 'json']);
-      expect(spiedLoader.calls.argsFor(3)).toEqual(['/test/unit/tiled/tiled-resource-spec/coin.tx', 'xml']);
-      expect(spiedLoader.calls.argsFor(4)).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsx', 'xml']);
+      expect(spiedLoader.mock.calls[0]).toEqual(['/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', 'xml']);
+      expect(spiedLoader.mock.calls[1]).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsx', 'xml']);
+      expect(spiedLoader.mock.calls[2]).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsj', 'json']);
+      expect(spiedLoader.mock.calls[3]).toEqual(['/test/unit/tiled/tiled-resource-spec/coin.tx', 'xml']);
+      expect(spiedLoader.mock.calls[4]).toEqual(['/test/unit/tiled/tiled-resource-spec/external-fantasy.tsx', 'xml']);
    });
 
 
@@ -181,12 +181,12 @@ describe('A Tiled map resource parser', () => {
    });
 
    it('can register entity factories', async () => {
-      const factorySpy = jasmine.createSpy('factorySpy', (props: FactoryProps) => {
+      const factorySpy = vi.fn((props: FactoryProps) => {
          return new Actor({
             name: props.name,
             pos: props.worldPos
          })
-      }).and.callThrough();
+      });
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx', {
          entityClassNameFactories: {
@@ -197,11 +197,11 @@ describe('A Tiled map resource parser', () => {
       await tiledMap.load();
 
 
-      const lateFactorySpy = jasmine.createSpy('lateFactorySpy', (props) => {
+      const lateFactorySpy = vi.fn((props) => {
          return new Actor({
             pos: props.worldPos
          })
-      }).and.callThrough();
+      });
       // will construct if registered after load
       tiledMap.registerEntityFactory('player-start', lateFactorySpy);
 

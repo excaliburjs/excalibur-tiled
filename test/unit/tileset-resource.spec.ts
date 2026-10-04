@@ -32,7 +32,7 @@ describe('A Tiled tileset resource parser', () => {
          ]
       });
 
-      spyOn((tilesetResource as any).imageLoader, 'getOrAdd').and.callThrough();
+      vi.spyOn((tilesetResource as any).imageLoader, 'getOrAdd');
 
       await tilesetResource.load();
 

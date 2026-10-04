@@ -1,27 +1,27 @@
 import { TiledParser } from '@excalibur-tiled';
 
-import orthogonalSimpleTmx from './tiled/parser-spec/orthogonal-simple.tmx';
-import orthogonalSimpleTmj from './tiled/parser-spec/orthogonal-simple.tmj';
+import orthogonalSimpleTmx from '/test/unit/tiled/parser-spec/orthogonal-simple.tmx?url&raw';
+import orthogonalSimpleTmj from '/test/unit/tiled/parser-spec/orthogonal-simple.tmj?url&raw';
 
-import orthogonalComplexTmx from './tiled/parser-spec/orthogonal-complex.tmx';
-import orthogonalComplexTmj from './tiled/parser-spec/orthogonal-complex.tmj';
+import orthogonalComplexTmx from '/test/unit/tiled/parser-spec/orthogonal-complex.tmx?url&raw';
+import orthogonalComplexTmj from '/test/unit/tiled/parser-spec/orthogonal-complex.tmj?url&raw';
 
-import orthogonalInfiniteTmx from './tiled/parser-spec/orthogonal-infinite.tmx';
-import orthogonalInfiniteTmj from './tiled/parser-spec/orthogonal-infinite.tmj';
+import orthogonalInfiniteTmx from '/test/unit/tiled/parser-spec/orthogonal-infinite.tmx?url&raw';
+import orthogonalInfiniteTmj from '/test/unit/tiled/parser-spec/orthogonal-infinite.tmj?url&raw';
 
-import orthogonalTilesetTsx from './tiled/parser-spec/external.tsx';
-import orthogonalTilesetTsj from './tiled/parser-spec/external.tsj';
+import orthogonalTilesetTsx from '/test/unit/tiled/parser-spec/external.tsx?url&raw';
+import orthogonalTilesetTsj from '/test/unit/tiled/parser-spec/external.tsj?url&raw';
 
-import orthogonalTilesetCollectionTsx from './tiled/parser-spec/collection.tsx';
-import orthogonalTilesetCollectionTsj from './tiled/parser-spec/collection.tsj';
+import orthogonalTilesetCollectionTsx from '/test/unit/tiled/parser-spec/collection.tsx?url&raw';
+import orthogonalTilesetCollectionTsj from '/test/unit/tiled/parser-spec/collection.tsj?url&raw';
 
-import isometricTilesetTsx from './tiled/parser-spec/isometric.tsx';
-import isometricTilesetTsj from './tiled/parser-spec/isometric.tsj';
+import isometricTilesetTsx from '/test/unit/tiled/parser-spec/isometric.tsx?url&raw';
+import isometricTilesetTsj from '/test/unit/tiled/parser-spec/isometric.tsj?url&raw';
 
-import isometricTilesetCollectionTsx from './tiled/parser-spec/iso-collection.tsx';
-import isometricTilesetCollectionTsj from './tiled/parser-spec/iso-collection.tsj';
+import isometricTilesetCollectionTsx from '/test/unit/tiled/parser-spec/iso-collection.tsx?url&raw';
+import isometricTilesetCollectionTsj from '/test/unit/tiled/parser-spec/iso-collection.tsj?url&raw';
 
-import invalidTmx from './tiled/tiled-resource-spec/invalid.tmx'
+import invalidTmx from '/test/unit/tiled/tiled-resource-spec/invalid.tmx?url&raw';
 
 import { diffString } from 'json-diff';
 
@@ -31,7 +31,7 @@ describe('A Tiled xml parser', () => {
    });
 
    describe('Tiled map parser', () => {
-      it('can parse an simple orthogonal tmx map file', () => {
+      it('can parse an simple orthogonal tmx map file', async () => {
          const parser = new TiledParser();
          const map = parser.parse(orthogonalSimpleTmx);
          const diff = diffString(map, JSON.parse(orthogonalSimpleTmj), {
@@ -78,7 +78,7 @@ describe('A Tiled xml parser', () => {
          });
          expect(diff).toEqual('');
       });
-      
+
       it('can parse a orthogonal collection of images external tsx tileset file', () => {
          const parser = new TiledParser();
          const tileset = parser.parseExternalTileset(orthogonalTilesetCollectionTsx);
