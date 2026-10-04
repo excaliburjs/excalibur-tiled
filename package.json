@@ -76,7 +76,7 @@
       "zstddec": "0.3.1"
    },
    "peerDependencies": {
-      "excalibur": ">=0.33.0-alpha.224"
+      "excalibur": ">=0.33.0-alpha.247"
    },
    "optionalDependencies": {
       "jsdom": "^27.0.0"
