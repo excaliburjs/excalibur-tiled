@@ -32,7 +32,10 @@ jobs:
           ${{ runner.os }}-node-
     - run: npm ci
     - run: npm run build
-    - run: npm run test:unit
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    - name: Unit Tests
+      run: npm run test:unit
 
   # The golden-master screenshots in test/e2e/*.spec.ts-snapshots are recorded as
   # `-chromium-linux`, so this job is deliberately Linux-only - running it on another OS
