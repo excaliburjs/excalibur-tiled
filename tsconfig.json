@@ -1,11 +1,11 @@
 {
    "compilerOptions": {
       "types": [
-        "@vitest/browser/providers/playwright",
+        "@vitest/browser-playwright",
         "vitest/globals"
       ],
-      "moduleResolution": "node",
-      "module": "ES2015",
+      "moduleResolution": "bundler",
+      "module": "esnext",
       "target": "es2018",
       "esModuleInterop": true,
       "skipLibCheck": true,
