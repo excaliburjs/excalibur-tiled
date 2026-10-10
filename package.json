@@ -55,7 +55,7 @@
       "@types/jasmine": "5.1.15",
       "@types/jsdom": "30.0.0",
       "@types/json-diff": "1.0.3",
-      "@types/node": "24.19.1",
+      "@types/node": "24.19.2",
       "@vitest/browser": "5.0.3",
       "@vitest/browser-playwright": "5.0.3",
       "cross-env": "10.1.0",
