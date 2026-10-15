@@ -56,8 +56,8 @@
       "@types/jsdom": "30.0.0",
       "@types/json-diff": "1.0.3",
       "@types/node": "24.19.2",
-      "@vitest/browser": "5.0.4",
-      "@vitest/browser-playwright": "5.0.4",
+      "@vitest/browser": "5.0.5",
+      "@vitest/browser-playwright": "5.0.5",
       "cross-env": "10.1.0",
       "excalibur": "0.33.0-alpha.247",
       "http-server": "14.1.1",
@@ -67,7 +67,7 @@
       "typescript": "7.0.2",
       "vite": "8.3.4",
       "vite-plugin-node-polyfills": "0.28.0",
-      "vitest": "5.0.4"
+      "vitest": "5.0.5"
    },
    "dependencies": {
       "compare-versions": "6.1.1",
