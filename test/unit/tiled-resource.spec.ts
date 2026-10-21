@@ -228,6 +228,24 @@ describe('A Tiled map resource parser', () => {
       expect(entities.length).toBe(1);
    });
 
+   it('aligns tile objects by the tileset objectalignment, or by the map orientation when it is not set', async () => {
+      const cases: [string, Record<string, [number, number]>][] = [
+         ['isometric', { topleft: [0, 0], center: [0.5, 0.5], unspecified: [0.5, 1] }],
+         ['orthogonal', { topleft: [0, 0], center: [0.5, 0.5], unspecified: [0, 1] }]
+      ];
+
+      for (const [orientation, expected] of cases) {
+         const tiledMap = new TiledResource(`/test/unit/tiled/tiled-resource-spec/object-alignment-${orientation}.tmj`, { headless: true });
+
+         await tiledMap.load();
+
+         for (const name of Object.keys(expected)) {
+            const [actor] = tiledMap.getEntitiesByName(name) as Actor[];
+            expect([actor.anchor.x, actor.anchor.y], `${orientation} ${name}`).toEqual(expected[name]);
+         }
+      }
+   });
+
    it('can get objects by name (case insensitive)', async () => {
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');
