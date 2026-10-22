@@ -1,0 +1,138 @@
+{
+ "compressionlevel": -1,
+ "height": 2,
+ "width": 2,
+ "infinite": false,
+ "orientation": "isometric",
+ "renderorder": "right-down",
+ "tiledversion": "1.12.2",
+ "version": "1.10",
+ "tilewidth": 64,
+ "tileheight": 32,
+ "type": "map",
+ "nextlayerid": 3,
+ "nextobjectid": 4,
+ "layers": [
+  {
+   "data": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "height": 2,
+   "width": 2,
+   "id": 1,
+   "name": "ground",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 2,
+   "name": "objects",
+   "objects": [
+    {
+     "gid": 2,
+     "height": 16,
+     "id": 1,
+     "name": "topleft",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "width": 16,
+     "x": 32,
+     "y": 32
+    },
+    {
+     "gid": 3,
+     "height": 16,
+     "id": 2,
+     "name": "center",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "width": 16,
+     "x": 64,
+     "y": 32
+    },
+    {
+     "gid": 4,
+     "height": 16,
+     "id": 3,
+     "name": "unspecified",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "width": 16,
+     "x": 96,
+     "y": 32
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "tilesets": [
+  {
+   "columns": 1,
+   "firstgid": 1,
+   "image": "assets/align16.png",
+   "imageheight": 16,
+   "imagewidth": 16,
+   "margin": 0,
+   "name": "ground",
+   "spacing": 0,
+   "tilecount": 1,
+   "tileheight": 16,
+   "tilewidth": 16
+  },
+  {
+   "columns": 1,
+   "firstgid": 2,
+   "image": "assets/align16.png",
+   "imageheight": 16,
+   "imagewidth": 16,
+   "margin": 0,
+   "name": "set2",
+   "spacing": 0,
+   "tilecount": 1,
+   "tileheight": 16,
+   "tilewidth": 16,
+   "objectalignment": "topleft"
+  },
+  {
+   "columns": 1,
+   "firstgid": 3,
+   "image": "assets/align16.png",
+   "imageheight": 16,
+   "imagewidth": 16,
+   "margin": 0,
+   "name": "set3",
+   "spacing": 0,
+   "tilecount": 1,
+   "tileheight": 16,
+   "tilewidth": 16,
+   "objectalignment": "center"
+  },
+  {
+   "columns": 1,
+   "firstgid": 4,
+   "image": "assets/align16.png",
+   "imageheight": 16,
+   "imagewidth": 16,
+   "margin": 0,
+   "name": "set4",
+   "spacing": 0,
+   "tilecount": 1,
+   "tileheight": 16,
+   "tilewidth": 16
+  }
+ ]
+}

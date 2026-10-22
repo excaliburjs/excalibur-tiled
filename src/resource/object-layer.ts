@@ -161,8 +161,11 @@ export class ObjectLayer implements Layer {
       const tint = this.tiledObjectLayer.tintcolor ? Color.fromHex(this.tiledObjectLayer.tintcolor) : Color.White;
 
       if (object instanceof InsertedTile && tileset) {
-         // handle case where we have isometric map but orthogonal tileset!s
-         const overrideAlignment = this.resource.map.orientation === 'isometric' && tileset.orientation === 'orthogonal' ? 'bottom' : undefined;
+         // Tiled uses the tileset's objectalignment when it is set, otherwise it aligns
+         // tile objects to the bottom on isometric maps and to the bottom left on all others
+         const overrideAlignment = tileset.tiledTileset.objectalignment
+            ? undefined
+            : (this.resource.map.orientation === 'isometric' ? 'bottom' : 'bottomleft');
          const anchor = tileset.getTilesetAlignmentAnchor(overrideAlignment);
          // Inserted tiles pivot from the bottom left in Tiled
          newActor.anchor = anchor;
