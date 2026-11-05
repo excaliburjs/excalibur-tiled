@@ -79,7 +79,7 @@
       "excalibur": ">=0.33.0-alpha.247"
    },
    "optionalDependencies": {
-      "jsdom": "^30.0.0"
+      "jsdom": "^31.0.0"
    },
    "browser": {
       "jsdom": false
