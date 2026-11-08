@@ -185,7 +185,7 @@ export const TiledTileLayerInfinite = TiledTileLayerBase.extend({
    chunks: z.array(TiledTileLayerChunk),
    encoding: z.string().optional(),
    compression: z.string().optional(),
-   data: z.undefined()
+   data: z.undefined().optional()
 });
 
 export const TiledTileLayer = z.union([
