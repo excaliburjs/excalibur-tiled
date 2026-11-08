@@ -2,7 +2,7 @@ import * as ex from 'excalibur';
 import { TiledResource } from '@excalibur-tiled';
 
 class Player extends ex.Actor {
-   constructor(args: ex.ActorArgs) {
+   constructor(args: ex.ActorOptions) {
       super(args);
    }
    override onPostUpdate(engine: ex.Engine) {

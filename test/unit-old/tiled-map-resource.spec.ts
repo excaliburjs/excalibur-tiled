@@ -11,7 +11,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       const tiled = new TiledMapResource('base/test/unit/basic.tmx');
       await tiled.load();
       
-      expect(tiled.isLoaded()).toBe(true);
+      expect(tiled.isLoaded).toBe(true);
 
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(1);
@@ -26,7 +26,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       const tiled = new TiledMapResource('base/test/unit/solid.tmx');
       await tiled.load();
 
-      expect(tiled.isLoaded()).toBe(true);
+      expect(tiled.isLoaded).toBe(true);
 
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(2);
@@ -41,7 +41,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       const tiled = new TiledMapResource('base/test/unit/layer-zindex.tmx');
       await tiled.load();
 
-      expect(tiled.isLoaded()).toBe(true);
+      expect(tiled.isLoaded).toBe(true);
 
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(3);
@@ -59,7 +59,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       });
       await tiled.load();
 
-      expect(tiled.isLoaded()).toBe(true);
+      expect(tiled.isLoaded).toBe(true);
 
       const layers = tiled.getTileMapLayers();
       expect(layers).toHaveSize(3);
@@ -74,7 +74,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('can find a camera in a non-first layer', async () => {
       const tiled = new TiledMapResource('base/test/unit/camera.tmx');
       await tiled.load();
-      expect(tiled.isLoaded()).toBe(true);
+      expect(tiled.isLoaded).toBe(true);
 
       expect(tiled.ex.camera).toBeDefined();
       expect(tiled.ex.camera?.x).toBe(50);
@@ -85,7 +85,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('will support "z" and "zindex" otherwise default to owning layer', async () => {
       const tiled = new TiledMapResource('test/unit/objects.tmx')
       await tiled.load();
-      expect(tiled.isLoaded());
+      expect(tiled.isLoaded);
 
       const scene = new Scene();
       tiled.addTiledMapToScene(scene);
@@ -112,7 +112,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('will parse inserted tile entities and include their TiledObject in the TileObjectComponent', async () => {
       const tiled = new TiledMapResource('test/unit/objects.tmx')
       await tiled.load();
-      expect(tiled.isLoaded());
+      expect(tiled.isLoaded);
 
       const scene = new Scene();
       tiled.addTiledMapToScene(scene);
@@ -145,7 +145,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('will parse inserted tile entities and include their TiledObject in the TileLayerComponent', async () => {
       const tiled = new TiledMapResource('test/unit/objects.tmx')
       await tiled.load();
-      expect(tiled.isLoaded());
+      expect(tiled.isLoaded);
 
       const scene = new Scene();
       tiled.addTiledMapToScene(scene);
@@ -165,7 +165,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('will parse animation tiles and produce animation graphics', async () => {
       const tiled = new TiledMapResource('test/unit/animation.tmx');
       await tiled.load();
-      expect(tiled.isLoaded());
+      expect(tiled.isLoaded);
 
       const tileset = tiled.getTilesetForTile(279);
       expect(tileset.tiles[0].animation?.length).toBe(3);
@@ -185,7 +185,7 @@ describe('A Tiled Map Excalibur Resource', () => {
    it('will parse parallax layers', async () => {
       const tiled = new TiledMapResource('test/unit/parallax.tmx');
       await tiled.load();
-      expect(tiled.isLoaded());
+      expect(tiled.isLoaded);
       const layer = (tiled.layers as TileMap[])[1];
       const parallax = layer.get(ParallaxComponent);
       expect(layer.name).toBe("Parallax");
@@ -198,7 +198,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       try {
          await tiled.load();
 
-         expect(tiled.isLoaded()).toBe(true);
+         expect(tiled.isLoaded).toBe(true);
 
          expect(tiled.data.tileSets.length).toBe(2);
          expect(tiled.data.tileSets[0].tiles.length).toBe(2);
@@ -217,7 +217,7 @@ describe('A Tiled Map Excalibur Resource', () => {
       try {
          await tiled.load();
 
-         expect(tiled.isLoaded()).toBe(true);
+         expect(tiled.isLoaded).toBe(true);
 
          expect(tiled.data.tileSets.length).toBe(2);
          expect(tiled.data.tileSets[0].tiles.length).toBe(2);

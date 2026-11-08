@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: false,
       minify: true,
       sourcemap: true,
+      rolldownOptions: {
+        external: ['excalibur'],
+      },
       lib: {
         formats: ['es'],
         name: 'ex.Tiled',

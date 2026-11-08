@@ -1,4 +1,4 @@
-import { AffineMatrix, Collider, Animation, Frame, Graphic, Shape, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox, toRadians } from "excalibur";
+import { AffineMatrix, Collider, Animation, Frame, Graphic, Colliders, Sprite, SpriteSheet, Vector, vec, AnimationStrategy, ImageSource, BoundingBox, toRadians } from "excalibur";
 import { getCanonicalGid, isFlippedDiagonally, isFlippedHorizontally, isFlippedVertically } from "./gid-util";
 import { TiledTile, TiledTileset, isTiledTilesetCollectionOfImages, isTiledTilesetSingleImage } from "../parser/tiled-parser";
 import { Ellipse, Polygon, Rectangle, parseObjects } from "./objects";
@@ -311,8 +311,8 @@ export class Tileset implements Properties {
                   points = points.map(p => this._isometricTiledCoordToWorld(p));
                }
                points = points.map(p => p.add(offset));
-               let poly = Shape.Polygon(points, Vector.Zero, true);
-               if (!poly.isConvex()) {
+               let poly = Colliders.Polygon(points, Vector.Zero, true);
+               if (!poly.checkConvex()) {
                   result.push(poly.triangulate());
                } else {
                   result.push(poly);
@@ -332,7 +332,7 @@ export class Tileset implements Properties {
                }
                points = this._applyFlipsToPoints(points, gid);
                points = points.map(p => p.add(offset));
-               const box = Shape.Polygon(points);
+               const box = Colliders.Polygon(points);
                result.push(box);
             }
             if (object instanceof Ellipse) {
@@ -343,7 +343,7 @@ export class Tileset implements Properties {
                }
                offsetPoint = offsetPoint.add(offset);
                const radius = Math.min(object.width / 2, object.height / 2);
-               const circle = Shape.Circle(radius, offsetPoint.scale(scale));
+               const circle = Colliders.Circle(radius, offsetPoint.scale(scale));
                result.push(circle);
             }
          }
