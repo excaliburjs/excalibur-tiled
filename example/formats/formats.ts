@@ -1,6 +1,6 @@
 import * as ex from 'excalibur';
 import { Point, TiledResource } from '@excalibur-tiled';
-import { ImageFiltering, ImageSource, Keys, IsometricEntityComponent, Shape } from 'excalibur';
+import { ImageFiltering, ImageSource, Keys, IsometricEntityComponent, Colliders } from 'excalibur';
 
 const game = new ex.Engine({
    width: 800, 
@@ -115,7 +115,7 @@ const start = (mapFile: string) => {
       player.pos = ex.vec(100, 100);
       if (isIsometric) {
          player.graphics.use(playercube.toSprite());
-         player.collider.set(Shape.Polygon([
+         player.collider.use(Colliders.Polygon([
             ex.vec(0,94.9975),
             ex.vec(55.0546,-32.6446 + 94.9975),
             ex.vec( 110.639,-0.352914 +94.9975),

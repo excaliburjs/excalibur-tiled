@@ -47,7 +47,7 @@ export class TemplateResource implements Loadable<Template> {
       this.pathMap = pathMap;
    }
 
-   isLoaded(): boolean {
+   get isLoaded(): boolean {
       return !!this.data;
    }
 

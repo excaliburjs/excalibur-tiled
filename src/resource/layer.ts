@@ -1,4 +1,4 @@
-import { Actor, Shape, toRadians, Entity, ImageSource, CollisionType, IsometricEntityComponent } from "excalibur";
+import { Actor, Colliders, toRadians, Entity, ImageSource, CollisionType, IsometricEntityComponent } from "excalibur";
 import { Properties } from "./properties";
 import { Tileset } from "./tileset";
 

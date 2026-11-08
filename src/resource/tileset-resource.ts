@@ -108,7 +108,7 @@ export class TilesetResource implements Loadable<Tileset> {
       throw new Error(`No tileset at path ${this.path}`);
    }
 
-   isLoaded(): boolean {
+   get isLoaded(): boolean {
       return !!this.data;
    }
 }

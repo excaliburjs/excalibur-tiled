@@ -267,7 +267,7 @@ export class TiledResource implements Loadable<any> {
       console.warn(`Another factory has already been registered for tiled class/type "${className}", this is probably a bug.`);
     }
     this.factories.set(className, factory);
-    if (this.isLoaded()) {
+    if (this.isLoaded) {
       for (let objectLayer of this.getObjectLayers()) {
         objectLayer.runFactory(className);
       }
@@ -810,7 +810,7 @@ export class TiledResource implements Loadable<any> {
   }
 
   addToScene(scene: Scene, options?: TiledAddToSceneOptions) {
-    if (!this.isLoaded()) {
+    if (!this.isLoaded) {
       this.logger.warn(`TiledResource ${this.path} is not loaded! Nothing will be wired into excalibur!`);
       return;
     }
@@ -893,7 +893,7 @@ export class TiledResource implements Loadable<any> {
       (tileX + tileY) * tileHeight / 2);
   }
 
-  isLoaded(): boolean {
+  get isLoaded(): boolean {
     return !!this.map;
   }
 }

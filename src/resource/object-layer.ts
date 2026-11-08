@@ -1,4 +1,4 @@
-import { Actor, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, Shape, Vector, toRadians, vec } from "excalibur";
+import { Actor, CollisionType, Color, Entity, GraphicsComponent, IsometricEntityComponent, Logger, Colliders, Vector, toRadians, vec } from "excalibur";
 import { Layer } from "./layer";
 import { InsertedTile, PluginObject, TemplateObject, Text, Polygon, Rectangle, Ellipse, parseObjects } from "./objects";
 import { TiledObjectLayer } from "../parser/tiled-parser";
@@ -224,11 +224,11 @@ export class ObjectLayer implements Layer {
                height = dimension;
             }
             // Anchor at 1,1 for isometric is a quirk of the coord transformation
-            let boxCollider = Shape.Box(width, height, this.resource.map.orientation === 'isometric' ? vec(1, 1) : vec(0, 1));
+            let boxCollider = Colliders.Box(width, height, this.resource.map.orientation === 'isometric' ? vec(1, 1) : vec(0, 1));
             if (this.resource.map.orientation === 'isometric') {
                boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
             }
-            newActor.collider.set(boxCollider);
+            newActor.collider.use(boxCollider);
          }
       }
 
@@ -247,21 +247,21 @@ export class ObjectLayer implements Layer {
 
          newActor.anchor = vec(0, 1);
          newActor.pos = pos;
-         const polygon = Shape.Polygon(points, Vector.Zero, true);
-         if (!polygon.isConvex()) {
-            newActor.collider.set(polygon.triangulate());
+         const polygon = Colliders.Polygon(points, Vector.Zero, true);
+         if (!polygon.checkConvex()) {
+            newActor.collider.use(polygon.triangulate());
          } else {
-            newActor.collider.set(polygon);
+            newActor.collider.use(polygon);
          }
       }
 
       if (object instanceof Rectangle) {
          newActor.anchor = object.anchor;
-         let boxCollider = Shape.Box(object.width, object.height, object.anchor);
+         let boxCollider = Colliders.Box(object.width, object.height, object.anchor);
          if (this.resource.map.orientation === 'isometric') {
             boxCollider.points = boxCollider.points.map(p => this.resource.isometricTiledCoordToWorld(p.x, p.y));
          }
-         newActor.collider.set(boxCollider);
+         newActor.collider.use(boxCollider);
       }
 
       if (object instanceof Ellipse) {

@@ -74,7 +74,6 @@ class Player extends ex.Actor {
 //    this.camera.zoom = 0.5
 // }
 
-ex.Flags.useLegacyImageRenderer();
 const game = new ex.Engine({
    width: 800,
    height: 600,

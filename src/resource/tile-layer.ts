@@ -246,7 +246,7 @@ export class TileLayer implements Layer {
       isSolidLayer = maybeLayerConfig.isSolid;
     }
     if (this.resource.useExcaliburWiring && isSolidLayer && this.visible) {
-      tile.solid = true;
+      tile.isSolid = true;
     }
 
     const tileset = this.resource.getTilesetForTileGid(gid);
@@ -269,11 +269,11 @@ export class TileLayer implements Layer {
     }
     if (maybeLayerConfig?.useTileColliders && colliders.length > 0) {
       if (this.visible) {
-        tile.solid = true;
+        tile.isSolid = true;
       }
     }
     if (maybeLayerConfig?.useTileCollidersWhenInvisible && colliders.length > 0) {
-      tile.solid = true;
+      tile.isSolid = true;
     }
 
     let animation = headless ? null : tileset.getAnimationForGid(gid);

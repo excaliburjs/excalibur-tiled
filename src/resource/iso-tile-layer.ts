@@ -250,7 +250,7 @@ export class IsoTileLayer implements Layer {
       isSolidLayer = maybeLayerConfig.isSolid;
     }
     if (this.resource.useExcaliburWiring && isSolidLayer) {
-      tile.solid = true;
+      tile.isSolid = true;
     }
 
     const iso = tile.get(IsometricEntityComponent);
@@ -284,11 +284,11 @@ export class IsoTileLayer implements Layer {
     }
     if (maybeLayerConfig?.useTileColliders && colliders.length > 0) {
       if (this.visible) {
-        tile.solid = true;
+        tile.isSolid = true;
       }
     }
     if (maybeLayerConfig?.useTileCollidersWhenInvisible && colliders.length > 0) {
-      tile.solid = true;
+      tile.isSolid = true;
     }
 
     let animation = tileset.getAnimationForGid(gid);
