@@ -392,10 +392,11 @@ export class TileLayer implements Layer {
       const tileLayer = this.tiledTileLayer;
       for (let chunk of this.tiledTileLayer.chunks) {
         let chunkData: number[] = [];
-        if (needsDecoding(this.tiledTileLayer)) {
+        // Plain JSON maps keep the gids in each chunk, the layer itself has no data or encoding
+        if (Array.isArray(chunk.data)) {
+          chunkData = chunk.data;
+        } else if (needsDecoding(this.tiledTileLayer)) {
           chunkData = await Decoder.decode(chunk.data as unknown as string, tileLayer.compression);
-        } else if (isCSV(this.tiledTileLayer)) {
-          chunkData = chunk.data as number[];
         }
 
         for (let i = 0; i < chunkData.length; i++) {

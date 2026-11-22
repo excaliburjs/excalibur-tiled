@@ -465,6 +465,64 @@ describe('A Tiled map resource parser', () => {
    });
 
 
+   for (const orientation of ['orthogonal', 'isometric']) {
+      it(`reads plain JSON chunk data in ${orientation} infinite maps`, async () => {
+         const tiledMap = new TiledResource(`/test/unit/tiled/tiled-resource-spec/plain-infinite-${orientation}.tmj`, {
+            headless: true,
+            fileLoader: async () => ({
+               type: 'map',
+               version: '1.10',
+               tiledversion: '1.12.2',
+               width: 2,
+               height: 2,
+               tilewidth: 16,
+               tileheight: 16,
+               infinite: true,
+               nextlayerid: 2,
+               nextobjectid: 1,
+               orientation,
+               renderorder: 'right-down',
+               layers: [
+                  {
+                     id: 1,
+                     name: 'ground',
+                     type: 'tilelayer',
+                     visible: true,
+                     opacity: 1,
+                     x: 0,
+                     y: 0,
+                     width: 2,
+                     height: 2,
+                     startx: 0,
+                     starty: 0,
+                     chunks: [{ x: 0, y: 0, width: 2, height: 2, data: [1, 0, 0, 1] }]
+                  }
+               ],
+               tilesets: [
+                  {
+                     firstgid: 1,
+                     name: 'test',
+                     image: 'tilemap_packed.png',
+                     imagewidth: 16,
+                     imageheight: 16,
+                     tilewidth: 16,
+                     tileheight: 16,
+                     tilecount: 1,
+                     columns: 1,
+                     margin: 0,
+                     spacing: 0
+                  }
+               ]
+            })
+         });
+
+         await tiledMap.load();
+
+         const tiles = tiledMap.getTilesByGid(1).map(t => [t.exTile.x, t.exTile.y]);
+         expect(tiles).toEqual([[0, 0], [1, 1]]);
+      });
+   }
+
    it('can get tile by layer and coord in isometric infinite map', async () => {
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/isometric-infinite.tmx');
 
