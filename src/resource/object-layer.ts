@@ -167,7 +167,7 @@ export class ObjectLayer implements Layer {
          // Inserted tiles pivot from the bottom left in Tiled
          newActor.anchor = anchor;
          const scaleX = (object.tiledObject.width ?? tileset.tileWidth) / tileset.tileWidth;
-         const scaleY = (object.tiledObject.width ?? tileset.tileWidth) / tileset.tileWidth;
+         const scaleY = (object.tiledObject.height ?? tileset.tileHeight) / tileset.tileHeight;
          const scale = vec(scaleX, scaleY);
 
          if (!headless) {

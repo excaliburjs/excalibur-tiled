@@ -228,6 +228,19 @@ describe('A Tiled map resource parser', () => {
       expect(entities.length).toBe(1);
    });
 
+   it('scales tile colliders by the tile object width and height', async () => {
+      const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/stretched-tile-object.tmj', { headless: true });
+
+      await tiledMap.load();
+
+      // a 16x16 tile with a full-tile collision box, placed as a 16x32 tile object
+      const [actor] = tiledMap.getEntitiesByName('stretched') as Actor[];
+      const bounds = actor.collider.bounds;
+
+      expect(bounds.width).toBeCloseTo(16);
+      expect(bounds.height).toBeCloseTo(32);
+   });
+
    it('can get objects by name (case insensitive)', async () => {
 
       const tiledMap = new TiledResource('/test/unit/tiled/tiled-resource-spec/orthogonal.tmx');

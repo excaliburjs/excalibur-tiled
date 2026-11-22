@@ -1,0 +1,101 @@
+{
+ "compressionlevel": -1,
+ "height": 2,
+ "width": 2,
+ "infinite": false,
+ "orientation": "orthogonal",
+ "renderorder": "right-down",
+ "tiledversion": "1.12.2",
+ "version": "1.10",
+ "tilewidth": 16,
+ "tileheight": 16,
+ "type": "map",
+ "nextlayerid": 3,
+ "nextobjectid": 2,
+ "layers": [
+  {
+   "data": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "height": 2,
+   "width": 2,
+   "id": 1,
+   "name": "ground",
+   "opacity": 1,
+   "type": "tilelayer",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  },
+  {
+   "draworder": "topdown",
+   "id": 2,
+   "name": "objects",
+   "objects": [
+    {
+     "gid": 1,
+     "height": 32,
+     "id": 1,
+     "name": "stretched",
+     "rotation": 0,
+     "type": "",
+     "visible": true,
+     "width": 16,
+     "x": 0,
+     "y": 48
+    }
+   ],
+   "opacity": 1,
+   "type": "objectgroup",
+   "visible": true,
+   "x": 0,
+   "y": 0
+  }
+ ],
+ "tilesets": [
+  {
+   "columns": 1,
+   "firstgid": 1,
+   "image": "assets/solid16.png",
+   "imageheight": 16,
+   "imagewidth": 16,
+   "margin": 0,
+   "name": "solid",
+   "spacing": 0,
+   "tilecount": 1,
+   "tileheight": 16,
+   "tilewidth": 16,
+   "tiles": [
+    {
+     "id": 0,
+     "objectgroup": {
+      "draworder": "index",
+      "id": 2,
+      "name": "",
+      "objects": [
+       {
+        "height": 16,
+        "id": 1,
+        "name": "",
+        "rotation": 0,
+        "type": "",
+        "visible": true,
+        "width": 16,
+        "x": 0,
+        "y": 0
+       }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+     }
+    }
+   ]
+  }
+ ]
+}
