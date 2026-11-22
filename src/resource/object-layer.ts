@@ -319,7 +319,7 @@ export class ObjectLayer implements Layer {
             pos: worldPos,
             anchor: Vector.Zero,
             rotation: toRadians(object.tiledObject.rotation ?? 0),
-            z: zindex
+            z: zindex ?? this.order
          });
          const graphics = newActor.get(GraphicsComponent);
          if (graphics) {
